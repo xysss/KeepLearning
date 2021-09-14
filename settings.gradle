@@ -1,2 +1,3 @@
+include ':JetpackMvvm'
 include ':app'
 rootProject.name = "KeepLearning"

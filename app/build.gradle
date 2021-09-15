@@ -85,7 +85,7 @@ android {
 
 dependencies {
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.5.0'
     //test
     testImplementation 'junit:junit:4.13.1'
@@ -112,12 +112,12 @@ dependencies {
     //RevealLayout
     implementation 'com.github.goweii:RevealLayout:1.1.1'
     //微信开源项目，替代SP
-    implementation 'com.tencent:mmkv:1.0.22'
+    implementation 'com.tencent:mmkv:1.0.23'
     //项目核心框架
     implementation project(path: ':JetpackMvvm')
 //    implementation 'me.hegj:JetpackMvvm:1.2.0'
     //轮播图
-    implementation 'com.github.zhpanvip:BannerViewPager:3.1.5'
+    implementation 'com.github.zhpanvip:BannerViewPager:3.5.2'
     //BaseAdapter
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4'
     //第三方recyclerview
@@ -136,7 +136,7 @@ dependencies {
     implementation 'com.tencent.bugly:crashreport_upgrade:latest.release'
     implementation 'com.tencent.bugly:nativecrashreport:latest.release'
     //glide
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
     //今日头条屏幕适配方案优化
     implementation 'me.jessyan:autosize:1.2.1'
     //防崩溃
@@ -147,18 +147,18 @@ dependencies {
     }
     implementation 'com.louiscad.splitties:splitties-collections:2.1.1'
     //Room数据库
-    implementation "androidx.room:room-runtime:$rootProject.roomVersion"
-    implementation "androidx.room:room-ktx:$rootProject.roomVersion"
+    implementation "androidx.room:room-runtime:2.3.0"
+    implementation "androidx.room:room-ktx:2.3.0"
     kapt "androidx.room:room-compiler:$rootProject.roomVersion"
     //6.0以上权限请求管理
     implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
     //内存泄漏检测工具
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
+    //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
     //调试数据库
     //debugImplementation 'com.guolindev.glance:glance:1.1.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
     //Rxhttp
-    implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.8'
+    /*implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.8'
     kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.8'
-    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1'  //管理协程生命周期，页面销毁，关闭请求
+    implementation 'com.ljx.rxlife:rxlife-coroutine:2.0.1'  //管理协程生命周期，页面销毁，关闭请求*/
 }

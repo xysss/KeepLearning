@@ -10,6 +10,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         //测试捕获异常
-        CrashReport.testJavaCrash();
+        //CrashReport.testJavaCrash();
     }
 }

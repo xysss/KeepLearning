@@ -2,8 +2,8 @@ package com.xysss.keeplearning.app.base
 
 import android.os.Bundle
 import androidx.databinding.ViewDataBinding
-import com.xysss.jetpackmvvm.base.activity.base.activity.BaseVmDbActivity
-import com.xysss.jetpackmvvm.base.activity.base.viewmodel.BaseViewModel
+import com.xysss.jetpackmvvm.base.activity.BaseVmDbActivity
+import com.xysss.jetpackmvvm.base.viewmodel.BaseViewModel
 import com.xysss.keeplearning.app.etx.dismissLoadingExt
 import com.xysss.keeplearning.app.etx.showLoadingExt
 

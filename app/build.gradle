@@ -63,11 +63,7 @@ android {
         jvmTarget = '1.8'
     }
 
-
-    //使用Kotlin实验特性
-    /*androidExtensions {
-        experimental = true
-    }
+    /*
     lintOptions {
         disable 'InvalidPackage'
         disable "ResourceType"
@@ -150,7 +146,7 @@ dependencies {
     //Room数据库
     implementation "androidx.room:room-runtime:2.3.0"
     implementation "androidx.room:room-ktx:2.3.0"
-    kapt "androidx.room:room-compiler:$rootProject.roomVersion"
+    kapt "androidx.room:room-compiler:2.3.0"
     //6.0以上权限请求管理
     implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
     //内存泄漏检测工具

@@ -48,6 +48,8 @@ class App: BaseApp(){
         //目录：/data/data/包名/files/mmkv
         MMKV.initialize(this.filesDir.absolutePath + "/mmkv")
         instance=this
+        eventViewModelInstance = getAppViewModelProvider().get(EventViewModel::class.java)
+        appViewModelInstance = getAppViewModelProvider().get(AppViewModel::class.java)
         context=applicationContext
         //当您的应用及其引用的库包含的方法数超过 65536 时，您会遇到一个构建错误，指明您的应用已达到 Android 构建架构规定的引用限制：
         //为方法数超过 64K 的应用启用 MultiDex

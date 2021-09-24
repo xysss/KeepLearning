@@ -1,22 +1,31 @@
 package com.xysss.keeplearning.ui.activity
 
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.Observer
+import androidx.navigation.Navigation
+import com.blankj.utilcode.util.ToastUtils
+import com.tencent.bugly.beta.Beta
 import com.xysss.jetpackmvvm.network.manager.NetState
 import com.xysss.keeplearning.R
+import com.xysss.keeplearning.app.appViewModel
 import com.xysss.keeplearning.app.base.BaseActivity
-import com.xysss.keeplearning.databinding.ActivityMainTestBinding
+import com.xysss.keeplearning.app.util.StatusBarUtil
+import com.xysss.keeplearning.databinding.ActivityMainBinding
 import com.xysss.keeplearning.viewmodel.state.MainViewModel
 
 
-class MainActivity : BaseActivity<MainViewModel, ActivityMainTestBinding>() {
+class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
     //测试捕获异常
     //CrashReport.testJavaCrash();
     var exitTime = 0L
-    override fun layoutId() = R.layout.activity_main_test
+    override fun layoutId() = R.layout.activity_main
 
     override fun initView(savedInstanceState: Bundle?) {
-        /*//bugly进入首页检查更新
+        //bugly进入首页检查更新
         Beta.checkUpgrade(false, true)
         //返回按键的监听
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -48,7 +57,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainTestBinding>() {
         appViewModel.appColor.observeInActivity(this, Observer {
             supportActionBar?.setBackgroundDrawable(ColorDrawable(it))
             StatusBarUtil.setColor(this, it, 0)
-        })*/
+        })
     }
 
     /**

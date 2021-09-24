@@ -6,9 +6,6 @@
         <variable
             name="click"
             type="com.xysss.keeplearning.ui.activity.WelcomeActivity.ProxyClick" />
-        <variable
-            name="vm"
-            type="com.xysss.keeplearning.viewmodel.state.WelcomeViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,7 +23,7 @@
             app:bvp_can_loop="false"
             app:bvp_indicator_checked_color="@color/accent"
             app:bvp_indicator_gravity="center"
-        app:bvp_indicator_normal_color="@color/white"
+            app:bvp_indicator_normal_color="@color/white"
             app:bvp_indicator_slide_mode="worm"
             app:bvp_indicator_style="circle"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -45,7 +42,7 @@
             android:paddingTop="8dp"
             android:paddingRight="12dp"
             android:paddingBottom="8dp"
-            android:text="@={vm.welcomeJoinHint}"
+            android:text="立即进入"
             android:onClick="@{()->click.toMain()}"
             android:textColor="@color/white"
             android:visibility="gone"

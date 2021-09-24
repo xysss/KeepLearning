@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/xysLearn/KeepLearning/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/xysLearn/KeepLearning/app/src/main/res/layout/activity_main_test.xml" value="0.25" />
+        <entry key="..\:/xysLearn/KeepLearning/app/src/main/res/layout/activity_welcome.xml" value="0.17119565217391305" />
+        <entry key="..\:/xysLearn/KeepLearning/app/src/main/res/layout/fragment_main.xml" value="0.17119565217391305" />
+        <entry key="..\:/xysLearn/KeepLearning/app/src/main/res/layout/fragment_me.xml" value="0.17255434782608695" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>

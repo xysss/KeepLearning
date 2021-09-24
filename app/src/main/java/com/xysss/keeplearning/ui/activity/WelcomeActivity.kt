@@ -4,7 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.viewpager2.widget.ViewPager2
+import com.xysss.jetpackmvvm.base.viewmodel.BaseViewModel
 import com.xysss.jetpackmvvm.ext.view.gone
 import com.xysss.jetpackmvvm.ext.view.visible
 import com.xysss.keeplearning.R
@@ -22,14 +24,10 @@ import com.zhpan.bannerview.BannerViewPager
  * Time:2021/9/1515:50
  */
 @Suppress("DEPRECATED_IDENTITY_EQUALS")
-class WelcomeActivity : BaseActivity<WelcomeViewModel, ActivityWelcomeBinding>() {
+class WelcomeActivity : BaseActivity<BaseViewModel, ActivityWelcomeBinding>() {
 
     private var resList = arrayOf("呼", "哈", "嘿")
     private lateinit var mViewPager: BannerViewPager<String, WelcomeBannerViewHolder>
-    private lateinit var welcome_baseview: ImageView
-    private lateinit var welcome_image: ImageView
-    private lateinit var welcomeJoin: TextView
-
     override fun layoutId() = R.layout.activity_welcome
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -38,15 +36,13 @@ class WelcomeActivity : BaseActivity<WelcomeViewModel, ActivityWelcomeBinding>()
             finish()
             return
         }
-        welcome_baseview = findViewById(R.id.welcome_baseview)
-        mViewPager = findViewById(R.id.banner_view)
-        welcome_image = findViewById(R.id.welcome_image)
 
         mDatabind.click = ProxyClick()
-        welcome_baseview.setBackgroundColor(SettingUtil.getColor(this))
+        mDatabind.welcomeBaseview.setBackgroundColor(SettingUtil.getColor(this))
+        mViewPager = findViewById(R.id.banner_view)
         if (CacheUtil.isFirst()) {
             //是第一次打开App 显示引导页
-            welcome_image.gone()
+            mDatabind.welcomeImage.gone()
             mViewPager.apply {  //apply函数 在函数范围内，可以任意调用该对象的任意方法，并返回该对象
                 adapter = WelcomeBannerAdapter()
                 setLifecycleRegistry(lifecycle)
@@ -54,9 +50,9 @@ class WelcomeActivity : BaseActivity<WelcomeViewModel, ActivityWelcomeBinding>()
                     override fun onPageSelected(position: Int) {
                         super.onPageSelected(position)
                         if (position == resList.size - 1) {
-                            welcomeJoin.visible()
+                            mDatabind.welcomeJoin.visible()
                         } else {
-                            welcomeJoin.gone()
+                            mDatabind.welcomeJoin.gone()
                         }
                     }
                 })
@@ -64,7 +60,7 @@ class WelcomeActivity : BaseActivity<WelcomeViewModel, ActivityWelcomeBinding>()
             }
         } else {
             //不是第一次打开App 0.3秒后自动跳转到主页
-            welcome_image.visible()
+            mDatabind.welcomeImage.visible()
             mViewPager.postDelayed({
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()

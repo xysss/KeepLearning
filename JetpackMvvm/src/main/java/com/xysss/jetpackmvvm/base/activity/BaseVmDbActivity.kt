@@ -15,17 +15,38 @@ import com.xysss.jetpackmvvm.network.manager.NetworkStateManager
 /**
  * Author:bysd-2
  * Time:2021/9/1515:55
+ * 描述　: 包含ViewModel 和Databind ViewModelActivity基类，把ViewModel 和Databind注入进来了
+ * 需要使用Databind的清继承它
  */
 abstract class BaseVmDbActivity<VM : BaseViewModel, DB : ViewDataBinding> : AppCompatActivity() {
 
-    lateinit var mDatabind:DB
+    lateinit var mDatabind: DB
+
     lateinit var mViewModel: VM
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+    abstract fun layoutId(): Int
+
+    abstract fun initView(savedInstanceState: Bundle?)
+
+    abstract fun showLoading(message: String = "请求网络中...")
+
+    abstract fun dismissLoading()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
         initDataBind()
         init(savedInstanceState)
+        super.onCreate(savedInstanceState)
+
     }
 
+
+    /**
+     * 创建DataBinding
+     */
+    private fun initDataBind() {
+        mDatabind = DataBindingUtil.setContentView(this, layoutId())
+        mDatabind.lifecycleOwner = this
+    }
     private fun init(savedInstanceState: Bundle?) {
         mViewModel = createViewModel()
         registerUiChange()
@@ -35,13 +56,12 @@ abstract class BaseVmDbActivity<VM : BaseViewModel, DB : ViewDataBinding> : AppC
             onNetworkStateChanged(it)
         })
     }
+
     /**
-     * 创建DataBinding
+     * 网络变化监听 子类重写
      */
-    private fun initDataBind() {
-        mDatabind = DataBindingUtil.setContentView(this, layoutId())
-        mDatabind.lifecycleOwner = this
-    }
+    open fun onNetworkStateChanged(netState: NetState) {}
+
     /**
      * 创建viewModel
      */
@@ -50,14 +70,10 @@ abstract class BaseVmDbActivity<VM : BaseViewModel, DB : ViewDataBinding> : AppC
     }
 
     /**
-     * 网络变化监听 子类重写
-     */
-    open fun onNetworkStateChanged(netState: NetState) {}
-
-    /**
      * 创建LiveData数据观察者
      */
     abstract fun createObserver()
+
     /**
      * 注册UI 事件
      */
@@ -71,8 +87,21 @@ abstract class BaseVmDbActivity<VM : BaseViewModel, DB : ViewDataBinding> : AppC
             dismissLoading()
         })
     }
-    abstract fun showLoading(message: String = "请求网络中...")
-    abstract fun dismissLoading()
-    abstract fun layoutId(): Int
-    abstract fun initView(savedInstanceState: Bundle?)
+
+    /**
+     * 将非该Activity绑定的ViewModel添加 loading回调 防止出现请求时不显示 loading 弹窗bug
+     * @param viewModels Array<out BaseViewModel>
+     */
+    protected fun addLoadingObserve(vararg viewModels: BaseViewModel){
+        viewModels.forEach {viewModel ->
+            //显示弹窗
+            viewModel.loadingChange.showDialog.observeInActivity(this, Observer {
+                showLoading(it)
+            })
+            //关闭弹窗
+            viewModel.loadingChange.dismissDialog.observeInActivity(this, Observer {
+                dismissLoading()
+            })
+        }
+    }
 }

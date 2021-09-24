@@ -20,6 +20,7 @@ import com.xysss.keeplearning.app.util.SettingUtil
 import com.xysss.keeplearning.app.util.StatusBarUtil
 import com.xysss.keeplearning.databinding.ActivityErrorBinding
 
+
 /**
  * Author:bysd-2
  * Time:2021/9/1516:50

@@ -7,6 +7,7 @@ package com.xysss.keeplearning.kotlintest
 
 
 fun main() {
+
     val a: Int = 10
     val b: Int = 20
     for (i in 0 until 5 step 2) {  //for in循环 until [)左闭右开
@@ -15,7 +16,7 @@ fun main() {
     }
 
     val list = listOf("Apple", "Orange", "Pear")
-    val maxLengthFruit = list.maxBy { it.length }  //lambda 表达式
+    val maxLengthFruit = list.maxByOrNull { it.length }  //lambda 表达式
     val newList = list.filter { it.length <= 5 }.map { it.toUpperCase() }
     val anyResult = list.any { it.length <= 5 }
     val allResult = list.all { it.length <= 5 }

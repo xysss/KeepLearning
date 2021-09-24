@@ -12,7 +12,10 @@ import com.tencent.bugly.crashreport.CrashReport
 import com.tencent.bugly.crashreport.CrashReport.UserStrategy
 import com.tencent.mmkv.MMKV
 import com.xysss.jetpackmvvm.BuildConfig
+import com.xysss.jetpackmvvm.base.BaseApp
 import com.xysss.keeplearning.app.etx.getProcessName
+import com.xysss.keeplearning.app.event.AppViewModel
+import com.xysss.keeplearning.app.event.EventViewModel
 import com.xysss.keeplearning.app.weight.loadcallback.EmptyCallback
 import com.xysss.keeplearning.app.weight.loadcallback.ErrorCallback
 import com.xysss.keeplearning.app.weight.loadcallback.LoadingCallback
@@ -25,11 +28,19 @@ import com.xysss.keeplearning.ui.activity.WelcomeActivity
  * Time:2021/9/1415:02
  */
 
-class App: Application(){
+//Application全局的ViewModel，里面存放了一些账户信息，基本配置信息等
+val appViewModel: AppViewModel by lazy { App.appViewModelInstance }
+
+//Application全局的ViewModel，用于发送全局通知操作
+val eventViewModel: EventViewModel by lazy { App.eventViewModelInstance }
+
+class App: BaseApp(){
 
     companion object{
         lateinit var instance:App
         lateinit var context: Context
+        lateinit var eventViewModelInstance: EventViewModel
+        lateinit var appViewModelInstance: AppViewModel
     }
 
     override fun onCreate() {

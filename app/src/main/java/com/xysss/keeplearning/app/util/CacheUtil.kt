@@ -4,6 +4,7 @@ import android.text.TextUtils
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.tencent.mmkv.MMKV
+import com.xysss.keeplearning.data.model.bean.UserInfo
 
 /**
  * Author:bysd-2
@@ -13,7 +14,7 @@ object CacheUtil {
     /**
      * 获取保存的账户信息
      */
-   /* fun getUser(): UserInfo? {
+    fun getUser(): UserInfo? {
         val kv = MMKV.mmkvWithID("app")
         val userStr = kv.decodeString("user")
         return if (TextUtils.isEmpty(userStr)) {
@@ -21,11 +22,10 @@ object CacheUtil {
         } else {
             Gson().fromJson(userStr, UserInfo::class.java)
         }
-    }*/
-    /**
-     * 设置账户信息
-     */
-    /*fun setUser(userResponse: UserInfo?) {
+    }
+   /* *
+     * 设置账户信息*/
+    fun setUser(userResponse: UserInfo?) {
         val kv = MMKV.mmkvWithID("app")
         if (userResponse == null) {
             kv.encode("user", "")
@@ -35,7 +35,7 @@ object CacheUtil {
             setIsLogin(true)
         }
 
-    }*/
+    }
 
     /**
      * 是否已经登录

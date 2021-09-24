@@ -20,7 +20,6 @@ import com.xysss.keeplearning.app.util.SettingUtil
 //loading框
 private var loadingDialog: MaterialDialog? = null
 
-
 /**
  * 打开等待框
  */

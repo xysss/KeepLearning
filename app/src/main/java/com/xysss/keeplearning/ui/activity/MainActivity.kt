@@ -15,14 +15,15 @@ import com.xysss.keeplearning.app.appViewModel
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.util.StatusBarUtil
 import com.xysss.keeplearning.databinding.ActivityMainBinding
+import com.xysss.keeplearning.databinding.ActivityMainTestBinding
 import com.xysss.keeplearning.viewmodel.state.MainViewModel
 
 
-class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
+class MainActivity : BaseActivity<MainViewModel, ActivityMainTestBinding>() {
     //测试捕获异常
     //CrashReport.testJavaCrash();
     var exitTime = 0L
-    override fun layoutId() = R.layout.activity_main
+    override fun layoutId() = R.layout.activity_main_test
 
     override fun initView(savedInstanceState: Bundle?) {
         //bugly进入首页检查更新

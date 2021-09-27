@@ -19,11 +19,11 @@ import com.xysss.keeplearning.databinding.ActivityMainTestBinding
 import com.xysss.keeplearning.viewmodel.state.MainViewModel
 
 
-class MainActivity : BaseActivity<MainViewModel, ActivityMainTestBinding>() {
+class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
     //测试捕获异常
     //CrashReport.testJavaCrash();
     var exitTime = 0L
-    override fun layoutId() = R.layout.activity_main_test
+    override fun layoutId() = R.layout.activity_main
 
     override fun initView(savedInstanceState: Bundle?) {
         //bugly进入首页检查更新

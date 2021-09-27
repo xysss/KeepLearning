@@ -19,6 +19,7 @@ import com.xysss.keeplearning.app.etx.showMessage
 import com.xysss.keeplearning.app.util.SettingUtil
 import com.xysss.keeplearning.app.util.StatusBarUtil
 import com.xysss.keeplearning.databinding.ActivityErrorBinding
+import com.xysss.mvvmhelper.base.BaseViewModel
 
 
 /**

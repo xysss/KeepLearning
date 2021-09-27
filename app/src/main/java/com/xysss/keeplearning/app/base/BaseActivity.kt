@@ -6,13 +6,15 @@ import com.xysss.jetpackmvvm.base.activity.BaseVmDbActivity
 import com.xysss.jetpackmvvm.base.viewmodel.BaseViewModel
 import com.xysss.keeplearning.app.etx.dismissLoadingExt
 import com.xysss.keeplearning.app.etx.showLoadingExt
+import com.xysss.mvvmhelper.base.BaseDbActivity
+import com.xysss.mvvmhelper.base.BaseViewModel
 
 /**
  * Author:bysd-2
  * Time:2021/9/1518:30
  * 描述　: 你项目中的Activity基类，在这里实现显示弹窗，吐司，还有加入自己的需求操作
  */
-abstract class BaseActivity<VM : BaseViewModel, DB : ViewDataBinding> : BaseVmDbActivity<VM, DB>() {
+abstract class BaseActivity<VM : BaseViewModel, DB : ViewDataBinding> : BaseDbActivity<VM, DB>() {
 
     abstract override fun layoutId(): Int
 

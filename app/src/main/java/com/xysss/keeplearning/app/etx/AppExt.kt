@@ -1,5 +1,7 @@
 package com.xysss.keeplearning.app.etx
 
+import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
@@ -23,6 +25,27 @@ import java.io.IOException
  * Author:bysd-2
  * Time:2021/9/1514:02
  */
+
+
+
+/**
+ * 获取当前进程的名称，默认进程名称是包名
+ */
+val currentProcessName: String?
+    get() {
+        val pid = android.os.Process.myPid()
+        val mActivityManager = com.xysss.jetpackmvvm.base.appContext.getSystemService(
+            Context.ACTIVITY_SERVICE
+        ) as ActivityManager
+        for (appProcess in mActivityManager.runningAppProcesses) {
+            if (appProcess.pid == pid) {
+                return appProcess.processName
+            }
+        }
+        return null
+    }
+
+
 
 
 /**

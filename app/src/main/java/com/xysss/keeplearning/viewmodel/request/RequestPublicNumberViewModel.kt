@@ -1,6 +1,6 @@
 package com.xysss.keeplearning.viewmodel.request
 
-import com.xysss.jetpackmvvm.base.viewmodel.BaseViewModel
+import com.xysss.mvvmhelper.base.BaseViewModel
 
 /**
  * Author:bysd-2

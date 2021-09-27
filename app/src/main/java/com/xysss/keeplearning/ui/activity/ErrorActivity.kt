@@ -9,9 +9,6 @@ import android.widget.Button
 import androidx.appcompat.widget.Toolbar
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash
 import com.blankj.utilcode.util.ToastUtils
-import com.xysss.jetpackmvvm.base.viewmodel.BaseViewModel
-import com.xysss.jetpackmvvm.ext.view.clickNoRepeat
-import com.xysss.jetpackmvvm.util.clipboardManager
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.etx.init
@@ -20,6 +17,8 @@ import com.xysss.keeplearning.app.util.SettingUtil
 import com.xysss.keeplearning.app.util.StatusBarUtil
 import com.xysss.keeplearning.databinding.ActivityErrorBinding
 import com.xysss.mvvmhelper.base.BaseViewModel
+import com.xysss.mvvmhelper.ext.clickNoRepeat
+import com.xysss.mvvmhelper.util.clipboardManager
 
 
 /**

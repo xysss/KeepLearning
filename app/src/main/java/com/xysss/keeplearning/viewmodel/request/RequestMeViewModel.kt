@@ -1,9 +1,8 @@
 package com.xysss.keeplearning.viewmodel.request
 
 import androidx.lifecycle.MutableLiveData
-import com.xysss.jetpackmvvm.base.viewmodel.BaseViewModel
-import com.xysss.jetpackmvvm.state.ResultState
 import com.xysss.keeplearning.data.model.bean.IntegralResponse
+import com.xysss.mvvmhelper.base.BaseViewModel
 
 /**
  * Author:bysd-2
@@ -11,7 +10,6 @@ import com.xysss.keeplearning.data.model.bean.IntegralResponse
  */
 class RequestMeViewModel : BaseViewModel() {
 
-    var meData = MutableLiveData<ResultState<IntegralResponse>>()
 
     /*fun getIntegral() {
         request({ apiService.getIntegral() }, meData)

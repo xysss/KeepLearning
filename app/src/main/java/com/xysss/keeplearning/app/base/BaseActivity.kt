@@ -1,43 +1,35 @@
 package com.xysss.keeplearning.app.base
 
-import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
 import androidx.databinding.ViewDataBinding
-import com.xysss.jetpackmvvm.base.activity.BaseVmDbActivity
-import com.xysss.jetpackmvvm.base.viewmodel.BaseViewModel
-import com.xysss.keeplearning.app.etx.dismissLoadingExt
-import com.xysss.keeplearning.app.etx.showLoadingExt
-import com.xysss.mvvmhelper.base.BaseDbActivity
+import com.gyf.immersionbar.ImmersionBar
+import com.xysss.keeplearning.R
+import com.xysss.keeplearning.app.widget.CustomToolBar
 import com.xysss.mvvmhelper.base.BaseViewModel
+import com.xysss.mvvmhelper.base.BaseVmDbActivity
 
 /**
  * Author:bysd-2
  * Time:2021/9/1518:30
  * 描述　: 你项目中的Activity基类，在这里实现显示弹窗，吐司，还有加入自己的需求操作
  */
-abstract class BaseActivity<VM : BaseViewModel, DB : ViewDataBinding> : BaseDbActivity<VM, DB>() {
+abstract class BaseActivity<VM : BaseViewModel, DB : ViewDataBinding> : BaseVmDbActivity<VM, DB>() {
 
-    abstract override fun layoutId(): Int
+    lateinit var mToolbar: CustomToolBar
 
-    abstract override fun initView(savedInstanceState: Bundle?)
-
-    /**
-     * 创建liveData观察者
-     */
-    override fun createObserver() {}
-
-    /**
-     * 打开等待框
-     */
-    override fun showLoading(message: String) {
-        showLoadingExt(message)
+    override fun getTitleBarView(): View? {
+        val titleBarView = LayoutInflater.from(this).inflate(R.layout.layout_titlebar_view, null)
+        mToolbar = titleBarView.findViewById(R.id.customToolBar)
+        return titleBarView
     }
 
-    /**
-     * 关闭等待框
-     */
-    override fun dismissLoading() {
-        dismissLoadingExt()
+    override fun initImmersionBar() {
+        //设置共同沉浸式样式
+        if (showToolBar()) {
+            mToolbar.setBackgroundResource(R.color.colorPrimary)
+            ImmersionBar.with(this).titleBar(mToolbar).init()
+        }
     }
-
 
 }

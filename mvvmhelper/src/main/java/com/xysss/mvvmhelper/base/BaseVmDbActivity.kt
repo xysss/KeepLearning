@@ -6,14 +6,24 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.gyf.immersionbar.ImmersionBar
 import com.kingja.loadsir.core.LoadService
 import com.kingja.loadsir.core.LoadSir
 import com.noober.background.BackgroundLibrary
+import com.xysss.jetpackmvvm.network.manager.NetState
+import com.xysss.jetpackmvvm.network.manager.NetworkStateManager
 import com.xysss.mvvmhelper.R
-import com.xysss.mvvmhelper.ext.visibleOrGone
+import com.xysss.mvvmhelper.ext.*
+import com.xysss.mvvmhelper.net.LoadStatusEntity
+import com.xysss.mvvmhelper.net.LoadingDialogEntity
+import com.xysss.mvvmhelper.net.LoadingType
+import com.xysss.mvvmhelper.widget.BaseEmptyCallback
+import com.xysss.mvvmhelper.widget.BaseErrorCallback
+import com.xysss.mvvmhelper.widget.BaseLoadingCallback
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -23,44 +33,23 @@ import java.lang.reflect.ParameterizedType
  * 需要使用Databind的清继承它
  */
 
-abstract class BaseDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCompatActivity(), BaseIView {
+abstract class BaseVmDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCompatActivity(), BaseIView {
 
-    //使用了DataBinding 就不需要 layoutId了，因为 会从DB泛型 找到相关的view
-    override val layoutId: Int = 0
-
+    val layoutId: Int = 0
     lateinit var mDataBind: DB
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        initDataBind()
-        super.onCreate(savedInstanceState)
-    }
-
-    /**
-     * 创建DataBinding
-     */
-    private fun initDataBind() {
-        //利用反射 根据泛型得到 ViewDataBinding
-        val superClass = javaClass.genericSuperclass
-        val aClass = (superClass as ParameterizedType).actualTypeArguments[1] as Class<*>
-        BackgroundLibrary.inject(this)
-        val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
-        mDataBind =  method.invoke(null,layoutInflater) as DB
-        dataBindView = mDataBind.root
-        mDataBind.lifecycleOwner = this
-    }
-
-
+    var dataBindView :View? = null
     //界面状态管理者
     lateinit var uiStatusManger: LoadService<*>
-
     //当前Activity绑定的 ViewModel
     lateinit var mViewModel: VM
-
     //toolbar 这个可替换成自己想要的标题栏
     private var mTitleBarView: View? = null
+    abstract fun layoutId(): Int
+    abstract fun initView(savedInstanceState: Bundle?)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initDataBind()
         setContentView(R.layout.activity_base)
         //生成ViewModel
         mViewModel = createViewModel()
@@ -76,70 +65,6 @@ abstract class BaseDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCompa
         onBindViewClick()
     }
 
-    private fun initStatusView(savedInstanceState: Bundle?) {
-        mTitleBarView = getTitleBarView()
-        mTitleBarView?.let {
-            findViewById<LinearLayout>(R.id.baseRootView).addView(it, 0)
-            //是否隐藏标题栏
-            it.visibleOrGone(showToolBar())
-        }
-        initImmersionBar()
-        findViewById<FrameLayout>(R.id.baseContentView).addView(if (dataBindView == null) LayoutInflater.from(this).inflate(layoutId, null) else dataBindView)
-        uiStatusManger = LoadSir.getDefault().register(if (getLoadingView() == null) findViewById<FrameLayout>(
-            R.id.baseContentView) else getLoadingView()!!) {
-            onLoadRetry()
-        }
-
-        findViewById<FrameLayout>(R.id.baseContentView).post {
-            initView(savedInstanceState)
-        }
-    }
-
-    /**
-     * 初始化view 这个方法会有延迟，因为使用了LoadSir，需要等待LoadSir注册完成后才能执行
-     */
-    abstract fun initView(savedInstanceState: Bundle?)
-
-    /**
-     * 已创建View 执行在 initView 之前，
-     * @param savedInstanceState Bundle?
-     */
-    open fun onCreatedView(savedInstanceState: Bundle?){
-
-    }
-
-    /**
-     * 创建观察者
-     */
-    open fun initObserver() {}
-
-    /**
-     * 创建viewModel
-     */
-    private fun createViewModel(): VM {
-        return ViewModelProvider(this).get(getVmClazz(this))
-    }
-
-    /**
-     * 是否隐藏 标题栏 默认显示
-     */
-    open fun showToolBar(): Boolean {
-        return true
-    }
-
-    /**
-     * 初始化沉浸式
-     * Init immersion bar.
-     */
-    protected open fun initImmersionBar() {
-        //设置共同沉浸式样式
-        mTitleBarView?.let {
-            if (showToolBar()) {
-                ImmersionBar.with(this).titleBar(it).init()
-            }
-        }
-    }
-
     /**
      * 点击事件方法 配合setOnclick()拓展函数调用，做到黄油刀类似的点击事件
      */
@@ -150,7 +75,7 @@ abstract class BaseDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCompa
      */
     fun addLoadingUiChange(viewModel: BaseViewModel) {
         viewModel.loadingChange.run {
-            loading.observe(this@BaseVmActivity) {
+            loading.observe(this@BaseVmDbActivity) {
                 when (it.loadingType) {
                     LoadingType.LOADING_DIALOG -> {
                         if (it.isShow) {
@@ -173,20 +98,94 @@ abstract class BaseDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCompa
                     }
                 }
             }
-            showEmpty.observe(this@BaseVmActivity) {
+            showEmpty.observe(this@BaseVmDbActivity) {
                 onRequestEmpty(it)
             }
-            showError.observe(this@BaseVmActivity) {
+            showError.observe(this@BaseVmDbActivity) {
                 //如果请求错误 并且loading类型为 xml 那么控制界面显示为错误布局
                 if (it.loadingType == LoadingType.LOADING_XML) {
                     showErrorUi(it.errorMessage)
                 }
                 onRequestError(it)
             }
-            showSuccess.observe(this@BaseVmActivity) {
+            showSuccess.observe(this@BaseVmDbActivity) {
                 showSuccessUi()
             }
         }
+    }
+
+    /**
+     * 创建DataBinding
+     */
+    private fun initDataBind() {
+        /*mDataBind = DataBindingUtil.setContentView(this, layoutId())
+        mDataBind.lifecycleOwner = this
+        dataBindView = mDataBind.root*/
+
+        //利用反射 根据泛型得到 ViewDataBinding
+        val superClass = javaClass.genericSuperclass
+        val aClass = (superClass as ParameterizedType).actualTypeArguments[1] as Class<*>
+        BackgroundLibrary.inject(this)
+        val method = aClass.getDeclaredMethod("inflate",LayoutInflater::class.java)
+        mDataBind =  method.invoke(null,layoutInflater) as DB
+        dataBindView = mDataBind.root
+        mDataBind.lifecycleOwner = this
+    }
+
+    /**
+     * 创建观察者
+     */
+    open fun initObserver() {}
+
+    private fun initStatusView(savedInstanceState: Bundle?) {
+        mTitleBarView = getTitleBarView()
+        mTitleBarView?.let {
+            findViewById<LinearLayout>(R.id.baseRootView).addView(it, 0)
+            //是否隐藏标题栏
+            it.visibleOrGone(showToolBar())
+        }
+        initImmersionBar()
+        findViewById<FrameLayout>(R.id.baseContentView).addView(if (dataBindView == null) LayoutInflater.from(this).inflate(layoutId, null) else dataBindView)
+        uiStatusManger = LoadSir.getDefault().register(if (getLoadingView() == null) findViewById<FrameLayout>(R.id.baseContentView) else getLoadingView()!!) {
+            onLoadRetry()
+        }
+
+        findViewById<FrameLayout>(R.id.baseContentView).post {
+            initView(savedInstanceState)
+        }
+    }
+
+
+    /**
+     * 是否隐藏 标题栏 默认显示
+     */
+    open fun showToolBar(): Boolean {
+        return true
+    }
+
+    /**
+     * 初始化沉浸式
+     * Init immersion bar.
+     */
+    protected open fun initImmersionBar() {
+        //设置共同沉浸式样式
+        mTitleBarView?.let {
+            if (showToolBar()) {
+                ImmersionBar.with(this).titleBar(it).init()
+            }
+        }
+    }
+
+    /**
+     * 网络变化监听 子类重写
+     */
+    open fun onNetworkStateChanged(netState: NetState) {}
+
+    /**
+     * 创建viewModel
+     */
+    private fun createViewModel(): VM {
+        return ViewModelProvider(this).get(getVmClazz(this))
     }
 
     /**
@@ -274,5 +273,6 @@ abstract class BaseDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCompa
         dismissLoadingExt()
         super.finish()
     }
+
 
 }

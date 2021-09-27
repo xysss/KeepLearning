@@ -1,15 +1,16 @@
 package com.xysss.keeplearning.viewmodel.state
 
-import com.xysss.jetpackmvvm.base.viewmodel.BaseViewModel
-import com.xysss.jetpackmvvm.callback.databind.IntObservableField
-import com.xysss.jetpackmvvm.callback.databind.StringObservableField
+
 import com.xysss.keeplearning.app.util.ColorUtil
+import com.xysss.mvvmhelper.base.BaseViewModel
+import com.xysss.mvvmhelper.core.databinding.IntObservableField
+import com.xysss.mvvmhelper.core.databinding.StringObservableField
 
 /**
  * Author:bysd-2
  * Time:2021/9/2313:47
  */
-class MeViewModel :BaseViewModel(){
+class MeViewModel : BaseViewModel(){
 
     var name = StringObservableField("请先登录~")
 

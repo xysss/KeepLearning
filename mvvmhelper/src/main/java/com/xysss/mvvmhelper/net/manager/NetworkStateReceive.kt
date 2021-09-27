@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import com.xysss.jetpackmvvm.network.NetworkUtil
+import com.xysss.mvvmhelper.net.NetworkUtil
 
 
 /**

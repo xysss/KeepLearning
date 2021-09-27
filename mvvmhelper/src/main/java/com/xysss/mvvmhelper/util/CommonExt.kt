@@ -7,7 +7,8 @@ import android.text.Html
 import android.text.Spanned
 import android.text.TextUtils
 import android.view.View
-import com.xysss.jetpackmvvm.ext.view.clickNoRepeat
+import com.xysss.mvvmhelper.ext.clickNoRepeat
+
 
 /**
  * Author:bysd-2

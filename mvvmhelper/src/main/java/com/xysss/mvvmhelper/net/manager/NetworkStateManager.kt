@@ -1,6 +1,7 @@
 package com.xysss.jetpackmvvm.network.manager
 
-import com.xysss.jetpackmvvm.callback.livedata.event.EventLiveData
+import com.xysss.mvvmhelper.net.EventLiveData
+
 
 /**
  * Author:bysd-2

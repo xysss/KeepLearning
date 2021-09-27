@@ -11,11 +11,9 @@ import com.blankj.utilcode.util.ToastUtils
 import com.tencent.bugly.beta.Beta
 import com.xysss.jetpackmvvm.network.manager.NetState
 import com.xysss.keeplearning.R
-import com.xysss.keeplearning.app.appViewModel
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.util.StatusBarUtil
 import com.xysss.keeplearning.databinding.ActivityMainBinding
-import com.xysss.keeplearning.databinding.ActivityMainTestBinding
 import com.xysss.keeplearning.viewmodel.state.MainViewModel
 
 
@@ -47,19 +45,9 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
             }
         })
 
-        appViewModel.appColor.value?.let { //let函数 默认当前这个对象作为闭包的it参数，返回值是函数里面最后一行，或者指定return
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-            supportActionBar?.setBackgroundDrawable(ColorDrawable(it))
-            StatusBarUtil.setColor(this, it, 0) }
+
     }
 
-
-    override fun createObserver() {
-        appViewModel.appColor.observeInActivity(this, Observer {
-            supportActionBar?.setBackgroundDrawable(ColorDrawable(it))
-            StatusBarUtil.setColor(this, it, 0)
-        })
-    }
 
     /**
      * 示例，在Activity/Fragment中如果想监听网络变化，可重写onNetworkStateChanged该方法

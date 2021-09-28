@@ -1,7 +1,8 @@
 package com.xysss.keeplearning.app.api
 
-import com.xysss.jetpackmvvm.base.appContext
-import com.xysss.jetpackmvvm.network.interceptor.logging.LogInterceptor
+
+import com.xysss.mvvmhelper.base.appContext
+import com.xysss.mvvmhelper.net.interception.LogInterceptor
 import rxhttp.wrapper.cookie.CookieStore
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient

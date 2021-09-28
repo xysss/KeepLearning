@@ -3,8 +3,8 @@ package com.xysss.keeplearning.data.response
 import com.xysss.mvvmhelper.entity.BasePage
 
 /**
- * 作者　: xys
- * 时间　: 2021/09/27
+ * Author:bysd-2
+ * Time:2021/9/2811:05
  * 描述　: 玩Android 服务器返回的列表数据基类
  */
 data class ApiPagerResponse<T>(

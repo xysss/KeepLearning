@@ -1,10 +1,6 @@
 package com.xysss.keeplearning.app.base
 
-import android.os.Bundle
 import androidx.databinding.ViewDataBinding
-import com.xysss.keeplearning.app.etx.dismissLoadingExt
-import com.xysss.keeplearning.app.etx.hideSoftKeyboard
-import com.xysss.keeplearning.app.etx.showLoadingExt
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.base.BaseVmDbFragment
 

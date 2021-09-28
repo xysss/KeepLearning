@@ -1,28 +1,10 @@
 package com.xysss.keeplearning.app
 
 import android.app.Application
-import android.content.Context
-import android.os.Process
-import androidx.multidex.MultiDex
-import cat.ereza.customactivityoncrash.config.CaocConfig
 import com.effective.android.anchors.AnchorsManager
 import com.effective.android.anchors.Project
-import com.kingja.loadsir.callback.SuccessCallback
-import com.kingja.loadsir.core.LoadSir
-import com.tencent.bugly.Bugly
-import com.tencent.bugly.crashreport.CrashReport
-import com.tencent.bugly.crashreport.CrashReport.UserStrategy
-import com.tencent.mmkv.MMKV
 import com.xysss.keeplearning.BuildConfig
-import com.xysss.keeplearning.app.etx.currentProcessName
-import com.xysss.keeplearning.app.etx.getProcessName
-import com.xysss.keeplearning.app.event.AppViewModel
-import com.xysss.keeplearning.app.event.EventViewModel
-import com.xysss.keeplearning.app.weight.loadcallback.EmptyCallback
-import com.xysss.keeplearning.app.weight.loadcallback.ErrorCallback
-import com.xysss.keeplearning.app.weight.loadcallback.LoadingCallback
-import com.xysss.keeplearning.ui.activity.ErrorActivity
-import com.xysss.keeplearning.ui.activity.WelcomeActivity
+import com.xysss.mvvmhelper.ext.currentProcessName
 
 
 /**
@@ -50,11 +32,13 @@ class App: Application() {
      * @description  代码的初始化请不要放在onCreate直接操作，按照下面新建异步方法
      */
     private fun onMainProcessInit() {
+        //支持同异步依赖任务初始化 Android 启动框架
+        //如果一个任务要确保在 application#onCreate 前执行完毕，则该任务成为锚点任务
         AnchorsManager.getInstance()
             .debuggable(BuildConfig.DEBUG)
-            //设置锚点
+            //传递任务 id 设置锚点任务
             .addAnchor(InitNetWork.TASK_ID, InitUtils.TASK_ID, InitComm.TASK_ID, InitToast.TASK_ID).start(
-                Project.Builder("app", AppTaskFactory())
+                Project.Builder("app", AppTaskFactory())  //可选，构建依赖图可以使用工厂，
                     .add(InitNetWork.TASK_ID)
                     .add(InitComm.TASK_ID)
                     .add(InitUtils.TASK_ID)

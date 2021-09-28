@@ -34,7 +34,7 @@ import java.lang.reflect.ParameterizedType
 */
 abstract class BaseVmDbFragment <VM : BaseViewModel, DB : ViewDataBinding> : Fragment(), BaseIView {
 
-    val layoutId: Int = 0
+    val layoutId: Int=0
     lateinit var mDataBind: DB
     var dataBindView : View? = null
     //界面状态管理者

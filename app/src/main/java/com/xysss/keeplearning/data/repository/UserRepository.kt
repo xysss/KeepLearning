@@ -1,9 +1,11 @@
 package com.xysss.keeplearning.data.repository
 
 import com.xysss.keeplearning.app.api.NetUrl
-import com.xysss.keeplearning.data.model.bean.UserInfo
 import com.xysss.keeplearning.data.response.ApiPagerResponse
+import com.xysss.keeplearning.data.response.UserInfo
 import rxhttp.IAwait
+import rxhttp.wrapper.param.RxHttp
+import rxhttp.wrapper.param.toResponse
 
 /**
  * 作者　: xys

@@ -44,7 +44,6 @@ abstract class BaseVmDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCom
     lateinit var mViewModel: VM
     //toolbar 这个可替换成自己想要的标题栏
     private var mTitleBarView: View? = null
-    abstract fun layoutId(): Int
     abstract fun initView(savedInstanceState: Bundle?)
 
     override fun onCreate(savedInstanceState: Bundle?) {

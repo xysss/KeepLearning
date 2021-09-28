@@ -1,6 +1,4 @@
-
 -optimizationpasses 5
-
 
 -dontusemixedcaseclassnames
 
@@ -14,9 +12,6 @@
 -printmapping priguardMapping.txt
 
 -optimizations !code/simplification/artithmetic,!field/*,!class/merging/*
-
-
--keep class com.xysss.keeplearning.data.**{*;}
 
 ################common###############
 
@@ -53,6 +48,7 @@
 -dontwarn com.google.android.material.**
 -dontnote com.google.android.material.**
 -dontwarn androidx.**
+
 ################glide###############
 -keep public class * implements com.bumptech.glide.module.GlideModule
 -keep public class * extends com.bumptech.glide.module.AppGlideModule
@@ -66,11 +62,14 @@
 -keep class retrofit2.** { *; }
 -keepattributes Signature
 -keepattributes Exceptions
-################RxPermissions#################
--keep class com.tbruyelle.rxpermissions2.** { *; }
--keep interface com.tbruyelle.rxpermissions2.** { *; }
 
--keep class com.xysss.androidnews.data.model.bean.**{ *; }
+#okhttp
+-dontwarn okhttp3.**
+-keep class okhttp3.**{*;}
+
+#okio
+-dontwarn okio.**
+-keep class okio.**{*;}
 
 # 保留自定义控件(继承自View)不能被混淆
 -keep public class * extends android.view.View {
@@ -83,20 +82,19 @@
 -dontwarn com.kingja.loadsir.**
 -keep class com.kingja.loadsir.** {*;}
 
--keep class com.just.agentweb.** {
-    *;
-}
-
--dontwarn com.just.agentweb.**
 
 -keepattributes *Annotation*
 -keep class **.*_SnakeProxy
--keep @com.youngfeng.snake.annotations.EnableDragToClose public class *
+#-keep @com.youngfeng.snake.annotations.EnableDragToClose public class *
 
--dontwarn com.tencent.bugly.**
--keep public class com.tencent.bugly.**{*;}
 
-# SearchView
--keep class androidx.appcompat.widget.SearchView {
-    ImageView mGoButton;
-}
+
+# DataBinding反射混淆，必加，包名 请换成自己的
+-keep class com.zhixinhuixue.zsyte.xxx.databinding.** { *; }
+#所有GSON生成的对象类不能被混淆
+-keep class com.zhixinhuixue.zsyte.xxx.data.response.**{*;}
+-keep class com.zhixinhuixue.zsyte.xxx.data.request.**{*;}
+
+
+
+

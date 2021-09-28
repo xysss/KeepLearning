@@ -1,22 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        
-        <fragment
-            android:id="@+id/host_fragment"
-            android:name="com.xysss.jetpackmvvm.navigation.NavHostFragmentHideShow"
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/mainViewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:defaultNavHost="true"
-            app:navGraph="@navigation/main_navation" />
+            android:layout_above="@+id/mainNavigation" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/mainNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:layout_alignParentBottom="true"
+            android:background="@color/colorWhite"
+            app:itemIconTint="@drawable/selector_nav_color"
+            app:itemTextColor="@drawable/selector_nav_color"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/main_navigation" />
+
+    </RelativeLayout>
 </layout>

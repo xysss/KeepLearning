@@ -15,16 +15,16 @@ import com.tencent.bugly.Bugly
 import com.tencent.mmkv.MMKV
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.api.NetHttpClient
-import com.xysss.keeplearning.app.weight.loadcallback.EmptyCallback
-import com.xysss.keeplearning.app.weight.loadcallback.ErrorCallback
-import com.xysss.keeplearning.app.weight.loadcallback.LoadingCallback
-import com.xysss.keeplearning.ui.activity.ErrorActivity
-import com.xysss.keeplearning.ui.activity.WelcomeActivity
+import com.xysss.keeplearning.ui.activity.SplashActivity
 import com.xysss.mvvmhelper.BuildConfig
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.dp
 import com.xysss.mvvmhelper.ext.getColorExt
 import com.xysss.mvvmhelper.util.mvvmHelperLog
+import com.xysss.mvvmhelper.widget.BaseEmptyCallback
+import com.xysss.mvvmhelper.widget.BaseErrorCallback
+import com.xysss.mvvmhelper.widget.BaseLoadingCallback
+import rxhttp.wrapper.param.RxHttp
 import java.util.*
 
 
@@ -59,6 +59,7 @@ class InitDefault : Task(TASK_ID, true) {
 /**
  * 初始化网络
  */
+//构建一个 Task, 第一个参数指定 name,也是唯一 id，第二个参数指定该 Task 是否异步运行
 class InitNetWork : Task(TASK_ID, true) {
     companion object {
         const val TASK_ID = "1"
@@ -96,12 +97,11 @@ class InitComm : Task(TASK_ID, true) {
             }
         }
         //注册界面状态管理
-        //界面加载管理 初始化
         LoadSir.beginBuilder()
-            .addCallback(LoadingCallback())//加载
-            .addCallback(ErrorCallback())//错误
-            .addCallback(EmptyCallback())//空
-            .setDefaultCallback(SuccessCallback::class.java)//设置默认加载状态页
+            .addCallback(BaseErrorCallback())
+            .addCallback(BaseEmptyCallback())
+            .addCallback(BaseLoadingCallback())
+            .setDefaultCallback(SuccessCallback::class.java)
             .commit()
 
         //当您的应用及其引用的库包含的方法数超过 65536 时，您会遇到一个构建错误，指明您的应用已达到 Android 构建架构规定的引用限制：
@@ -123,8 +123,8 @@ class InitComm : Task(TASK_ID, true) {
             .logErrorOnRestart(true) //是否必须重新堆栈堆栈跟踪 default: true
             .trackActivities(true) //是否必须跟踪用户访问的活动及其生命周期调用 default: false
             .minTimeBetweenCrashesMs(2000) //应用程序崩溃之间必须经过的时间 default: 3000
-            .restartActivity(WelcomeActivity::class.java) // 重启的activity
-            .errorActivity(ErrorActivity::class.java) //发生错误跳转的activity
+            .restartActivity(SplashActivity::class.java) // 重启的activity
+            //.errorActivity(ErrorActivity::class.java) //发生错误跳转的activity
             .apply()
     }
 }

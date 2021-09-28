@@ -1,6 +1,6 @@
-package com.xysss.jetpackmvvm.network.manager
+package com.xysss.mvvmhelper.net.manager
 
-import com.xysss.mvvmhelper.net.EventLiveData
+import com.kunminx.architecture.ui.callback.UnPeekLiveData
 
 
 /**
@@ -9,7 +9,7 @@ import com.xysss.mvvmhelper.net.EventLiveData
  * 描述　: 网络变化管理者
  */
 class NetworkStateManager private constructor(){
-    val mNetworkStateCallback = EventLiveData<NetState>()
+    val mNetworkStateCallback = UnPeekLiveData<NetState>()
     companion object{
         val instance: NetworkStateManager by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
             NetworkStateManager()

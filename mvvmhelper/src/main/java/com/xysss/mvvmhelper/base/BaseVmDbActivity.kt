@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -14,13 +13,13 @@ import com.gyf.immersionbar.ImmersionBar
 import com.kingja.loadsir.core.LoadService
 import com.kingja.loadsir.core.LoadSir
 import com.noober.background.BackgroundLibrary
-import com.xysss.jetpackmvvm.network.manager.NetState
-import com.xysss.jetpackmvvm.network.manager.NetworkStateManager
+import com.xysss.mvvmhelper.net.manager.NetState
 import com.xysss.mvvmhelper.R
 import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadStatusEntity
 import com.xysss.mvvmhelper.net.LoadingDialogEntity
 import com.xysss.mvvmhelper.net.LoadingType
+import com.xysss.mvvmhelper.net.manager.NetworkStateManager
 import com.xysss.mvvmhelper.widget.BaseEmptyCallback
 import com.xysss.mvvmhelper.widget.BaseErrorCallback
 import com.xysss.mvvmhelper.widget.BaseLoadingCallback
@@ -62,6 +61,10 @@ abstract class BaseVmDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCom
         onRequestSuccess()
         //初始化绑定点击方法
         onBindViewClick()
+        //网络监听
+        NetworkStateManager.instance.mNetworkStateCallback.observe(this, Observer {
+            onNetworkStateChanged(it)
+        })
     }
 
     /**

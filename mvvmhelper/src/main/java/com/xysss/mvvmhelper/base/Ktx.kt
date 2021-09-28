@@ -3,8 +3,11 @@ package com.xysss.mvvmhelper.base
 import android.app.Application
 import android.content.ContentProvider
 import android.content.ContentValues
+import android.content.IntentFilter
 import android.database.Cursor
+import android.net.ConnectivityManager
 import android.net.Uri
+import com.xysss.mvvmhelper.net.manager.NetworkStateReceive
 import com.xysss.mvvmhelper.util.KtxActivityLifecycleCallbacks
 
 /**
@@ -19,6 +22,7 @@ class Ktx : ContentProvider() {
 
     companion object {
         lateinit var app: Application
+        private var mNetworkStateReceive: NetworkStateReceive? = null
         var watchActivityLife = true
     }
 
@@ -30,6 +34,11 @@ class Ktx : ContentProvider() {
 
     private fun install(application: Application) {
         app = application
+        mNetworkStateReceive = NetworkStateReceive()
+        app.registerReceiver(
+            mNetworkStateReceive,
+            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        )
         if (watchActivityLife) application.registerActivityLifecycleCallbacks(
             KtxActivityLifecycleCallbacks()
         )

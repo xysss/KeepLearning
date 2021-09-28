@@ -1,4 +1,4 @@
-package com.xysss.jetpackmvvm.network.manager
+package com.xysss.mvvmhelper.net.manager
 
 /**
  * Author:bysd-2

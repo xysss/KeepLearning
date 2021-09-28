@@ -2,12 +2,10 @@ package com.xysss.mvvmhelper.base
 
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -15,12 +13,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.kingja.loadsir.core.LoadService
 import com.kingja.loadsir.core.LoadSir
-import com.xysss.jetpackmvvm.network.manager.NetState
-import com.xysss.jetpackmvvm.network.manager.NetworkStateManager
+import com.xysss.mvvmhelper.net.manager.NetState
 import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadStatusEntity
 import com.xysss.mvvmhelper.net.LoadingDialogEntity
 import com.xysss.mvvmhelper.net.LoadingType
+import com.xysss.mvvmhelper.net.manager.NetworkStateManager
 import com.xysss.mvvmhelper.widget.BaseEmptyCallback
 import com.xysss.mvvmhelper.widget.BaseErrorCallback
 import com.xysss.mvvmhelper.widget.BaseLoadingCallback
@@ -115,6 +113,7 @@ abstract class BaseVmDbFragment <VM : BaseViewModel, DB : ViewDataBinding> : Fra
         onBindViewClick()
     }
 
+
     private fun initStatusView(view: View, savedInstanceState: Bundle?) {
         getLoadingView()?.let {
             //如果传入了自定义包裹view 将该view注册 做 空 错误 loading 布局处理
@@ -170,6 +169,13 @@ abstract class BaseVmDbFragment <VM : BaseViewModel, DB : ViewDataBinding> : Fra
         if (lifecycle.currentState == Lifecycle.State.STARTED && isFirst) {
             view?.post {
                 lazyLoadData()
+                //在Fragment中，只有懒加载过了才能开启网络变化监听
+                NetworkStateManager.instance.mNetworkStateCallback.observe(this, {
+                        //不是首次订阅时调用方法，防止数据第一次监听错误
+                        if (!isFirst) {
+                            onNetworkStateChanged(it)
+                        }
+                    })
                 isFirst = false
             }
         }

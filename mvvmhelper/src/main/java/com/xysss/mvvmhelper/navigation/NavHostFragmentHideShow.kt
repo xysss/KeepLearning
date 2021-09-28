@@ -1,4 +1,4 @@
-package com.xysss.jetpackmvvm.navigation
+package com.xysss.mvvmhelper.navigation
 
 import android.view.View
 import androidx.navigation.Navigator

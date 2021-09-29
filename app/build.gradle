@@ -68,7 +68,7 @@ android {
         variant ->
             variant.outputs.all {
                 //在这里修改apk文件名
-                outputFileName = "cxk-v${variant.versionName}.apk"
+                outputFileName = "xys-v${variant.versionName}.apk"
             }
     }
 

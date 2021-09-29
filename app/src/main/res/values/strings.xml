@@ -11,6 +11,10 @@
     <string name="login_phone">手机号</string>
     <string name="login_register">注册</string>
     <string name="login_tips">教师账号登录</string>
+    <string name="error_tips">发生错误</string>
+    <string name="error_message">发生意外错误。</string>
+
+
 
 
 </resources>

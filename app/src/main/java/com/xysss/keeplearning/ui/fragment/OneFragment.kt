@@ -2,6 +2,7 @@ package com.xysss.keeplearning.ui.fragment
 
 import android.os.Bundle
 import com.gyf.immersionbar.ktx.immersionBar
+import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.databinding.FragmentOneBinding
@@ -36,7 +37,8 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
     }
 
     override fun onBindViewClick() {
-        setOnclickNoRepeat(mDataBind.loginBtn, mDataBind.testPageBtn, mDataBind.testListBtn, mDataBind.testDownload, mDataBind.testUpload) {
+        setOnclickNoRepeat(mDataBind.loginBtn, mDataBind.testPageBtn, mDataBind.testListBtn,
+            mDataBind.testDownload, mDataBind.testUpload,mDataBind.testCrash) {
             when (it.id) {
                 R.id.loginBtn -> {
                     toStartActivity(LoginActivity::class.java)
@@ -73,6 +75,11 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
                         //上传失败
                         showDialogMessage("${it.msg}--${it.message}")
                     })
+                }
+
+                R.id.testCrash -> {
+                    //测试捕获异常
+                    CrashReport.testJavaCrash()
                 }
             }
         }

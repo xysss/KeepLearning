@@ -55,6 +55,11 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.ErrorActivity"
+            android:label="错误界面"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
 
 
         <provider

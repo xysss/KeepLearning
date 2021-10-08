@@ -46,7 +46,7 @@ class ErrorActivity : BaseActivity<BaseViewModel, ActivityErrorBinding>() {
                     clipboardManager?.setPrimaryClip(mClipData)
                     ToastUtils.showShort("已复制错误日志")
                     try {
-                        val url = "mqqwpa://im/chat?chat_type=wpa&uin=824868922"
+                        val url = "mqqwpa://im/chat?chat_type=wpa&uin=1343025166"
                         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                     } catch (e: Exception) {
                         ToastUtils.showShort("请先安装QQ")

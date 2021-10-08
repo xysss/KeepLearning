@@ -80,6 +80,9 @@ class InitComm : Task(TASK_ID, true) {
     }
 
     override fun run(name: String) {
+        /**
+         * SmartRefreshLayout 上下拉刷新加载更多的全局配置
+         */
         SmartRefreshLayout.setDefaultRefreshInitializer { context, layout ->
             //设置 SmartRefreshLayout 通用配置
             layout.setEnableScrollContentWhenLoaded(true)//是否在加载完成时滚动列表显示新的内容
@@ -97,6 +100,7 @@ class InitComm : Task(TASK_ID, true) {
                 setAccentColor(getColorExt(R.color.colorBlack))
             }
         }
+
         //注册界面状态管理
         LoadSir.beginBuilder()
             .addCallback(BaseErrorCallback())

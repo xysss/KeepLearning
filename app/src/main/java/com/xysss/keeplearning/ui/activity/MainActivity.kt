@@ -12,22 +12,22 @@ import com.xysss.mvvmhelper.net.manager.NetState
 class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
         mToolbar.setCenterTitle(R.string.bottom_title_read)
-        mDataBind.mainViewPager.adapter = MainAdapter(this)
-        mDataBind.mainViewPager.offscreenPageLimit = mDataBind.mainViewPager.adapter!!.itemCount
-        mDataBind.mainViewPager.isUserInputEnabled = false
-        mDataBind.mainNavigation.setOnItemSelectedListener { item ->
+        mViewBinding.mainViewPager.adapter = MainAdapter(this)
+        mViewBinding.mainViewPager.offscreenPageLimit = mViewBinding.mainViewPager.adapter!!.itemCount
+        mViewBinding.mainViewPager.isUserInputEnabled = false
+        mViewBinding.mainNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigationRead -> {
-                    mDataBind.mainViewPager.setCurrentItem(0, false)
+                    mViewBinding.mainViewPager.setCurrentItem(0, false)
                 }
                 R.id.navigationPaper -> {
-                    mDataBind.mainViewPager.setCurrentItem(1, false)
+                    mViewBinding.mainViewPager.setCurrentItem(1, false)
                 }
                 R.id.navigationReport -> {
-                    mDataBind.mainViewPager.setCurrentItem(2, false)
+                    mViewBinding.mainViewPager.setCurrentItem(2, false)
                 }
                 R.id.navigationUser -> {
-                    mDataBind.mainViewPager.setCurrentItem(3, false)
+                    mViewBinding.mainViewPager.setCurrentItem(3, false)
                 }
             }
             true

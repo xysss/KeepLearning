@@ -1,21 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
-
-    <data>
-
-        <variable
-            name="viewModel"
-            type="com.xysss.keeplearning.viewmodel.LoginViewModel" />
-
-        <variable
-            name="view"
-            type="android.view.View" />
-
-        <variable
-            name="click"
-            type="com.xysss.keeplearning.ui.activity.LoginActivity.LoginClickProxy" />
-    </data>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -59,7 +48,6 @@
                     android:maxLength="11"
                     android:paddingLeft="@dimen/dp.12"
                     android:paddingRight="@dimen/dp.12"
-                    android:text="@={viewModel.userName}"
                     android:textColor="@color/colorBlackGry"
                     android:textSize="@dimen/dp.15" />
 
@@ -67,9 +55,8 @@
                     android:layout_width="@dimen/dp.24"
                     android:layout_height="@dimen/dp.24"
                     android:layout_marginEnd="@dimen/dp.6"
-                    android:onClick="@{() -> click.clear()}"
                     android:src="@drawable/ic_login_clear"
-                    android:visibility="@{viewModel.userName.length()>0?view.VISIBLE:view.GONE}" />
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout
@@ -92,10 +79,9 @@
                     android:lines="1"
                     android:paddingLeft="@dimen/dp.12"
                     android:paddingRight="@dimen/dp.12"
-                    android:text="@={viewModel.password}"
                     android:textColor="@color/colorBlackGry"
                     android:textSize="@dimen/dp.15"
-                    bind:showPwd="@{viewModel.isShowPwd}" />
+                    />
 
                 <CheckBox
                     android:layout_width="@dimen/dp.24"
@@ -103,8 +89,7 @@
                     android:layout_marginEnd="@dimen/dp.6"
                     android:button="@drawable/selector_login_key_visible"
                     android:checked="false"
-                    android:visibility="@{viewModel.password.length()>0?view.VISIBLE:view.GONE}"
-                    bind:checkChange="@{click.onCheckedChangeListener}" />
+                    android:visibility="gone" />
             </LinearLayout>
 
             <TextView
@@ -114,7 +99,6 @@
                 android:layout_marginBottom="@dimen/dp.12"
                 android:background="@drawable/shape_login_btn"
                 android:gravity="center"
-                android:onClick="@{() -> click.login()}"
                 android:text="@string/login_submit"
                 android:textColor="@color/colorWhite"
                 android:textSize="@dimen/dp.20" />
@@ -131,4 +115,4 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-</layout>
+</androidx.constraintlayout.widget.ConstraintLayout>

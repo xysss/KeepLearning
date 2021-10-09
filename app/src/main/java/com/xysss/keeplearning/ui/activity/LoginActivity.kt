@@ -26,8 +26,6 @@ class LoginActivity: BaseActivity<LoginViewModel, ActivityLoginBinding>() {
         mToolbar.initBack(getStringExt(R.string.login_submit)) {
             finish()
         }
-        mDataBind.viewModel = mViewModel
-        mDataBind.click = LoginClickProxy()
     }
 
     /**

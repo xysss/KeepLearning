@@ -6,18 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.viewbinding.ViewBinding
 import com.kingja.loadsir.core.LoadService
 import com.kingja.loadsir.core.LoadSir
-import com.xysss.mvvmhelper.net.manager.NetState
 import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadStatusEntity
 import com.xysss.mvvmhelper.net.LoadingDialogEntity
 import com.xysss.mvvmhelper.net.LoadingType
+import com.xysss.mvvmhelper.net.manager.NetState
 import com.xysss.mvvmhelper.net.manager.NetworkStateManager
 import com.xysss.mvvmhelper.widget.BaseEmptyCallback
 import com.xysss.mvvmhelper.widget.BaseErrorCallback
@@ -26,14 +25,14 @@ import java.lang.reflect.ParameterizedType
 
 /**
  * Author:bysd-2
- * Time:2021/9/2717:33
-* 描述　: ViewModelFragment基类，自动把ViewModel注入Fragment和Databind注入进来了
-* 需要使用Databind的清继承它
-*/
-abstract class BaseVmDbFragment <VM : BaseViewModel, DB : ViewDataBinding> : Fragment(), BaseIView {
+ * Time:2021/10/911:40
+ */
+abstract class BaseVbFragment<VM : BaseViewModel, VB : ViewBinding>  : Fragment(), BaseIView {
 
-    val layoutId: Int=0
-    lateinit var mDataBind: DB
+
+    //使用了 ViewBinding 就不需要 layoutId了，因为 会从 VB 泛型 找到相关的view
+    val layoutId: Int = 0
+    lateinit var mViewBinding: VB
     var dataBindView : View? = null
     //界面状态管理者
     lateinit var uiStatusManger: LoadService<*>
@@ -52,7 +51,7 @@ abstract class BaseVmDbFragment <VM : BaseViewModel, DB : ViewDataBinding> : Fra
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        initDataBind(inflater,container)
+        initViewBind(inflater,container)
         isFirst = true
         javaClass.simpleName.logD()
         val rootView = if (dataBindView == null) {
@@ -73,23 +72,17 @@ abstract class BaseVmDbFragment <VM : BaseViewModel, DB : ViewDataBinding> : Fra
     }
 
     /**
-     * 创建 DataBinding
+     * 创建 ViewBinding
      */
-    private fun initDataBind(inflater: LayoutInflater, container: ViewGroup?) {
-
-        /*mDataBind = DataBindingUtil.inflate(inflater, layoutId(), container, false)
-        mDataBind.lifecycleOwner = this
-        dataBindView = mDataBind.root*/
-
-        //利用反射 根据泛型得到 ViewDataBinding
+    private fun initViewBind(inflater: LayoutInflater, container: ViewGroup?) {
+        //利用反射 根据泛型得到 ViewBinding
         val superClass = javaClass.genericSuperclass
         val aClass = (superClass as ParameterizedType).actualTypeArguments[1] as Class<*>
         val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.java)
-        mDataBind = method.invoke(null, inflater, container, false) as DB
+        mViewBinding = method.invoke(null, inflater, container, false) as VB
         //如果重新加载，需要清空之前的view，不然会报错
         (dataBindView?.parent as? ViewGroup)?.removeView(dataBindView)
-        dataBindView = mDataBind.root
-        mDataBind.lifecycleOwner = this
+        dataBindView = mViewBinding.root
     }
 
     /**
@@ -171,11 +164,11 @@ abstract class BaseVmDbFragment <VM : BaseViewModel, DB : ViewDataBinding> : Fra
                 lazyLoadData()
                 //在Fragment中，只有懒加载过了才能开启网络变化监听
                 NetworkStateManager.instance.mNetworkStateCallback.observe(this, {
-                        //不是首次订阅时调用方法，防止数据第一次监听错误
-                        if (!isFirst) {
-                            onNetworkStateChanged(it)
-                        }
-                    })
+                    //不是首次订阅时调用方法，防止数据第一次监听错误
+                    if (!isFirst) {
+                        onNetworkStateChanged(it)
+                    }
+                })
                 isFirst = false
             }
         }
@@ -199,7 +192,7 @@ abstract class BaseVmDbFragment <VM : BaseViewModel, DB : ViewDataBinding> : Fra
      */
     fun addLoadingUiChange(viewModel:BaseViewModel) {
         viewModel.loadingChange.run {
-            loading.observe(this@BaseVmDbFragment) {
+            loading.observe(this@BaseVbFragment) {
                 when(it.loadingType){
                     //通用弹窗Dialog
                     LoadingType.LOADING_DIALOG ->{
@@ -226,18 +219,18 @@ abstract class BaseVmDbFragment <VM : BaseViewModel, DB : ViewDataBinding> : Fra
                 }
             }
             //当分页列表数据第一页返回空数据时 显示空布局
-            showEmpty.observe(this@BaseVmDbFragment) {
+            showEmpty.observe(this@BaseVbFragment) {
                 onRequestEmpty(it)
             }
             //当请求失败时
-            showError.observe(this@BaseVmDbFragment) {
+            showError.observe(this@BaseVbFragment) {
                 if (it.loadingType == LoadingType.LOADING_XML) {
                     showErrorUi(it.errorMessage)
                 }
                 onRequestError(it)
             }
             //如果是 LoadingType.LOADING_XML，当请求成功时 会显示正常的成功布局
-            showSuccess.observe(this@BaseVmDbFragment) {
+            showSuccess.observe(this@BaseVbFragment) {
                 showSuccessUi()
             }
         }
@@ -325,5 +318,6 @@ abstract class BaseVmDbFragment <VM : BaseViewModel, DB : ViewDataBinding> : Fra
     override fun dismissLoading(setting: LoadingDialogEntity) {
         dismissLoadingExt()
     }
+
 
 }

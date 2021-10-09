@@ -34,7 +34,7 @@ class SplashActivity : BaseActivity<BaseViewModel, ActivitySplashBinding>() {
         }
         val isFirst = mmkv.getBoolean(ValueKey.isFirst,true)
         if(isFirst){
-            mDataBind.splashImage.gone()
+            mViewBinding.splashImage.gone()
             mViewPager = findViewById(R.id.splash_banner)
             mViewPager.apply {
                 adapter = SplashBannerAdapter()
@@ -43,20 +43,20 @@ class SplashActivity : BaseActivity<BaseViewModel, ActivitySplashBinding>() {
                     override fun onPageSelected(position: Int) {
                         super.onPageSelected(position)
                         if (position == resList.size - 1) {
-                            mDataBind.splashJoin.visible()
+                            mViewBinding.splashJoin.visible()
                         } else {
-                            mDataBind.splashJoin.gone()
+                            mViewBinding.splashJoin.gone()
                         }
                     }
                 })
                 create(resList.toList())
             }
         }else{
-            mDataBind.splashImage.visible()
-            mDataBind.splashBanner.gone()
+            mViewBinding.splashImage.visible()
+            mViewBinding.splashBanner.gone()
             jumpToMainActivity()
         }
-        mDataBind.splashJoin.setOnClickListener {
+        mViewBinding.splashJoin.setOnClickListener {
             mmkv.putBoolean(ValueKey.isFirst,false)
             jumpToMainActivity()
         }

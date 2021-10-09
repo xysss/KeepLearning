@@ -25,20 +25,20 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
     private var downloadApkPath = ""
 
     override fun initView(savedInstanceState: Bundle?) {
-        mDataBind.customToolbar.setCenterTitle(R.string.bottom_title_read)
-        mDataBind.customToolbar.setBackgroundResource(R.color.colorOrange)
+        mViewBinding.customToolbar.setCenterTitle(R.string.bottom_title_read)
+        mViewBinding.customToolbar.setBackgroundResource(R.color.colorOrange)
     }
 
     override fun onResume() {
         super.onResume()
         immersionBar {
-            titleBar(mDataBind.customToolbar)
+            titleBar(mViewBinding.customToolbar)
         }
     }
 
     override fun onBindViewClick() {
-        setOnclickNoRepeat(mDataBind.loginBtn, mDataBind.testPageBtn, mDataBind.testListBtn,
-            mDataBind.testDownload, mDataBind.testUpload,mDataBind.testCrash) {
+        setOnclickNoRepeat(mViewBinding.loginBtn, mViewBinding.testPageBtn, mViewBinding.testListBtn,
+            mViewBinding.testDownload, mViewBinding.testUpload,mViewBinding.testCrash) {
             when (it.id) {
                 R.id.loginBtn -> {
                     toStartActivity(LoginActivity::class.java)
@@ -53,7 +53,7 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
                 R.id.testDownload -> {
                     mViewModel.downLoad({
                         //下载中
-                        mDataBind.testUpdateText.text = "下载进度：${it.progress}%"
+                        mViewBinding.testUpdateText.text = "下载进度：${it.progress}%"
                     }, {
                         //下载完成
                         downloadApkPath = it
@@ -67,7 +67,7 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
                 R.id.testUpload -> {
                     mViewModel.upload(downloadApkPath, {
                         //上传中 进度
-                        mDataBind.testUpdateText.text = "上传进度：${it.progress}%"
+                        mViewBinding.testUpdateText.text = "上传进度：${it.progress}%"
                     }, {
                         //上传完成
                         showDialogMessage("上传成功：${it}")

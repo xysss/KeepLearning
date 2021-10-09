@@ -6,19 +6,19 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.viewbinding.ViewBinding
 import com.gyf.immersionbar.ImmersionBar
 import com.kingja.loadsir.core.LoadService
 import com.kingja.loadsir.core.LoadSir
 import com.noober.background.BackgroundLibrary
-import com.xysss.mvvmhelper.net.manager.NetState
 import com.xysss.mvvmhelper.R
 import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadStatusEntity
 import com.xysss.mvvmhelper.net.LoadingDialogEntity
 import com.xysss.mvvmhelper.net.LoadingType
+import com.xysss.mvvmhelper.net.manager.NetState
 import com.xysss.mvvmhelper.net.manager.NetworkStateManager
 import com.xysss.mvvmhelper.widget.BaseEmptyCallback
 import com.xysss.mvvmhelper.widget.BaseErrorCallback
@@ -27,16 +27,13 @@ import java.lang.reflect.ParameterizedType
 
 /**
  * Author:bysd-2
- * Time:2021/9/2717:33
- * 描述　: 包含ViewModel 和Databind ViewModelActivity基类，把ViewModel 和Databind注入进来了
- * 需要使用Databind的清继承它
+ * Time:2021/10/911:33
  */
-
-abstract class BaseVmDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCompatActivity(), BaseIView {
+abstract class BaseVbActivity<VM : BaseViewModel,VB: ViewBinding> : AppCompatActivity(), BaseIView {
 
     val layoutId: Int = 0
-    lateinit var mDataBind: DB
-    var dataBindView :View? = null
+    var dataBindView : View? = null
+    lateinit var mViewBinding: VB
     //界面状态管理者
     lateinit var uiStatusManger: LoadService<*>
     //当前Activity绑定的 ViewModel
@@ -47,7 +44,7 @@ abstract class BaseVmDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCom
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initDataBind()
+        initViewBind()
         setContentView(R.layout.activity_base)
         //生成ViewModel
         mViewModel = createViewModel()
@@ -77,7 +74,7 @@ abstract class BaseVmDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCom
      */
     fun addLoadingUiChange(viewModel: BaseViewModel) {
         viewModel.loadingChange.run {
-            loading.observe(this@BaseVmDbActivity) {
+            loading.observe(this@BaseVbActivity) {
                 when (it.loadingType) {
                     LoadingType.LOADING_DIALOG -> {
                         if (it.isShow) {
@@ -100,38 +97,33 @@ abstract class BaseVmDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCom
                     }
                 }
             }
-            showEmpty.observe(this@BaseVmDbActivity) {
+            showEmpty.observe(this@BaseVbActivity) {
                 onRequestEmpty(it)
             }
-            showError.observe(this@BaseVmDbActivity) {
+            showError.observe(this@BaseVbActivity) {
                 //如果请求错误 并且loading类型为 xml 那么控制界面显示为错误布局
                 if (it.loadingType == LoadingType.LOADING_XML) {
                     showErrorUi(it.errorMessage)
                 }
                 onRequestError(it)
             }
-            showSuccess.observe(this@BaseVmDbActivity) {
+            showSuccess.observe(this@BaseVbActivity) {
                 showSuccessUi()
             }
         }
     }
 
     /**
-     * 创建DataBinding
+     * 创建 ViewBinding
      */
-    private fun initDataBind() {
-        /*mDataBind = DataBindingUtil.setContentView(this, layoutId())
-        mDataBind.lifecycleOwner = this
-        dataBindView = mDataBind.root*/
-
-        //利用反射 根据泛型得到 ViewDataBinding
+    private fun initViewBind() {
+        //利用反射 根据泛型得到 ViewBinding
         val superClass = javaClass.genericSuperclass
         val aClass = (superClass as ParameterizedType).actualTypeArguments[1] as Class<*>
         BackgroundLibrary.inject(this)
-        val method = aClass.getDeclaredMethod("inflate",LayoutInflater::class.java)
-        mDataBind =  method.invoke(null,layoutInflater) as DB
-        dataBindView = mDataBind.root
-        mDataBind.lifecycleOwner = this
+        val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
+        mViewBinding =  method.invoke(null,layoutInflater) as VB
+        dataBindView = mViewBinding.root
     }
 
     /**
@@ -148,7 +140,8 @@ abstract class BaseVmDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCom
         }
         initImmersionBar()
         findViewById<FrameLayout>(R.id.baseContentView).addView(if (dataBindView == null) LayoutInflater.from(this).inflate(layoutId, null) else dataBindView)
-        uiStatusManger = LoadSir.getDefault().register(if (getLoadingView() == null) findViewById<FrameLayout>(R.id.baseContentView) else getLoadingView()!!) {
+        uiStatusManger = LoadSir.getDefault().register(if (getLoadingView() == null) findViewById<FrameLayout>(
+            R.id.baseContentView) else getLoadingView()!!) {
             onLoadRetry()
         }
 
@@ -275,6 +268,5 @@ abstract class BaseVmDbActivity<VM : BaseViewModel,DB: ViewDataBinding> : AppCom
         dismissLoadingExt()
         super.finish()
     }
-
 
 }

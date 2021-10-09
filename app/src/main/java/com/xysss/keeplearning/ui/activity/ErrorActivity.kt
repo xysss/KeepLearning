@@ -33,12 +33,12 @@ class ErrorActivity : BaseActivity<BaseViewModel, ActivityErrorBinding>() {
         val defaultColor = ContextCompat.getColor(this, R.color.colorPrimary)
         supportActionBar?.setBackgroundDrawable(ColorDrawable(defaultColor))
         val config = CustomActivityOnCrash.getConfigFromIntent(intent)
-        mDataBind.errorRestart.clickNoRepeat{
+        mViewBinding.errorRestart.clickNoRepeat{
             config?.run {
                 CustomActivityOnCrash.restartApplication(this@ErrorActivity, this)
             }
         }
-        mDataBind.errorSendError.clickNoRepeat {
+        mViewBinding.errorSendError.clickNoRepeat {
             CustomActivityOnCrash.getStackTraceFromIntent(intent)?.let {
                 showDialogMessage(it,"发现有Bug不去打作者脸？","必须打",{
                     val mClipData = ClipData.newPlainText("errorLog",it)

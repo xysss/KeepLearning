@@ -12,6 +12,8 @@ import com.xysss.mvvmhelper.net.manager.NetState
 class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
         mToolbar.setCenterTitle(R.string.bottom_title_read)
+        //进行竖向方向的滑动
+        //mViewBinding.mainViewPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
         mViewBinding.mainViewPager.adapter = MainAdapter(this)
         mViewBinding.mainViewPager.offscreenPageLimit = mViewBinding.mainViewPager.adapter!!.itemCount
         mViewBinding.mainViewPager.isUserInputEnabled = false

@@ -19,15 +19,6 @@ import rxhttp.async
 
 class LoginViewModel : BaseViewModel() {
 
-    //账户名
-    val userName = StringObservableField()
-
-    //密码
-    val password = StringObservableField()
-
-    //是否显示明文密码（登录注册界面）
-    var isShowPwd = BooleanObservableField()
-
     //登录请求信息
     val loginData = MutableLiveData<UserInfo>()
 

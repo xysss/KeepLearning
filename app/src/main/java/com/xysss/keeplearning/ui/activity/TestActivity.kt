@@ -18,7 +18,7 @@ class TestActivity : BaseActivity<BaseViewModel, ActivityTestBinding>() {
     private val titles = arrayOf("页面1", "页面2", "页面3")
 
     override fun initView(savedInstanceState: Bundle?) {
-        mToolbar.initBack("测试Fragment") {
+        mToolbar.initBack("测试mFragment") {
             finish()
         }
         mViewBinding.testViewPager.adapter = object :

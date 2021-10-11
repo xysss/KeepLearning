@@ -36,6 +36,7 @@
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/phoneEdt"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -52,11 +53,12 @@
                     android:textSize="@dimen/dp.15" />
 
                 <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/clearText"
                     android:layout_width="@dimen/dp.24"
                     android:layout_height="@dimen/dp.24"
                     android:layout_marginEnd="@dimen/dp.6"
                     android:src="@drawable/ic_login_clear"
-                    android:visibility="gone" />
+                    android:visibility="visible" />
             </LinearLayout>
 
             <LinearLayout
@@ -68,6 +70,7 @@
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/passwordEdt"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -84,15 +87,17 @@
                     />
 
                 <CheckBox
+                    android:id="@+id/showPassword"
                     android:layout_width="@dimen/dp.24"
                     android:layout_height="@dimen/dp.24"
                     android:layout_marginEnd="@dimen/dp.6"
                     android:button="@drawable/selector_login_key_visible"
                     android:checked="false"
-                    android:visibility="gone" />
+                    android:visibility="visible" />
             </LinearLayout>
 
             <TextView
+                android:id="@+id/loginBtn"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp.48"
                 android:layout_marginTop="@dimen/dp.30"

@@ -38,7 +38,8 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
 
     override fun onBindViewClick() {
         setOnclickNoRepeat(mViewBinding.loginBtn, mViewBinding.testPageBtn, mViewBinding.testListBtn,
-            mViewBinding.testDownload, mViewBinding.testUpload,mViewBinding.testCrash) {
+            mViewBinding.testDownload, mViewBinding.testUpload,mViewBinding.testCrash,
+            mViewBinding.formEdit) {
             when (it.id) {
                 R.id.loginBtn -> {
                     toStartActivity(LoginActivity::class.java)

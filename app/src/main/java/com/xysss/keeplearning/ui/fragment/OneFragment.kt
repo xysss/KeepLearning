@@ -12,6 +12,7 @@ import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.databinding.FragmentOneBinding
 import com.xysss.keeplearning.ui.activity.ListActivity
 import com.xysss.keeplearning.ui.activity.LoginActivity
+import com.xysss.keeplearning.ui.activity.RoomSampleActivity
 import com.xysss.keeplearning.ui.activity.TestActivity
 import com.xysss.keeplearning.viewmodel.TestViewModel
 import com.xysss.mvvmhelper.ext.msg
@@ -61,8 +62,11 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
     override fun onBindViewClick() {
         setOnclickNoRepeat(mViewBinding.loginBtn, mViewBinding.testPageBtn, mViewBinding.testListBtn,
             mViewBinding.testDownload, mViewBinding.testUpload,mViewBinding.testCrash,
-            mViewBinding.getPermission) {
+            mViewBinding.getPermission,mViewBinding.testRoom) {
             when (it.id) {
+                R.id.testRoom -> {
+                    toStartActivity(RoomSampleActivity::class.java)
+                }
                 R.id.getPermission -> {
                     requestCameraPermissions()
                 }

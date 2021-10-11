@@ -60,7 +60,11 @@
             android:label="错误界面"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-
+        <activity
+            android:name=".ui.activity.RoomSampleActivity"
+            android:label="错误界面"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

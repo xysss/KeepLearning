@@ -156,7 +156,7 @@ dependencies {
     //rxhttp
     kapt "com.ljx.rxhttp:rxhttp-compiler:2.5.5"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+    implementation 'androidx.work:work-runtime:2.2.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.3'
-
 
 }

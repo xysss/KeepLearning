@@ -1,7 +1,11 @@
 package com.xysss.keeplearning.ui.fragment
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.os.Bundle
+import com.blankj.utilcode.util.ToastUtils
 import com.gyf.immersionbar.ktx.immersionBar
+import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
@@ -36,11 +40,32 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
         }
     }
 
+    /**
+     * 请求相机权限
+     */
+    @SuppressLint("CheckResult")
+    private fun requestCameraPermissions() {
+        ToastUtils.showShort("请求相机权限")
+        //请求打开相机权限
+        val rxPermissions = RxPermissions(requireActivity())
+        rxPermissions.request(Manifest.permission.CAMERA)
+            .subscribe { aBoolean ->
+                if (aBoolean) {
+                    ToastUtils.showShort("相机权限已经打开，直接跳入相机")
+                } else {
+                    ToastUtils.showShort("权限被拒绝")
+                }
+            }
+    }
+
     override fun onBindViewClick() {
         setOnclickNoRepeat(mViewBinding.loginBtn, mViewBinding.testPageBtn, mViewBinding.testListBtn,
             mViewBinding.testDownload, mViewBinding.testUpload,mViewBinding.testCrash,
-            mViewBinding.formEdit) {
+            mViewBinding.getPermission) {
             when (it.id) {
+                R.id.getPermission -> {
+                    requestCameraPermissions()
+                }
                 R.id.loginBtn -> {
                     toStartActivity(LoginActivity::class.java)
                 }

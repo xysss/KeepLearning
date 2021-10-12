@@ -4,7 +4,9 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
 }
-
+static def releaseTime() {
+    return new Date().format("yyyyMMdd-HH")
+}
 android {
     signingConfigs {
         app {
@@ -72,7 +74,7 @@ android {
         variant ->
             variant.outputs.all {
                 //在这里修改apk文件名
-                outputFileName = "xys-v${variant.versionName}.apk"
+                outputFileName = "xys-v${variant.versionName}-t${releaseTime()}-${name}.apk"
             }
     }
 

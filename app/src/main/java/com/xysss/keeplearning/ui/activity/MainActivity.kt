@@ -1,12 +1,14 @@
 package com.xysss.keeplearning.ui.activity
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.databinding.ActivityMainBinding
 import com.xysss.keeplearning.ui.adapter.MainAdapter
 import com.xysss.keeplearning.viewmodel.TestViewModel
+import com.xysss.mvvmhelper.net.interception.logging.util.LogUtils
 import com.xysss.mvvmhelper.net.manager.NetState
 
 class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
@@ -43,6 +45,8 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
         super.onNetworkStateChanged(netState)
         if (netState.isSuccess) {
             Toast.makeText(applicationContext, "我特么终于有网了啊!", Toast.LENGTH_SHORT).show()
+            Log.d("MvvmHelper","aaaaa")
+            LogUtils.debugInfo("bbbb")
         } else {
             Toast.makeText(applicationContext, "我特么怎么断网了!", Toast.LENGTH_SHORT).show()
         }

@@ -1,7 +1,6 @@
 package com.xysss.keeplearning.ui.activity
 
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.work.*
 import com.xysss.keeplearning.app.base.BaseActivity
@@ -10,8 +9,7 @@ import com.xysss.keeplearning.app.room.User
 import com.xysss.keeplearning.app.workmanager.SimpleWorker
 import com.xysss.keeplearning.databinding.FragmentRoomBinding
 import com.xysss.keeplearning.viewmodel.RoomSampleViewModel
-import com.xysss.mvvmhelper.ext.loadListSuccess
-import com.xysss.mvvmhelper.ext.logD
+import com.xysss.mvvmhelper.net.interception.logging.util.LogUtils.Companion.debugInfo
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
@@ -25,7 +23,7 @@ class RoomSampleActivity : BaseActivity<RoomSampleViewModel, FragmentRoomBinding
         mViewModel.userList.observe(this, Observer { userList->
             mViewBinding.infoText.text = ""
             mViewBinding.infoText.text = userList.toString()
-            Log.d("aaaa",userList.toString())
+            debugInfo(userList.toString())
         })
 
         val userDao = AppDatabase.getDatabase(this).userDao()
@@ -84,16 +82,13 @@ class RoomSampleActivity : BaseActivity<RoomSampleViewModel, FragmentRoomBinding
                 .getWorkInfoByIdLiveData(request.id)
                 .observe(this){workInfo->
                     if (workInfo.state==WorkInfo.State.SUCCEEDED){
-                        logD("do work succeeded")
+                        debugInfo("do work succeeded")
                     }else if (workInfo.state==WorkInfo.State.FAILED){
-                        logD("do work failed")
+                        debugInfo("do work failed")
                     }
                 }
 
         }
-
-
-
     }
 }
 

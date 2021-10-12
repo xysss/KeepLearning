@@ -3,7 +3,7 @@ package com.xysss.keeplearning.app.workmanager
 import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.xysss.mvvmhelper.ext.logD
+import com.xysss.mvvmhelper.net.interception.logging.util.LogUtils
 
 /**
  * Author:bysd-2
@@ -12,7 +12,7 @@ import com.xysss.mvvmhelper.ext.logD
 class SimpleWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
 
     override fun doWork(): Result {
-        logD("do work in SimpleWorker")
+        LogUtils.debugInfo("do work in SimpleWorker")
         return Result.success()
     }
 

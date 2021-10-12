@@ -89,11 +89,9 @@
 
 
 
-# DataBinding反射混淆，必加，包名 请换成自己的
--keep class com.zhixinhuixue.zsyte.xxx.databinding.** { *; }
-#所有GSON生成的对象类不能被混淆
--keep class com.zhixinhuixue.zsyte.xxx.data.response.**{*;}
--keep class com.zhixinhuixue.zsyte.xxx.data.request.**{*;}
+##所有GSON生成的对象类不能被混淆
+-keep class com.xysss.keeplearning.data.response.**{*;}
+-keep class com.xysss.keeplearning.data.request.**{*;}
 
 
 

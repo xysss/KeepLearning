@@ -17,6 +17,10 @@ android {
         }
     }
 
+    lintOptions{
+        checkReleaseBuilds false //release关闭lint检查
+        abortOnError false
+    }
     buildFeatures {
         viewBinding true
     }
@@ -28,23 +32,23 @@ android {
         applicationId "com.xysss.keeplearning"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.0.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"  //用于启用JUnit测试
         resConfigs "zh-rCN", "zh-rHK", "zh-rMO", "zh-rTW" // 去除无用语言
         signingConfig signingConfigs.debug
         multiDexEnabled true
-        ndk {
+        /*ndk {
             // 设置支持的SO库架构 一般只设置这个就阔以设配所有的设备了，还可以减少apk的大小
-            abiFilters 'armeabi','armeabi-v7a'
-        }
+            abiFilters 'armeabi','armeabi-v7a'//'arm64-v8a' , 'x86',  'x86_64',
+        }*/
     }
     buildTypes {
         release {
-            minifyEnabled true  //指定是否开启混淆
+            minifyEnabled false  //指定是否开启混淆
             zipAlignEnabled true  //Zipalign优化
-            shrinkResources true  // 去除无用资源 与lint不同
+            shrinkResources false  // 去除无用资源 与lint不同
             signingConfig signingConfigs.app
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'  //混淆时使用的规则文件
         }

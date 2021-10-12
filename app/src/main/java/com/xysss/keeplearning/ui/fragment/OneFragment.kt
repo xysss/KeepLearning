@@ -6,6 +6,7 @@ import android.os.Bundle
 import com.blankj.utilcode.util.ToastUtils
 import com.gyf.immersionbar.ktx.immersionBar
 import com.tbruyelle.rxpermissions2.RxPermissions
+import com.tencent.bugly.beta.Beta
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
@@ -32,6 +33,8 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
         mViewBinding.customToolbar.setCenterTitle(R.string.bottom_title_read)
         mViewBinding.customToolbar.setBackgroundResource(R.color.colorOrange)
+        //bugly进入首页检查更新
+        Beta.checkUpgrade(false, true)
     }
 
     override fun onResume() {

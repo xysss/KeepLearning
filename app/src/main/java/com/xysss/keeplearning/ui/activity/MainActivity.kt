@@ -2,6 +2,7 @@ package com.xysss.keeplearning.ui.activity
 
 import android.os.Bundle
 import android.widget.Toast
+import com.blankj.utilcode.util.ToastUtils
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.databinding.ActivityMainBinding
@@ -42,9 +43,9 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
     override fun onNetworkStateChanged(netState: NetState) {
         super.onNetworkStateChanged(netState)
         if (netState.isSuccess) {
-            Toast.makeText(applicationContext, "我特么终于有网了啊!", Toast.LENGTH_SHORT).show()
+            ToastUtils.showShort("我特么终于有网了啊!")
         } else {
-            Toast.makeText(applicationContext, "我特么怎么断网了!", Toast.LENGTH_SHORT).show()
+            ToastUtils.showShort("我特么怎么断网了!")
         }
     }
 

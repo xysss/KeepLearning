@@ -34,8 +34,8 @@ android {
         applicationId "com.xysss.keeplearning"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 3
-        versionName "1.0.3"
+        versionCode 4
+        versionName "1.0.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"  //用于启用JUnit测试
         resConfigs "zh-rCN", "zh-rHK", "zh-rMO", "zh-rTW" // 去除无用语言
@@ -159,10 +159,9 @@ dependencies {
     implementation "androidx.room:room-runtime:2.3.0"
     implementation "androidx.room:room-ktx:2.3.0"
     kapt "androidx.room:room-compiler:2.3.0"
-    //rxhttp
-    kapt "com.ljx.rxhttp:rxhttp-compiler:2.5.5"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
     implementation 'androidx.work:work-runtime:2.2.0'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.3'
-
+    //rxhttp
+    kapt 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.7.0'
 }

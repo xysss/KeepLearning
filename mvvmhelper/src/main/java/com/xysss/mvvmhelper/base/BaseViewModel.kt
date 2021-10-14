@@ -28,7 +28,7 @@ open class BaseViewModel : ViewModel() {
         //界面显示错误布局
         val showError by lazy { UnPeekLiveData<LoadStatusEntity>() }
 
-        //界面显示错误布局
+        //界面显示成功布局
         val showSuccess by lazy { UnPeekLiveData<Boolean>() }
     }
 }

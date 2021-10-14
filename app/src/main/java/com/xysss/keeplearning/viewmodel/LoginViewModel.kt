@@ -5,8 +5,6 @@ import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.data.repository.UserRepository
 import com.xysss.keeplearning.data.response.UserInfo
 import com.xysss.mvvmhelper.base.BaseViewModel
-import com.xysss.mvvmhelper.core.databinding.BooleanObservableField
-import com.xysss.mvvmhelper.core.databinding.StringObservableField
 import com.xysss.mvvmhelper.ext.logA
 import com.xysss.mvvmhelper.ext.rxHttpRequest
 import com.xysss.mvvmhelper.net.LoadingType

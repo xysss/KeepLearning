@@ -25,6 +25,7 @@ import com.xysss.mvvmhelper.util.mvvmHelperLog
 import com.xysss.mvvmhelper.widget.BaseEmptyCallback
 import com.xysss.mvvmhelper.widget.BaseErrorCallback
 import com.xysss.mvvmhelper.widget.BaseLoadingCallback
+import rxhttp.RxHttpPlugins
 import rxhttp.wrapper.param.RxHttp
 import java.util.*
 
@@ -67,7 +68,7 @@ class InitNetWork : Task(TASK_ID, true) {
     }
     override fun run(name: String) {
         //传入自己的OKHttpClient 并添加了自己的拦截器
-        RxHttp.init(NetHttpClient.getDefaultOkHttpClient().build())
+        RxHttpPlugins.init(NetHttpClient.getDefaultOkHttpClient().build())
     }
 }
 

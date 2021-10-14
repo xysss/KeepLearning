@@ -3,7 +3,7 @@ package com.xysss.keeplearning.data.repository
 import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.data.response.ApiPagerResponse
 import com.xysss.keeplearning.data.response.UserInfo
-import rxhttp.IAwait
+import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toResponse
 
@@ -17,7 +17,7 @@ object UserRepository {
     /**
      * 登录
      */
-    fun login(userName: String, password: String): IAwait<UserInfo> {
+    fun login(userName: String, password: String): Await<UserInfo> {
         return RxHttp.postForm(NetUrl.LOGIN)
             .add("username", userName)
             .add("password", password)
@@ -27,10 +27,9 @@ object UserRepository {
     /**
      * 获取列表信息
      */
-    fun getList(pageIndex: Int): IAwait<ApiPagerResponse<Any>> {
+    fun getList(pageIndex: Int): Await<ApiPagerResponse<Any>> {
         return RxHttp.get(NetUrl.HOME_LIST, pageIndex)
             .toResponse()
     }
-
 }
 

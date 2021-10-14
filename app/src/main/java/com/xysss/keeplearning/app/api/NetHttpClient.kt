@@ -24,5 +24,7 @@ object NetHttpClient {
             .writeTimeout(15, TimeUnit.SECONDS)
             .addInterceptor(HeadInterceptor())//自定义头部参数拦截器
             .addInterceptor(LogInterceptor())//添加Log拦截器
+            /*.sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager) //添加信任证书
+            .hostnameVerifier((hostname, session) -> true) //忽略host验证*/
     }
 }

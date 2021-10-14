@@ -22,7 +22,7 @@ val Throwable.code: Int
             else -> "-1"
         }
         return try {
-            errorCode.toInt()
+            errorCode.hashCode()
         } catch (e: Exception) {
             -1
         }

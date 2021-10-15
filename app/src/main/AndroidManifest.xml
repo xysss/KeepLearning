@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.xysss.keeplearning">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -13,7 +14,13 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission
         android:name="android.permission.READ_LOGS"
-        tools:ignore="ProtectedPermissions" />
+        tools:ignore="ProtectedPermissions" /> <!-- Arms 配置 -->
+    <meta-data
+        android:name="design_width_in_dp"
+        android:value="375" />
+    <meta-data
+        android:name="design_height_in_dp"
+        android:value="667" />
 
     <application
         android:name=".app.App"
@@ -28,20 +35,23 @@
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute,LockedOrientationActivity"
         tools:replace="android:allowBackup,android:networkSecurityConfig">
         <activity
+            android:name=".ui.activity.WebActivity"
+            android:exported="true" />
+        <activity
             android:name=".ui.activity.SplashActivity"
-            android:theme="@style/SplashTheme"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.MainActivity"
+        <activity
+            android:name=".ui.activity.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
-            />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.TestActivity"
             android:launchMode="singleTask"
@@ -53,8 +63,8 @@
         <activity
             android:name=".ui.activity.LoginActivity"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustResize"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.activity.ErrorActivity"
             android:label="错误界面"
@@ -79,17 +89,6 @@
         <meta-data
             android:name="android.webkit.WebView.EnableSafeBrowsing"
             android:value="true" />
-
     </application>
-
-
-
-    <!-- Arms 配置 -->
-    <meta-data
-        android:name="design_width_in_dp"
-        android:value="375" />
-    <meta-data
-        android:name="design_height_in_dp"
-        android:value="667" />
 
 </manifest>

@@ -22,7 +22,7 @@ import com.zhpan.bannerview.BannerViewPager
  */
 class SplashActivity : BaseActivity<BaseViewModel, ActivitySplashBinding>() {
 
-    private var resList = arrayOf(R.drawable.sanshang_teacher,R.drawable.yingkongtao_teacher, R.drawable.boduo_teacher)
+    private var resList = arrayOf(R.drawable.p1,R.drawable.p2, R.drawable.p3)
 
     private lateinit var mViewPager: BannerViewPager<Int>
 

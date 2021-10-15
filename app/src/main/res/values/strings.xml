@@ -14,7 +14,18 @@
     <string name="error_tips">发生错误</string>
     <string name="error_message">发生意外错误。</string>
 
+    <string name="user_name">赵钱孙</string>
+    <string name="user_id">id：—　排名：—</string>
+    <string name="me_integral">我的积分</string>
+    <string name="me_integral_now">当前积分:</string>
+    <string name="me_collect">我的收藏</string>
 
 
+    <string name="me_article">我的文章</string>
+    <string name="me_todo">TODO</string>
+    <string name="me_web">开源网站</string>
+    <string name="me_joinQQ">加入我们</string>
+    <string name="me_demo">一些示例</string>
+    <string name="me_system">系统设置</string>
 
 </resources>

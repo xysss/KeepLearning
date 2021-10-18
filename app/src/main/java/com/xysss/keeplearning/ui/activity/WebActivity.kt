@@ -12,6 +12,11 @@ import com.xysss.mvvmhelper.ext.getStringExt
 
 
 class WebActivity : BaseActivity<BaseViewModel,ActivityWebBinding>() {
+
+    private var mAgentWeb: AgentWeb? = null
+
+    private var preWeb: AgentWeb.PreAgentWeb? = null
+
     override fun initView(savedInstanceState: Bundle?) {
         //初始化toolbar
         mToolbar.initBack(getStringExt(R.string.me_web)) {
@@ -21,13 +26,22 @@ class WebActivity : BaseActivity<BaseViewModel,ActivityWebBinding>() {
         val bundle:Bundle?=intent.extras
         val name:String?=bundle!!.getString("url")
 
-        AgentWeb.with(this)
+        preWeb = AgentWeb.with(this)
             .setAgentWebParent(mViewBinding.webcontent, LinearLayout.LayoutParams(-1, -1))
             .useDefaultIndicator()
             .createAgentWeb()
             .ready()
-            .go(name)
+        mAgentWeb = preWeb?.go(name)
 
     }
 
+    override fun onBackPressed() {
+        mAgentWeb?.let { web ->
+            if (web.webCreator.webView.canGoBack()) {
+                web.webCreator.webView.goBack()
+            } else {
+                onBackPressed()
+            }
+        }
+    }
 }

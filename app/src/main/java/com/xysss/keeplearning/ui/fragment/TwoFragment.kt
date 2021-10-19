@@ -15,14 +15,6 @@ import com.xysss.mvvmhelper.base.BaseViewModel
 class TwoFragment : BaseFragment<BaseViewModel, FragmentTwoBinding>() {
 
     override fun initView(savedInstanceState: Bundle?) {
-        mViewBinding.customToolbar.setCenterTitle(R.string.bottom_title_paper)
-        mViewBinding.customToolbar.setBackgroundResource(R.color.colorRed)
-    }
 
-    override fun onResume() {
-        super.onResume()
-        immersionBar {
-            titleBar(mViewBinding.customToolbar)
-        }
     }
 }

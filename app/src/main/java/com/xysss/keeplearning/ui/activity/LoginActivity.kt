@@ -10,11 +10,10 @@ import com.xysss.keeplearning.app.ext.initBack
 import com.xysss.keeplearning.app.ext.showPwd
 import com.xysss.keeplearning.databinding.ActivityLoginBinding
 import com.xysss.keeplearning.viewmodel.LoginViewModel
-import com.xysss.mvvmhelper.ext.getStringExt
-import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
-import com.xysss.mvvmhelper.ext.showDialogMessage
+import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadStatusEntity
 import com.xysss.mvvmhelper.net.LoadingDialogEntity
+import com.xysss.mvvmhelper.net.interception.logging.util.LogUtils
 
 
 /**
@@ -66,6 +65,8 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
         //监听登录结果
         mViewModel.loginData.observe(this, Observer {
             //做保存信息等操作
+            LogUtils.debugInfo(it.toString())
+            it.logA()
             finish()
         })
     }

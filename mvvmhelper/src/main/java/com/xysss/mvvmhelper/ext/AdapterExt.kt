@@ -53,12 +53,12 @@ fun <T> BaseQuickAdapter<T, *>.loadListSuccess(baseListNetEntity: BasePage<T>, s
         //刷新一下分割线
         this.recyclerView.post { this.recyclerView.invalidateItemDecorations() }
     }
-    //乳沟还有下一页数据 那么设置 smartRefreshLayout 还可以加载更多数据
+    //如果还有下一页数据 那么设置 smartRefreshLayout 还可以加载更多数据
     if (baseListNetEntity.hasMore()) {
         smartRefreshLayout.finishLoadMore()
         smartRefreshLayout.setNoMoreData(false)
     } else {
-        //乳沟没有更多数据了，设置 smartRefreshLayout 加载完毕 没有更多数据
+        //如果没有更多数据了，设置 smartRefreshLayout 加载完毕 没有更多数据
         smartRefreshLayout.finishLoadMoreWithNoMoreData()
     }
 }

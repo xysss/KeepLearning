@@ -2,7 +2,9 @@ package com.xysss.keeplearning.data.repository
 
 import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.data.response.ApiPagerResponse
+import com.xysss.keeplearning.data.response.ApiProjectTitleData
 import com.xysss.keeplearning.data.response.UserInfo
+import com.xysss.keeplearning.viewmodel.ClassifyResponse
 import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toResponse
@@ -29,6 +31,14 @@ object UserRepository {
      */
     fun getList(pageIndex: Int): Await<ApiPagerResponse<Any>> {
         return RxHttp.get(NetUrl.HOME_LIST, pageIndex)
+            .toResponse()
+    }
+
+    /**
+     * 获取项目分类
+     */
+    fun getProjectTitleData(): Await<ApiProjectTitleData<ClassifyResponse>> {
+        return RxHttp.get(NetUrl.PROJECT_TITLE_LIST)
             .toResponse()
     }
 }

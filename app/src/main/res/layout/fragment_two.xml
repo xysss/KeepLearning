@@ -9,14 +9,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
         <FrameLayout
-            android:id="@+id/viewpager_linear"
+            android:id="@+id/viewpagerLinear"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/colorPrimary"
             android:padding="2dp">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/include_viewpager_toolbar"
+                android:id="@+id/includeToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:theme="@style/AppTheme.AppBarOverlay"
@@ -24,7 +24,7 @@
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
             <net.lucode.hackware.magicindicator.MagicIndicator
-                android:id="@+id/magic_indicator"
+                android:id="@+id/magicIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:layout_gravity="center"
@@ -35,7 +35,7 @@
 
 
         <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/view_pager"
+            android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

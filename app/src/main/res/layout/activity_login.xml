@@ -44,7 +44,6 @@
                     android:drawableStart="@drawable/ic_login_user"
                     android:drawablePadding="@dimen/dp.6"
                     android:hint="@string/login_phone"
-                    android:inputType="phone"
                     android:lines="1"
                     android:maxLength="11"
                     android:paddingLeft="@dimen/dp.12"

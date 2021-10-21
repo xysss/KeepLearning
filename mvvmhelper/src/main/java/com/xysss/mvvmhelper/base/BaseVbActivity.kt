@@ -192,7 +192,7 @@ abstract class BaseVbActivity<VM : BaseViewModel,VB: ViewBinding> : AppCompatAct
     }
 
     /**
-     * 请求接口失败回调，如果界面有请求接口，需要处理错误业务，请实现它 乳沟不实现那么 默认吐司错误消息
+     * 请求接口失败回调，如果界面有请求接口，需要处理错误业务，请实现它 如果不实现那么 默认吐司错误消息
      * @param loadStatus LoadStatusEntity
      */
     override fun onRequestError(loadStatus: LoadStatusEntity) {

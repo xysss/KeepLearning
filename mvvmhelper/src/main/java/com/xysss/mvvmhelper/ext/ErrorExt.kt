@@ -24,7 +24,7 @@ val Throwable.code: Int
         return try {
             errorCode.hashCode()
         } catch (e: Exception) {
-            -1
+            errorCode.hashCode()
         }
     }
 

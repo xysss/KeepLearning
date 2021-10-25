@@ -21,6 +21,8 @@ object NetUrl {
     const val HOME_LIST = "article/list/%1\$d/json"
     //项目分类标题
     const val PROJECT_TITLE_LIST = "project/tree/json"
+    //项目列表数据
+    const val Project_Data = "project/list/%1\$d/json"
 
     const val UPLOAD_URL = "http://t.xinhuo.com/index.php/Api/Pic/uploadPic"
 

@@ -8,6 +8,7 @@ import com.xysss.keeplearning.app.ext.bindViewPager2
 import com.xysss.keeplearning.app.ext.init
 import com.xysss.keeplearning.databinding.FragmentTwoBinding
 import com.xysss.keeplearning.viewmodel.RequestProjectViewModel
+import com.xysss.mvvmhelper.ext.logD
 
 /**
  * Author:bysd-2
@@ -36,17 +37,22 @@ class TwoFragment : BaseFragment<RequestProjectViewModel, FragmentTwoBinding>() 
 
     fun createObserver() {
         mViewModel.titleData.observe(viewLifecycleOwner, Observer {
-
+            "titleData请求成功".logD()
             mDataList.clear()
             fragments.clear()
             mDataList.add("最新项目")
-            mDataList.addAll(it.datas.map { it.name })
+            /*mDataList.addAll(it.datas.map { it.name })*/
             fragments.add(ProjectChildFragment.newInstance(0, true))
-
-            it.datas.forEach { classify ->
-                fragments.add(ProjectChildFragment.newInstance(classify.id, false))
-            }
+            /*it.data.forEach { classify ->
+                //fragments.add(ProjectChildFragment.newInstance(classify.id, false))
+            }*/
         })
+
+        mViewModel.projectDataState.observe(viewLifecycleOwner,{
+            "projectDataState请求成功".logD()
+            it.toString().logD()
+        })
+
     }
 
     /**
@@ -55,5 +61,11 @@ class TwoFragment : BaseFragment<RequestProjectViewModel, FragmentTwoBinding>() 
     override fun onLoadRetry() {
         //请求标题数据
         mViewModel.getList()
+
+        mViewModel.getProjectData(false)
+
     }
+
+
+
 }

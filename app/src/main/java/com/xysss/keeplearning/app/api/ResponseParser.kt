@@ -4,8 +4,10 @@ import com.xysss.keeplearning.data.response.ApiPagerResponse
 import com.xysss.keeplearning.data.response.ApiResponse
 import com.xysss.mvvmhelper.net.BaseNetConstant
 import rxhttp.wrapper.annotation.Parser
+import rxhttp.wrapper.entity.ParameterizedTypeImpl
 import rxhttp.wrapper.exception.ParseException
 import rxhttp.wrapper.parse.TypeParser
+import rxhttp.wrapper.utils.convert
 import rxhttp.wrapper.utils.convertTo
 import java.io.IOException
 import java.lang.reflect.Type
@@ -40,7 +42,8 @@ open class ResponseParser<T> : TypeParser<T> {
 
     @Throws(IOException::class)
     override fun onParse(response: okhttp3.Response): T {
-        //val type: Type = ParameterizedTypeImpl[ApiResponse::class.java, *types] //获取泛型类型
+        /*val type: Type = ParameterizedTypeImpl[ApiResponse::class.java] //获取泛型类型
+        val data: ApiResponse<T> = response.convert(type)*/
         val data: ApiResponse<T> = response.convertTo(ApiResponse::class, *types)
         var t = data.data //获取data字段
 

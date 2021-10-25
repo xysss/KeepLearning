@@ -18,54 +18,37 @@ import com.xysss.mvvmhelper.ext.logD
 class TwoFragment : BaseFragment<RequestProjectViewModel, FragmentTwoBinding>() {
 
     //fragment集合
-    var fragments: ArrayList<Fragment> = arrayListOf()
+    private var fragments: ArrayList<Fragment> = arrayListOf()
 
     //标题集合
-    var mDataList: ArrayList<String> = arrayListOf()
+    private var mDataList: ArrayList<String> = arrayListOf()
 
     override fun initView(savedInstanceState: Bundle?) {
-
         //初始化viewpager2
         mViewBinding.viewPager.init(this, fragments)
         //初始化 magic_indicator
         mViewBinding.magicIndicator.bindViewPager2(mViewBinding.viewPager, mDataList)
-
         //发起请求
         onLoadRetry()
         createObserver()
     }
 
-    fun createObserver() {
+    private fun createObserver() {
         mViewModel.titleData.observe(viewLifecycleOwner, Observer {
             "titleData请求成功".logD()
-            mDataList.clear()
-            fragments.clear()
-            mDataList.add("最新项目")
-            /*mDataList.addAll(it.datas.map { it.name })*/
-            fragments.add(ProjectChildFragment.newInstance(0, true))
-            /*it.data.forEach { classify ->
-                //fragments.add(ProjectChildFragment.newInstance(classify.id, false))
-            }*/
         })
-
         mViewModel.projectDataState.observe(viewLifecycleOwner,{
             "projectDataState请求成功".logD()
-            it.toString().logD()
         })
-
     }
 
     /**
      * 错误界面 空界面 点击重试
      */
     override fun onLoadRetry() {
-        //请求标题数据
-        mViewModel.getList()
-
-        mViewModel.getProjectData(false)
-
+        mViewModel.getPublicTitleData()
+        //mViewModel.getPublicData(false,false,408)
+        //mViewModel.getProjectTitleData()
+        //mViewModel.getProjectData(false)
     }
-
-
-
 }

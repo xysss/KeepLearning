@@ -47,8 +47,27 @@ object UserRepository {
      * 获取项目标题数据
      */
     fun getProjectData(pageIndex: Int): Await<ListDataUiState<AriticleResponse>> {
-        return RxHttp.get(NetUrl.Project_Data,pageIndex)
+        return RxHttp.get(NetUrl.Project_Data, pageIndex)
             .toResponse()
     }
+
+    /**
+     * 获取项目分类
+     */
+    fun getPublicTitle(): Await<ArrayList<ClassifyResponse>> {
+        return RxHttp.get(NetUrl.Public_Title)
+            .toResponse()
+    }
+
+    /**
+     * 获取项目标题数据
+     */
+    fun getPublicData(pageIndex: Int, id: Int): Await<ListDataUiState<AriticleResponse>> {
+        return RxHttp.get(NetUrl.Public_Data, id, pageIndex)
+            /*.add("page",pageIndex)
+            .add("id",id)*/
+            .toResponse()
+    }
+
 }
 

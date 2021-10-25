@@ -28,4 +28,17 @@ object NetUrl {
 
     const val DOWNLOAD_URL = "http://update.9158.com/miaolive/Miaolive.apk"
 
+    /**
+     * 公众号分类
+     */
+    const val Public_Title = "wxarticle/chapters/json"
+
+    /**
+     * 获取公众号数据
+     */
+    const val Public_Data = "wxarticle/list/%1\$d/%1\$d/json"
+
+
+
+
 }

@@ -10,11 +10,11 @@ import com.xysss.keeplearning.R
  * Time:2021/9/2811:10
  */
 
-class TestAdapter(data:ArrayList<Any>) : BaseQuickAdapter<Any, BaseViewHolder>(R.layout.item_test),
+class TestAdapter(data: ArrayList<Any>) : BaseQuickAdapter<Any, BaseViewHolder>(R.layout.item_test),
     LoadMoreModule {
 
     override fun convert(holder: BaseViewHolder, item: Any) {
-        holder.setText(R.id.item_test_button,item.toString())
+        holder.setText(R.id.item_test_button, item.toString())
     }
 
 }

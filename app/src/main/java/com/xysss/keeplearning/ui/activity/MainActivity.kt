@@ -43,9 +43,9 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
     override fun onNetworkStateChanged(netState: NetState) {
         super.onNetworkStateChanged(netState)
         if (netState.isSuccess) {
-            ToastUtils.showShort("我特么终于有网了啊!")
+            ToastUtils.showShort("终于有网了!")
         } else {
-            ToastUtils.showShort("我特么怎么断网了!")
+            ToastUtils.showShort("网络无连接!")
         }
     }
 

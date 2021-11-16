@@ -50,10 +50,10 @@ class TestFragment1 : BaseFragment<ListViewModel, ActivityListBinding>() {
      * 请求成功
      */
     override fun onRequestSuccess() {
-        mViewModel.listData.observe(this, Observer {
+        mViewModel.listData.observe(this){
             //请求到列表数据
             testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
-        })
+        }
     }
 
     /**

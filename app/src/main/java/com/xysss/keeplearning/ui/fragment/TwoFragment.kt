@@ -34,12 +34,12 @@ class TwoFragment : BaseFragment<RequestProjectViewModel, FragmentTwoBinding>() 
     }
 
     private fun createObserver() {
-        mViewModel.titleData.observe(viewLifecycleOwner, Observer {
+        mViewModel.titleData.observe(this) {
             "titleData请求成功".logD()
-        })
-        mViewModel.projectDataState.observe(viewLifecycleOwner,{
+        }
+        mViewModel.projectDataState.observe(this){
             "projectDataState请求成功".logD()
-        })
+        }
     }
 
     /**

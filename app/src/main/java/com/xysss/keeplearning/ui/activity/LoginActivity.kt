@@ -63,12 +63,12 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
      */
     override fun onRequestSuccess() {
         //监听登录结果
-        mViewModel.loginData.observe(this, Observer {
+        mViewModel.loginData.observe(this){
             //做保存信息等操作
             LogUtils.debugInfo(it.toString())
             it.logA()
             finish()
-        })
+        }
     }
 
     /**

@@ -20,11 +20,11 @@ import kotlin.concurrent.thread
 class RoomSampleActivity : BaseActivity<RoomSampleViewModel, FragmentRoomBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
 
-        mViewModel.userList.observe(this, Observer { userList->
+        mViewModel.userList.observe(this){ userList->
             mViewBinding.infoText.text = ""
             mViewBinding.infoText.text = userList.toString()
             debugInfo(userList.toString())
-        })
+        }
 
         val userDao = AppDatabase.getDatabase(this).userDao()
         val user1 = User("Tom", "Brady", 40)

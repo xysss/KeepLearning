@@ -59,9 +59,9 @@ abstract class BaseVbActivity<VM : BaseViewModel,VB: ViewBinding> : AppCompatAct
         //初始化绑定点击方法
         onBindViewClick()
         //网络监听
-        NetworkStateManager.instance.mNetworkStateCallback.observe(this, Observer {
+        NetworkStateManager.instance.mNetworkStateCallback.observe(this){
             onNetworkStateChanged(it)
-        })
+        }
     }
 
     /**

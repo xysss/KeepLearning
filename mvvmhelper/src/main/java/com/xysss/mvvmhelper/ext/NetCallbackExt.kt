@@ -33,7 +33,7 @@ fun BaseViewModel.rxHttpRequest(requestDslClass: HttpRequestDsl.() -> Unit) {
             )
         }
         runCatching {
-            // 携程体方法执行工作
+            // 协程体方法执行工作
             httpRequestDsl.onRequest.invoke(this)
         }.onSuccess {
             //请求完成 走到这里说明请求成功了 如果请求类型为LOADING_XML 那么通知Activity/Fragment展示success 界面

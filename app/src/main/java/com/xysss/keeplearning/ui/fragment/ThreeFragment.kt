@@ -6,6 +6,7 @@ import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.databinding.FragmentThreeBinding
 import com.xysss.keeplearning.viewmodel.TestViewModel
+import jni.JniKit
 
 /**
  * Author:bysd-2
@@ -25,5 +26,6 @@ class ThreeFragment : BaseFragment<TestViewModel, FragmentThreeBinding>() {
         immersionBar {
             titleBar(mViewBinding.customToolbar)
         }
+        mViewBinding.testInput.text = JniKit.stringFromJNI()
     }
 }

@@ -23,9 +23,6 @@ android {
         checkReleaseBuilds false //release关闭lint检查
         abortOnError false
     }
-    buildFeatures {
-        viewBinding true
-    }
 
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -34,17 +31,21 @@ android {
         applicationId "com.xysss.keeplearning"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 6
+        versionCode 7
         versionName "1.0.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"  //用于启用JUnit测试
         resConfigs "zh-rCN", "zh-rHK", "zh-rMO", "zh-rTW" // 去除无用语言
         signingConfig signingConfigs.debug
         multiDexEnabled true
-        /*ndk {
-            // 设置支持的SO库架构 一般只设置这个就阔以设配所有的设备了，还可以减少apk的大小
-            abiFilters 'armeabi','armeabi-v7a'//'arm64-v8a' , 'x86',  'x86_64',
-        }*/
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
+        ndk {
+            abiFilters "armeabi-v7a",'arm64-v8a'
+        }
     }
     buildTypes {
         release {
@@ -69,6 +70,12 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.10.2'
+        }
+    }
 
     android.applicationVariants.all {
         variant ->
@@ -76,6 +83,9 @@ android {
                 //在这里修改apk文件名
                 outputFileName = "xys-v${variant.versionName}-t${releaseTime()}-${name}.apk"
             }
+    }
+    buildFeatures {
+        viewBinding true
     }
 
     /*

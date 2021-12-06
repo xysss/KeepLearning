@@ -18,7 +18,6 @@ class RequestProjectViewModel : BaseViewModel() {
     var titleData = MutableLiveData<ArrayList<ClassifyResponse>>()
     var projectDataState = MutableLiveData<ListDataUiState<AriticleResponse>>()
 
-    var isSetDateShow = MutableLiveData<Any>()
     /**
     获取标题数据
      */
@@ -57,17 +56,6 @@ class RequestProjectViewModel : BaseViewModel() {
         rxHttpRequest {
             onRequest = {
                 titleData.value = UserRepository.getPublicTitle().await()
-            }
-        }
-    }
-
-    /**
-    获取标题数据
-     */
-    fun setDateShow() {
-        rxHttpRequest {
-            onRequest = {
-                isSetDateShow.value = UserRepository.setDateShow().await()
             }
         }
     }

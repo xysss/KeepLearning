@@ -7,7 +7,6 @@ import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.initBack
-import com.xysss.keeplearning.app.ext.showPwd
 import com.xysss.keeplearning.databinding.ActivityLoginBinding
 import com.xysss.keeplearning.viewmodel.LoginViewModel
 import com.xysss.mvvmhelper.ext.*
@@ -54,7 +53,7 @@ class LoginActivity : BaseActivity<LoginViewModel, ActivityLoginBinding>() {
         }
 
         mViewBinding.showPassword.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-            showPwd(mViewBinding.passwordEdt,isChecked)
+            //showPwd(mViewBinding.passwordEdt,isChecked)
         })
     }
 

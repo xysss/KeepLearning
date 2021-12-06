@@ -40,6 +40,9 @@ class TwoFragment : BaseFragment<RequestProjectViewModel, FragmentTwoBinding>() 
         mViewModel.projectDataState.observe(this){
             "projectDataState请求成功".logD()
         }
+        mViewModel.isSetDateShow.observe(this){
+            "isSetDateShow".logD()
+        }
     }
 
     /**
@@ -47,6 +50,7 @@ class TwoFragment : BaseFragment<RequestProjectViewModel, FragmentTwoBinding>() 
      */
     override fun onLoadRetry() {
         mViewModel.getPublicTitleData()
+        mViewModel.setDateShow()
         //mViewModel.getPublicData(false,false,408)
         //mViewModel.getProjectTitleData()
         //mViewModel.getProjectData(false)

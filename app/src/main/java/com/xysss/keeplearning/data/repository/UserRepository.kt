@@ -69,5 +69,10 @@ object UserRepository {
             .toResponse()
     }
 
+    fun setDateShow(): Await<Any> {
+        return RxHttp.postForm("http://192.168.1.254/?custom=1&cmd=2008&par=0")
+            .toResponse()
+    }
+
 }
 

@@ -15,8 +15,8 @@ class HeadInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val builder = chain.request().newBuilder()
         //模拟了2个公共参数
-        builder.addHeader("token", "token123456").build()
-        builder.addHeader("device", "Android").build()
+        //builder.addHeader("token", "token123456").build()
+        //builder.addHeader("device", "Android").build()
         return chain.proceed(builder.build())
     }
 

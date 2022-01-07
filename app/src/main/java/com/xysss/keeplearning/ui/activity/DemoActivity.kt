@@ -24,7 +24,6 @@ class DemoActivity : BaseActivity<DemoRequestViewModel, ActivityDemoBinding>() {
                 R.id.button1 -> {
                     mViewModel.setDateShow()
                 }
-
             }
         }
     }

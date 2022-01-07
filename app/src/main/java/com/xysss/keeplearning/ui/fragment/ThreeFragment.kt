@@ -6,6 +6,7 @@ import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.databinding.FragmentThreeBinding
 import com.xysss.keeplearning.viewmodel.TestViewModel
+import com.xysss.mvvmhelper.ext.logD
 import jni.JniKit
 
 /**
@@ -26,6 +27,12 @@ class ThreeFragment : BaseFragment<TestViewModel, FragmentThreeBinding>() {
         immersionBar {
             titleBar(mViewBinding.customToolbar)
         }
-        mViewBinding.testInput.text = JniKit.stringFromJNI()
+        val integers = intArrayOf(1, 2, 3, 4)
+        JniKit.setIntArray(integers).toString()
+        JniKit.setString("abc").toString()
+        JniKit.findClass()
+        mViewBinding.testInput1.text = JniKit.stringFromJNI()
+        /*mViewBinding.testInput2.text =
+        mViewBinding.testInput3.text =*/
     }
 }

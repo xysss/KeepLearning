@@ -2,7 +2,6 @@ package com.xysss.keeplearning.ui.fragment
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.app.ext.bindViewPager2
 import com.xysss.keeplearning.app.ext.init

@@ -11,10 +11,7 @@ import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.databinding.FragmentOneBinding
-import com.xysss.keeplearning.ui.activity.ListActivity
-import com.xysss.keeplearning.ui.activity.LoginActivity
-import com.xysss.keeplearning.ui.activity.RoomSampleActivity
-import com.xysss.keeplearning.ui.activity.TestActivity
+import com.xysss.keeplearning.ui.activity.*
 import com.xysss.keeplearning.viewmodel.TestViewModel
 import com.xysss.mvvmhelper.ext.msg
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
@@ -34,7 +31,7 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
         mViewBinding.customToolbar.setCenterTitle(R.string.bottom_title_read)
         mViewBinding.customToolbar.setBackgroundResource(R.color.colorOrange)
         //bugly进入首页检查更新
-        Beta.checkUpgrade(false, true)
+        //Beta.checkUpgrade(false, true)
     }
 
     override fun onResume() {
@@ -65,7 +62,7 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
     override fun onBindViewClick() {
         setOnclickNoRepeat(mViewBinding.loginBtn, mViewBinding.testPageBtn, mViewBinding.testListBtn,
             mViewBinding.testDownload, mViewBinding.testUpload,mViewBinding.testCrash,
-            mViewBinding.getPermission,mViewBinding.testRoom) {
+            mViewBinding.getPermission,mViewBinding.testRoom,mViewBinding.linkBlueTooth) {
             when (it.id) {
                 R.id.testRoom -> {
                     toStartActivity(RoomSampleActivity::class.java)
@@ -81,6 +78,9 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
                 }
                 R.id.testListBtn -> {
                     toStartActivity(ListActivity::class.java)
+                }
+                R.id.linkBlueTooth->{
+                    toStartActivity(LinkBleBlueTooth::class.java)
                 }
 
                 R.id.testDownload -> {

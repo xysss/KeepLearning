@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.xysss.keeplearning">
+    <!-- 蓝牙权限 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- 支持ble的设备 -->
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" /> <!-- 定位权限 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
@@ -78,8 +86,14 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.RoomSampleActivity"
-            android:label="错误界面"
+            android:label="数据库页面"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.LinkBleBlueTooth"
+            android:label="蓝牙界面"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.BleDemoKotlin"
             android:screenOrientation="portrait" />
 
         <provider

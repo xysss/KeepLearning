@@ -1,12 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.xysss.mvvmhelper">
-
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <application>
-        <provider
-            android:name=".base.Ktx"
-            android:authorities="${applicationId}.KtxInstaller"
-            android:exported="false" />
-    </application>
+<manifest package="com.xysss.mvvmhelper">
 </manifest>

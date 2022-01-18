@@ -13,11 +13,13 @@ import com.xysss.keeplearning.app.bluetooth.BleCallback
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils.getBCCResult
 import com.xysss.keeplearning.databinding.ActivityDataExchangeBinding
+import com.xysss.keeplearning.viewmodel.BlueToothViewModel
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.ext.logD
 import com.xysss.mvvmhelper.ext.logE
 
-class DataExchangeActivity : BaseActivity<BaseViewModel, ActivityDataExchangeBinding>(){
+class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchangeBinding>(),
+    BleCallback.UiCallback {
 
     //Gatt
     private lateinit var gatt: BluetoothGatt
@@ -57,5 +59,9 @@ class DataExchangeActivity : BaseActivity<BaseViewModel, ActivityDataExchangeBin
     //页面返回
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         if (item.itemId == android.R.id.home)  { onBackPressed();true } else false
+
+    override fun state(state: String) {
+        TODO("Not yet implemented")
+    }
 
 }

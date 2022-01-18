@@ -32,7 +32,9 @@ abstract class BaseVbFragment<VM : BaseViewModel, VB : ViewBinding>  : Fragment(
 
     //使用了 ViewBinding 就不需要 layoutId了，因为 会从 VB 泛型 找到相关的view
     val layoutId: Int = 0
-    lateinit var mViewBinding: VB
+    private var _binding: VB? = null
+    val mViewBinding: VB get() = _binding!!
+
     var dataBindView : View? = null
     //界面状态管理者
     lateinit var uiStatusManger: LoadService<*>
@@ -51,9 +53,8 @@ abstract class BaseVbFragment<VM : BaseViewModel, VB : ViewBinding>  : Fragment(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        initViewBind(inflater,container)
+        initViewDataBind(inflater,container)
         isFirst = true
-        javaClass.simpleName.logD()
         val rootView = if (dataBindView == null) {
             inflater.inflate(layoutId, container, false)
         } else {
@@ -71,18 +72,15 @@ abstract class BaseVbFragment<VM : BaseViewModel, VB : ViewBinding>  : Fragment(
 
     }
 
-    /**
-     * 创建 ViewBinding
-     */
-    private fun initViewBind(inflater: LayoutInflater, container: ViewGroup?) {
-        //利用反射 根据泛型得到 ViewBinding
-        val superClass = javaClass.genericSuperclass
-        val aClass = (superClass as ParameterizedType).actualTypeArguments[1] as Class<*>
-        val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java, ViewGroup::class.java, Boolean::class.java)
-        mViewBinding = method.invoke(null, inflater, container, false) as VB
-        //如果重新加载，需要清空之前的view，不然会报错
-        (dataBindView?.parent as? ViewGroup)?.removeView(dataBindView)
-        dataBindView = mViewBinding.root
+    fun initViewDataBind(inflater: LayoutInflater, container: ViewGroup?): View? {
+        _binding = inflateBinding(inflater, container, false)
+        dataBindView=mViewBinding.root
+        return mViewBinding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     /**

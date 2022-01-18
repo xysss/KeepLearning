@@ -82,17 +82,16 @@
 -dontwarn com.kingja.loadsir.**
 -keep class com.kingja.loadsir.** {*;}
 
-
 -keepattributes *Annotation*
 -keep class **.*_SnakeProxy
 #-keep @com.youngfeng.snake.annotations.EnableDragToClose public class *
-
-
 
 ##所有GSON生成的对象类不能被混淆
 -keep class com.xysss.keeplearning.data.response.**{*;}
 -keep class com.xysss.keeplearning.data.request.**{*;}
 
-
-
-
+-keepclassmembers class * implements androidx.viewbinding.ViewBinding {
+  public static * inflate(android.view.LayoutInflater);
+  public static * inflate(android.view.LayoutInflater, android.view.ViewGroup, boolean);
+  public static * bind(android.view.View);
+}

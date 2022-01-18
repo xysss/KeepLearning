@@ -49,8 +49,11 @@
         <entry key="app/src/main/res/drawable/shape_white_top_radius_24.xml" value="0.296875" />
         <entry key="app/src/main/res/layout/activity_data_exchange.xml" value="0.10207762175630342" />
         <entry key="app/src/main/res/layout/activity_link_bluetooth.xml" value="0.16822916666666668" />
+        <entry key="app/src/main/res/layout/activity_navigation.xml" value="0.17291666666666666" />
         <entry key="app/src/main/res/layout/fragment_one.xml" value="0.28072916666666664" />
+        <entry key="app/src/main/res/layout/main_navigation.xml" value="0.18697916666666667" />
         <entry key="app/src/main/res/menu/main_menu.xml" value="0.28072916666666664" />
+        <entry key="mvvmhelper/src/main/res/layout/activity_base.xml" value="0.1" />
       </map>
     </option>
   </component>

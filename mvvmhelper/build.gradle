@@ -26,6 +26,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        dataBinding = true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -81,7 +82,7 @@ dependencies {
     api "com.kingja.loadsir:loadsir:1.3.8"
     api 'com.squareup.okhttp3:okhttp:4.9.1'
     //Rxhttp
-    api 'com.github.liujingxing.rxhttp:rxhttp:2.7.2'
+    api 'com.github.liujingxing.rxhttp:rxhttp:2.8.3'
     //6.0以上权限请求管理
     api 'com.github.tbruyelle:rxpermissions:0.10.2'
     //navigation

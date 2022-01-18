@@ -145,7 +145,7 @@ class InitUtils : Task(TASK_ID, true) {
         //初始化Log打印
         MMKV.initialize(appContext)
         //框架全局打印日志开关
-        mvvmHelperLog = BuildConfig.DEBUG
+        //mvvmHelperLog = BuildConfig.DEBUG
     }
 }
 

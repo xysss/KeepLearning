@@ -156,4 +156,14 @@ class BleCallback : BluetoothGattCallback() {
      */
     override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) = "onReadRemoteRssi: rssi: $rssi".logE("xysLog")
 
+    /**
+     * UI回调
+     */
+    interface UiCallback {
+        /**
+         * 当前Ble状态信息
+         */
+        fun state(state: String)
+    }
+
 }

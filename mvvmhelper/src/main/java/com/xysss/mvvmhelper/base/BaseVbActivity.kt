@@ -116,14 +116,12 @@ abstract class BaseVbActivity<VM : BaseViewModel,VB: ViewBinding> : AppCompatAct
     /**
      * 创建 ViewBinding
      */
-    private fun initViewBind() {
-        //利用反射 根据泛型得到 ViewBinding
-        val superClass = javaClass.genericSuperclass
-        val aClass = (superClass as ParameterizedType).actualTypeArguments[1] as Class<*>
+    private fun initViewBind(): View? {
+        //利用反射 根据泛型得到 ViewDataBinding
+        mViewBinding = inflateBinding()
         BackgroundLibrary.inject(this)
-        val method = aClass.getDeclaredMethod("inflate", LayoutInflater::class.java)
-        mViewBinding =  method.invoke(null,layoutInflater) as VB
         dataBindView = mViewBinding.root
+        return mViewBinding.root
     }
 
     /**

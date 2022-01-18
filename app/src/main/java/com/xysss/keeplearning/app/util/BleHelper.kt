@@ -12,8 +12,8 @@ object BleHelper {
      * 启用指令通知
      */
     fun enableIndicateNotification(gatt: BluetoothGatt): Boolean =
-        setCharacteristicNotification(gatt, gatt.getService(UUID.fromString(BleConstant.SERVICE_UUID))
-            .getCharacteristic(UUID.fromString(BleConstant.CHARACTERISTIC_INDICATE_UUID)))
+        setCharacteristicNotification(gatt, gatt.getService(UUID.fromString(getString(BleConstant.SERVICE_UUID)))
+            .getCharacteristic(UUID.fromString(getString(BleConstant.CHARACTERISTIC_INDICATE_UUID))))
 
     /**
      * 设置特征通知
@@ -21,7 +21,7 @@ object BleHelper {
      */
     private fun setCharacteristicNotification(gatt: BluetoothGatt, gattCharacteristic: BluetoothGattCharacteristic): Boolean =
         if (gatt.setCharacteristicNotification(gattCharacteristic, true))
-            gatt.writeDescriptor(gattCharacteristic.getDescriptor(UUID.fromString(BleConstant.DESCRIPTOR_UUID))
+            gatt.writeDescriptor(gattCharacteristic.getDescriptor(UUID.fromString(getString(BleConstant.DESCRIPTOR_UUID)))
                 .apply {
                     value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
                 }) else false
@@ -32,8 +32,9 @@ object BleHelper {
      * @param isResponse 是否响应
      */
     fun sendCommand(gatt: BluetoothGatt, command: String, isResponse: Boolean = true): Boolean =
-        gatt.writeCharacteristic(gatt.getService(UUID.fromString(BleConstant.SERVICE_UUID))
-            .getCharacteristic(UUID.fromString(BleConstant.CHARACTERISTIC_WRITE_UUID)).apply {
+        gatt.writeCharacteristic(gatt.getService(UUID.fromString(getString(BleConstant.SERVICE_UUID)))
+            .getCharacteristic(UUID.fromString(getString(BleConstant.CHARACTERISTIC_WRITE_UUID)))
+            .apply {
                 writeType = if (isResponse) BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT else BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                 value = ByteUtils.hexStringToBytes(command) })
 

@@ -95,7 +95,12 @@
             android:launchMode="singleTask"
             android:theme="@style/Theme.BleDemoKotlin"
             android:screenOrientation="portrait" />
-
+        <activity
+            android:name=".ui.activity.DataExchangeActivity"
+            android:label="蓝牙界面"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.BleDemoKotlin"
+            android:screenOrientation="portrait" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

@@ -3,6 +3,7 @@ package com.xysss.keeplearning.ui.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.graphics.Color
@@ -22,7 +23,6 @@ import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.bluetooth.BleDevice
 import com.xysss.keeplearning.app.bluetooth.BleDeviceAdapter
-import com.xysss.keeplearning.app.bluetooth.DataExchangeActivity
 import com.xysss.keeplearning.app.util.*
 import com.xysss.keeplearning.databinding.ActivityLinkBluetoothBinding
 import com.xysss.keeplearning.databinding.DialogScanFilterBinding
@@ -88,7 +88,7 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
                     val device = mList[position].device
                     //传递数据
                     val bundle = Bundle()
-                    bundle.putString("device", device.toString())
+                    bundle.putParcelable("device", device)
                     toStartActivity(DataExchangeActivity::class.java,bundle)
                 }
             }
@@ -171,10 +171,10 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
      */
     @SuppressLint("InflateParams", "SetTextI18n")
     private fun showScanFilterDialog() =
-        BottomSheetDialog(appContext, R.style.BottomSheetDialogStyle).apply {
+        BottomSheetDialog(this, R.style.BottomSheetDialogStyle).apply {
             setContentView(
                 DialogScanFilterBinding.bind(
-                    View.inflate(appContext, R.layout.dialog_scan_filter, null)).apply {
+                    View.inflate(context, R.layout.dialog_scan_filter, null)).apply {
                     switchDeviceName.setOnCheckedChangeListener { _, isChecked -> isChecked.putBoolean(
                         BleConstant.NULL_NAME
                     ) }
@@ -201,15 +201,29 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
      * uuid编辑弹窗
      */
     private fun showUuidEditDialog() =
-        BottomSheetDialog(appContext, R.style.BottomSheetDialogStyle).apply {
+        BottomSheetDialog(this, R.style.BottomSheetDialogStyle).apply {
             setContentView(DialogUuidEditBinding.bind(View.inflate(context, R.layout.dialog_uuid_edit, null)).apply {
                 tvSave.setOnClickListener {
+
+//                    val sUUID="00001801-0000-1000-8000-00805f9b34fb"
+//                    val wUUID="00002a05-0000-1000-8000-00805f9b34fb"
+//                    val rUUID="00002a05-0000-1000-8000-00805f9b34fb"
+//                    val dUUID="00002902-0000-1000-8000-00805f9b34fb"
+
+                    val sUUID="0003cdd0-0000-1000-8000-00805f9b0131"
+                    val wUUID="0003cdd2-0000-1000-8000-00805f9b0131"
+                    val rUUID="0003cdd1-0000-1000-8000-00805f9b0131"
+                    val dUUID="00002902-0000-1000-8000-00805f9b34fb"
+
+                    etServiceUuid.setText(sUUID)
+                    etDescriptorUuid.setText(dUUID)
+                    etCharacteristicWriteUuid.setText(wUUID)
+                    etCharacteristicIndicateUuid.setText(rUUID)
+
                     etServiceUuid.text.toString().apply { if (isNotEmpty()) putString(BleConstant.SERVICE_UUID) }
                     etDescriptorUuid.text.toString().apply { if (isNotEmpty()) putString(BleConstant.DESCRIPTOR_UUID) }
-                    etCharacteristicWriteUuid.text.toString().apply { if (isNotEmpty()) putString(
-                        BleConstant.CHARACTERISTIC_WRITE_UUID) }
-                    etCharacteristicIndicateUuid.text.toString().apply { if (isNotEmpty()) putString(
-                        BleConstant.CHARACTERISTIC_INDICATE_UUID) }
+                    etCharacteristicWriteUuid.text.toString().apply { if (isNotEmpty()) putString(BleConstant.CHARACTERISTIC_WRITE_UUID) }
+                    etCharacteristicIndicateUuid.text.toString().apply { if (isNotEmpty()) putString(BleConstant.CHARACTERISTIC_INDICATE_UUID) }
                     dismiss()
                 }
                 tvClose.setOnClickListener { dismiss() }

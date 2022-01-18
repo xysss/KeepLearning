@@ -8,6 +8,7 @@ import com.xysss.keeplearning.app.ext.init
 import com.xysss.keeplearning.databinding.FragmentTwoBinding
 import com.xysss.keeplearning.viewmodel.RequestProjectViewModel
 import com.xysss.mvvmhelper.ext.logD
+import com.xysss.mvvmhelper.ext.logE
 
 /**
  * Author:bysd-2
@@ -34,10 +35,10 @@ class TwoFragment : BaseFragment<RequestProjectViewModel, FragmentTwoBinding>() 
 
     private fun createObserver() {
         mViewModel.titleData.observe(this) {
-            "titleData请求成功".logD()
+            "titleData请求成功".logE("xysLog")
         }
         mViewModel.projectDataState.observe(this){
-            "projectDataState请求成功".logD()
+            "projectDataState请求成功".logE("xysLog")
         }
     }
 

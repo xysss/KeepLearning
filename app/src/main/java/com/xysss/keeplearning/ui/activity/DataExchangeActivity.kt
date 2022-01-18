@@ -1,18 +1,23 @@
-package com.xysss.keeplearning.app.bluetooth
+package com.xysss.keeplearning.ui.activity
 
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothDevice.TRANSPORT_LE
 import android.bluetooth.BluetoothGatt
+import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import com.blankj.utilcode.util.ToastUtils
 import com.xysss.keeplearning.app.base.BaseActivity
+import com.xysss.keeplearning.app.bluetooth.BleCallback
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils.getBCCResult
 import com.xysss.keeplearning.databinding.ActivityDataExchangeBinding
 import com.xysss.mvvmhelper.base.BaseViewModel
+import com.xysss.mvvmhelper.ext.logD
+import com.xysss.mvvmhelper.ext.logE
 
-class DataExchangeActivity : BaseActivity<BaseViewModel, ActivityDataExchangeBinding>(),BleCallback.UiCallback{
+class DataExchangeActivity : BaseActivity<BaseViewModel, ActivityDataExchangeBinding>(){
 
     //Gatt
     private lateinit var gatt: BluetoothGatt
@@ -27,8 +32,15 @@ class DataExchangeActivity : BaseActivity<BaseViewModel, ActivityDataExchangeBin
             setDisplayHomeAsUpEnabled(true)
         }
         val device = intent.getParcelableExtra<BluetoothDevice>("device")
-        //gatt连接
-        gatt = device!!.connectGatt(this, false, bleCallback)
+        //gatt连接 第二个参数表示是否需要自动连接。如果设置为 true, 表示如果设备断开了，会不断的尝试自动连接。设置为 false 表示只进行一次连接尝试。
+        //第三个参数是连接后进行的一系列操作的回调，例如连接和断开连接的回调，发现服务的回调，成功写入数据，成功读取数据的回调等等。
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            gatt = device!!.connectGatt(this, false, bleCallback,TRANSPORT_LE)
+        }
+        else{
+            gatt = device!!.connectGatt(this, false, bleCallback)
+        }
         //发送指令
         mViewBinding.btnSendCommand.setOnClickListener {
             var command = mViewBinding.etCommand.text.toString().trim()
@@ -40,18 +52,10 @@ class DataExchangeActivity : BaseActivity<BaseViewModel, ActivityDataExchangeBin
             //发送指令
             BleHelper.sendCommand(gatt, command,true)
         }
-        //Ble状态页面UI回调
-        bleCallback.setUiCallback(this)
-        device.getUuids().toString()
     }
 
     //页面返回
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         if (item.itemId == android.R.id.home)  { onBackPressed();true } else false
 
-    override fun state(state: String) {
-        stringBuffer.append(state).append("\n")
-        mViewBinding.tvState.text = stringBuffer.toString()
-        mViewBinding.scroll.apply { viewTreeObserver.addOnGlobalLayoutListener { post { fullScroll(View.FOCUS_DOWN) } } }
-    }
 }

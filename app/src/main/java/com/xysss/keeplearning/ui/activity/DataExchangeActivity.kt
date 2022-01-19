@@ -54,14 +54,15 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
             //发送指令
             BleHelper.sendCommand(gatt, command,true)
         }
+        //Ble状态页面UI回调
+        bleCallback.setUiCallback(this)
     }
 
     //页面返回
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         if (item.itemId == android.R.id.home)  { onBackPressed();true } else false
 
-    override fun state(state: String) {
-        TODO("Not yet implemented")
+    override fun state(state: String?)= runOnUiThread {
+        "收到转码后的数据: $state".logE("xysLog")
     }
-
 }

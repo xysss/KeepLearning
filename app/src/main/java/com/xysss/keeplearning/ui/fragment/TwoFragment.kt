@@ -46,7 +46,7 @@ class TwoFragment : BaseFragment<RequestProjectViewModel, FragmentTwoBinding>() 
      * 错误界面 空界面 点击重试
      */
     override fun onLoadRetry() {
-        mViewModel.getPublicTitleData()
+        //mViewModel.getPublicTitleData()
         //mViewModel.getPublicData(false,false,408)
         //mViewModel.getProjectTitleData()
         //mViewModel.getProjectData(false)

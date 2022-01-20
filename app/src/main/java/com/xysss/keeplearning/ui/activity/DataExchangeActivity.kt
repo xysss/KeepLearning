@@ -10,15 +10,12 @@ import android.view.MenuItem
 import android.view.View
 import com.blankj.utilcode.util.ToastUtils
 import com.xysss.keeplearning.app.base.BaseActivity
-import com.xysss.keeplearning.app.bluetooth.BleCallback
+import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils.getBCCResult
 import com.xysss.keeplearning.databinding.ActivityDataExchangeBinding
 import com.xysss.keeplearning.viewmodel.BlueToothViewModel
-import com.xysss.mvvmhelper.base.BaseViewModel
-import com.xysss.mvvmhelper.ext.logD
 import com.xysss.mvvmhelper.ext.logE
-import android.os.Looper
 import com.xysss.keeplearning.app.util.BleHelper.isMainThread
 
 
@@ -75,12 +72,11 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
 
     @SuppressLint("SetTextI18n")
     override fun state(state: String?)=runOnUiThread{
-        val id = Thread.currentThread().id
-        "state方法中的线程号：$id".logE("xysLog")
-        "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
+//        val id = Thread.currentThread().id
+//        "state方法中的线程号：$id".logE("xysLog")
+//        "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
         "数据长度: ${state?.length}: $state".logE("xysLog")
         //mViewBinding.tvState.text = "收到转码后的数据长度: ${state?.length}: $state"
-
         stringBuffer.append("数据长度: ${state?.length}: "+state).append("\n")
         mViewBinding.tvState.text = stringBuffer.toString()
         mViewBinding.scroll.apply { viewTreeObserver.addOnGlobalLayoutListener { post { fullScroll(View.FOCUS_DOWN) } } }

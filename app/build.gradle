@@ -188,4 +188,6 @@ dependencies {
     //这是用来测试 navigation 的 可以忽略
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
+    //ByteArray与基本类型的转换工具(位运算)
+    implementation 'com.swallowsonny:convert-ext:1.0.4'
 }

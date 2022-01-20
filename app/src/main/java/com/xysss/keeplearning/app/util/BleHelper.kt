@@ -3,6 +3,7 @@ package com.xysss.keeplearning.app.util
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
+import android.os.Looper
 import java.util.*
 
 
@@ -37,6 +38,11 @@ object BleHelper {
             .apply {
                 writeType = if (isResponse) BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT else BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                 value = ByteUtils.hexStringToBytes(command) })
+
+
+    fun isMainThread(): Boolean {
+        return Looper.getMainLooper().thread.id == Thread.currentThread().id
+    }
 
 
 }

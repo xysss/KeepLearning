@@ -13,6 +13,7 @@ import android.bluetooth.BluetoothGattCharacteristic
 
 import android.bluetooth.BluetoothGattService
 import com.google.gson.annotations.Until
+import com.xysss.keeplearning.app.util.BleHelper.isMainThread
 import com.xysss.keeplearning.app.util.ByteUtils.getCrc16Str
 import com.xysss.mvvmhelper.ext.logD
 import com.xysss.mvvmhelper.ext.logE
@@ -152,6 +153,7 @@ class BleCallback : BluetoothGattCallback() {
 
         for (i in characteristic.value.indices) {
             if (characteristic.value[i]== FRAME_START) {
+                tempBytesList.clear()
                 tempBytesList.add(characteristic.value[i])
             } else {
                 tempBytesList.add(characteristic.value[i])
@@ -200,6 +202,9 @@ class BleCallback : BluetoothGattCallback() {
             //CRC校验
             getCrc16Str(tempBytes)
             val content = ByteUtils.bytesToHexString(tempBytes)
+            val id = Thread.currentThread().id
+            "蓝牙回调方法中的线程号：$id".logE("xysLog")
+            "蓝牙回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
             uiCallback.state(content)
             dealBytesList.clear()
         }

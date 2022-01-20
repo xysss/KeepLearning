@@ -1,5 +1,6 @@
 package com.xysss.keeplearning.ui.activity
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothDevice.TRANSPORT_LE
 import android.bluetooth.BluetoothGatt
@@ -17,14 +18,19 @@ import com.xysss.keeplearning.viewmodel.BlueToothViewModel
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.ext.logD
 import com.xysss.mvvmhelper.ext.logE
+import android.os.Looper
+import com.xysss.keeplearning.app.util.BleHelper.isMainThread
+
 
 class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchangeBinding>(),
     BleCallback.UiCallback {
 
     //Gatt
     private lateinit var gatt: BluetoothGatt
+
     //Ble回调
     private val bleCallback = BleCallback()
+
     //状态缓存
     private var stringBuffer = StringBuffer()
 
@@ -38,9 +44,8 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
         //第三个参数是连接后进行的一系列操作的回调，例如连接和断开连接的回调，发现服务的回调，成功写入数据，成功读取数据的回调等等。
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            gatt = device!!.connectGatt(this, false, bleCallback,TRANSPORT_LE)
-        }
-        else{
+            gatt = device!!.connectGatt(this, false, bleCallback, TRANSPORT_LE)
+        } else {
             gatt = device!!.connectGatt(this, false, bleCallback)
         }
         //发送指令
@@ -52,18 +57,32 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
             }
             command += getBCCResult(command)
             //发送指令
-            BleHelper.sendCommand(gatt, command,true)
+            BleHelper.sendCommand(gatt, command, true)
         }
         //Ble状态页面UI回调
         bleCallback.setUiCallback(this)
+
+        val id = Thread.currentThread().id
+        "onCreate()方法中的线程号：$id".logE("xysLog")
+        "onCreate()方法回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
     }
 
     //页面返回
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        if (item.itemId == android.R.id.home)  { onBackPressed();true } else false
+        if (item.itemId == android.R.id.home) {
+            onBackPressed();true
+        } else false
 
-    override fun state(state: String?)= runOnUiThread {
+    @SuppressLint("SetTextI18n")
+    override fun state(state: String?)=runOnUiThread{
+        val id = Thread.currentThread().id
+        "state方法中的线程号：$id".logE("xysLog")
+        "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
         "数据长度: ${state?.length}: $state".logE("xysLog")
-        mViewBinding.tvState.text="收到转码后的数据长度: ${state?.length}: $state"
+        //mViewBinding.tvState.text = "收到转码后的数据长度: ${state?.length}: $state"
+
+        stringBuffer.append("数据长度: ${state?.length}: "+state).append("\n")
+        mViewBinding.tvState.text = stringBuffer.toString()
+        mViewBinding.scroll.apply { viewTreeObserver.addOnGlobalLayoutListener { post { fullScroll(View.FOCUS_DOWN) } } }
     }
 }

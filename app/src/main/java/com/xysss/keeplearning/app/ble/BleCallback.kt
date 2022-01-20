@@ -13,6 +13,7 @@ import android.bluetooth.BluetoothGattCharacteristic
 
 import android.bluetooth.BluetoothGattService
 import com.google.gson.annotations.Until
+import com.xysss.keeplearning.app.util.ByteUtils.getCrc16Str
 import com.xysss.mvvmhelper.ext.logD
 import com.xysss.mvvmhelper.ext.logE
 import kotlin.collections.ArrayList
@@ -25,17 +26,13 @@ import kotlin.experimental.and
  */
 class BleCallback : BluetoothGattCallback() {
     private val TAG = BleCallback::class.java.simpleName
-    private var frameDataIndex = 0
-    private lateinit var frameBuffer: ByteArray
     private lateinit var tempBytes: ByteArray
     private val tempBytesList = ArrayList<Byte>()
-    private val FRAME_START: Int = 85
-    private val FRAME_END: Int = 35
-    private val FRAME_TRANSCODING_BYTE_1: Byte = 0xFF.toByte()
-    private val MIN_FRAME_SIZE = 5
-    private val MAX_FRAME_SIZE: Int = 2048
-    private val FRAME_TRANSCODING_BYTE_2: Byte = 0x00
-    private var isTranscoding = false
+    private val dealBytesList = ArrayList<Byte>()
+    private val FRAME_START: Byte = 0x55
+    private val FRAME_END: Byte = 0x23
+    private val FRAMEFF: Byte = 0xFF.toByte()
+    private val FRAME00: Byte = 0x00
 
     private lateinit var uiCallback: UiCallback
 
@@ -153,74 +150,65 @@ class BleCallback : BluetoothGattCallback() {
         val content = ByteUtils.bytesToHexString(characteristic.value)
         "收到数据：$content".logE("xysLog")
 
-        for (i in 0 until characteristic.value.size) {
-            if (characteristic.value[i].toInt() == FRAME_START) {
+        for (i in characteristic.value.indices) {
+            if (characteristic.value[i]== FRAME_START) {
                 tempBytesList.add(characteristic.value[i])
             } else {
                 tempBytesList.add(characteristic.value[i])
-                if (tempBytesList[tempBytesList.size - 1].toInt() == FRAME_END) {
-                    dealBytes(tempBytesList)
+                if (tempBytesList[tempBytesList.size - 1] == FRAME_END) {
+                    if (tempBytesList[0]==FRAME_START){
+                        dealBytes(tempBytesList)
+                    }
                     tempBytesList.clear()
                 }
             }
         }
     }
 
+    fun dealBytes(recData:ArrayList<Byte>?){
+        recData?.let {
+            var i=0
+            while (i < it.size) {
+                if (it[i] ==FRAMEFF){
+                    if (it[i+1] ==FRAMEFF){
+                        dealBytesList.add(FRAMEFF)
+                        i++
+                    }
+                    else if (it[i+1] ==FRAME00){
+                        dealBytesList.add(FRAME_START)
+                        i++
+                    }
+                    else{
+                        dealBytesList.add(it[i])
+                    }
+                }else{
+                    dealBytesList.add(it[i])
+                }
+                i++
+            }
+        }
 
-    private fun invalidateFrameBuffer() {
-        frameBuffer.reverse()
-        frameDataIndex = 0
-        isTranscoding = false
+
+        dealBytesList.let {
+            tempBytes=ByteArray(it.size)
+            for (i in tempBytes.indices){
+                tempBytes[i]= it[i]
+            }
+        }
+
+        if (tempBytes[tempBytes.size-1]==FRAME_END && tempBytes[0]==FRAME_START){
+            //CRC校验
+            getCrc16Str(tempBytes)
+            val content = ByteUtils.bytesToHexString(tempBytes)
+            uiCallback.state(content)
+            dealBytesList.clear()
+        }
     }
+
     /**
      * 特性写入回调
      * 后触发
      */
-    fun dealBytes(recData:ArrayList<Byte>?){
-        recData?.let {
-            tempBytes=ByteArray(it.size)
-            for (i in 0 until tempBytes.size){
-                tempBytes[i]= it.get(i)
-            }
-            frameBuffer=ByteArray(it.size)
-        }
-        tempBytes.let {
-            for (i in 0 until it.size) {
-                if (it[i].toInt() == FRAME_START) {
-                    frameBuffer[frameDataIndex] = it[i]
-                    frameDataIndex++
-                }else{
-                    frameBuffer[frameDataIndex] = it[i]
-                    frameDataIndex++
-                    // frame transcoding
-                    if (isTranscoding) {
-                        if (it[i] == FRAME_TRANSCODING_BYTE_1) {
-                            // 0xFF 0xFF is found, it is oxFF, remove the last 0xFF
-                            frameDataIndex--
-                        } else if (it[i] == FRAME_TRANSCODING_BYTE_2) {
-                            // 0xFF 0x00 is found, it is ox55, change 0xFF 0x00 to 0x55
-                            frameDataIndex--
-                            frameBuffer[frameDataIndex - 1] = 0x55
-                        }
-                        isTranscoding = false
-                    } else if (it[i] == FRAME_TRANSCODING_BYTE_1) {
-                        // find 0xFF, wait for next byte
-                        isTranscoding = true
-                    }
-
-                    if (it[i].toInt()==FRAME_END){
-                        if (frameBuffer.isNotEmpty()) {
-                            val content = ByteUtils.bytesToHexString(frameBuffer)
-                            uiCallback.state(content)
-                            invalidateFrameBuffer()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
     override fun onCharacteristicWrite(
         gatt: BluetoothGatt,
         characteristic: BluetoothGattCharacteristic,
@@ -249,7 +237,8 @@ class BleCallback : BluetoothGattCallback() {
                     readDescriptor(descriptor)
                     readRemoteRssi()
                 }
-                "通知开启成功".logE("xysLog")
+                uiCallback.state("通知开启成功，准备完成!")
+                "通知开启成功，准备完成:".logE("xysLog")
             } else "通知开启失败".logE("xysLog")
         }
     }

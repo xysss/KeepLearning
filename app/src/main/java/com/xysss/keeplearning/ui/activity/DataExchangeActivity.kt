@@ -63,6 +63,7 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
         if (item.itemId == android.R.id.home)  { onBackPressed();true } else false
 
     override fun state(state: String?)= runOnUiThread {
-        "收到转码后的数据: $state".logE("xysLog")
+        "数据长度: ${state?.length}: $state".logE("xysLog")
+        mViewBinding.tvState.text="收到转码后的数据长度: ${state?.length}: $state"
     }
 }

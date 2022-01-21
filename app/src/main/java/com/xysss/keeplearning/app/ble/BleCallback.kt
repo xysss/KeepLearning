@@ -8,7 +8,10 @@ import com.xysss.keeplearning.app.util.BleConstant
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils
 import com.xysss.keeplearning.app.util.getString
+import com.xysss.keeplearning.viewmodel.DeviceInfo
+import com.xysss.keeplearning.viewmodel.MaterialInfo
 import com.xysss.mvvmhelper.ext.logE
+import java.nio.ByteBuffer
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -19,7 +22,6 @@ import kotlin.collections.ArrayList
  */
 class BleCallback : BluetoothGattCallback() {
     private val TAG = BleCallback::class.java.simpleName
-    private lateinit var tempBytes: ByteArray
     private lateinit var afterBytes: ByteArray
     private val tempBytesList = ArrayList<Byte>()
     private val dealBytesList = ArrayList<Byte>()
@@ -29,6 +31,7 @@ class BleCallback : BluetoothGattCallback() {
     private val FRAME00: Byte = 0x00
 
     private val Msg80: Byte = 0x80.toByte()
+    private val Msg90: Byte = 0x90.toByte()
 
     private lateinit var uiCallback: UiCallback
 
@@ -206,27 +209,57 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
-    fun subByte(b: ByteArray?, off: Int, length: Int): ByteArray {
-        val b1 = ByteArray(length)
-        System.arraycopy(b, off, b1, 0, length)
-        return b1
-    }
-
     fun handMessage(mBytes: ByteArray?){
         mBytes?.let {
-            if (it[4]==Msg80){
-                if (it.size>70){  //应该是71字节
-                    //tempBytes= ByteArray(20)
-                    tempBytes=it.readByteArrayBE(42+7,20)
-                    val deviceid = tempBytes.toAsciiString()
-                    val deviceidStr=tempBytes.toString()
-                    val s: String = String(tempBytes)
-                    val tempBytesStr = ByteUtils.bytesToHexString(tempBytes)
+            when(it[4]){
+                Msg80->{
+                    if (it.size==71){
+                        val hardWareMainVersion:Int=it[7].toInt()
+                        val hardWareSecondVersion:Int=it[8].toInt()
+                        val softWareMainVersion:Int=it[9].toInt()
+                        val softWareSecondVersion:Int=it[10].toInt()
+                        //设备序列号
+                        var i=49
+                        while (i<it.size)
+                            if (it[i]==FRAME00) break else i++
+                        var tempBytes: ByteArray = it.readByteArrayBE(49,i-49)
+                        val deviceId = tempBytes.toAsciiString()
 
-                    uiCallback.state(deviceid)
-                    uiCallback.state(tempBytesStr)
-                    uiCallback.state(s)
+                        var deviceInfo=DeviceInfo("$hardWareMainVersion:$hardWareSecondVersion",
+                            "$softWareMainVersion:$softWareSecondVersion",deviceId)
+                        uiCallback.state(deviceInfo.toString())
+//                        val tempBytesStr = ByteUtils.bytesToHexString(tempBytes)
+//                        uiCallback.state(tempBytesStr)
+                    }
+                }
+                Msg90->{
+                    if (it.size==22){
+                        val concentrationNumBefore :ByteArray=it.readByteArrayBE(7,4)
+                        val reverse =ByteArray(4)
 
+                        reverse[3]=concentrationNumBefore[0]
+                        reverse[2]=concentrationNumBefore[1]
+                        reverse[1]=concentrationNumBefore[2]
+                        reverse[0]=concentrationNumBefore[3]
+                        //浓度值
+                        val concentrationNumTemp=ByteBuffer.wrap(reverse).float
+                        val concentrationNum=String.format("%.3f", concentrationNumTemp)
+                        //
+                        val concentrationState=ByteBuffer.wrap(it.readByteArrayBE(11,4)).int
+                        val materialLibraryIndex=ByteBuffer.wrap(it.readByteArrayBE(15,4)).int
+                        //浓度单位
+                        val concentrationUnit:String
+                        when(it[19].toInt()){
+                            0->concentrationUnit="ppm"
+                            1->concentrationUnit="ppb"
+                            2->concentrationUnit="mg/m3"
+                            else->concentrationUnit=""
+                        }
+
+                        val materialInfo= MaterialInfo(concentrationNum, concentrationState.toString(),
+                            materialLibraryIndex.toString(),concentrationUnit)
+                        uiCallback.state(materialInfo.toString())
+                    }
                 }
             }
         }

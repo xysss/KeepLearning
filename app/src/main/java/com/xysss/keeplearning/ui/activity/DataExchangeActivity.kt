@@ -31,6 +31,9 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
     //状态缓存
     private var stringBuffer = StringBuffer()
 
+    private val send00Msg="55000a09000001000023"  //读取设备信息
+    private val send10Msg="55000a09100001000023"  //读取实时数据
+
     override fun initView(savedInstanceState: Bundle?) {
         supportActionBar?.apply {
             title = "Data Exchange"
@@ -58,10 +61,6 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
         }
         //Ble状态页面UI回调
         bleCallback.setUiCallback(this)
-
-        val id = Thread.currentThread().id
-        "onCreate()方法中的线程号：$id".logE("xysLog")
-        "onCreate()方法回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
     }
 
     //页面返回

@@ -17,15 +17,14 @@
         <TextView
             android:id="@+id/tv_state"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center" />
+            android:layout_height="wrap_content" />
     </ScrollView>
 
     <EditText
         android:id="@+id/et_command"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="55000a09000001000023"
+        android:text="55000a09100001000023"
         android:hint="请输入指令" />
 
     <Button

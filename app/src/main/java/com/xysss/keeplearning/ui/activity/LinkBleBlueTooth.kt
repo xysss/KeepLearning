@@ -204,12 +204,6 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
         BottomSheetDialog(this, R.style.BottomSheetDialogStyle).apply {
             setContentView(DialogUuidEditBinding.bind(View.inflate(context, R.layout.dialog_uuid_edit, null)).apply {
                 tvSave.setOnClickListener {
-
-//                    val sUUID="00001801-0000-1000-8000-00805f9b34fb"
-//                    val wUUID="00002a05-0000-1000-8000-00805f9b34fb"
-//                    val rUUID="00002a05-0000-1000-8000-00805f9b34fb"
-//                    val dUUID="00002902-0000-1000-8000-00805f9b34fb"
-
                     val sUUID="0003cdd0-0000-1000-8000-00805f9b0131"
                     val wUUID="0003cdd2-0000-1000-8000-00805f9b0131"
                     val rUUID="0003cdd1-0000-1000-8000-00805f9b0131"

@@ -2,10 +2,23 @@ package com.xysss.keeplearning.app.util
 
 import android.util.Log
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.experimental.xor
 
 
 object ByteUtils {
+
+    val FRAME55: Byte = 0x55
+    val FRAME23: Byte = 0x23
+    val FRAMEFF: Byte = 0xFF.toByte()
+    val FRAME00: Byte = 0x00
+
+    val Msg80: Byte = 0x80.toByte()
+    val Msg90: Byte = 0x90.toByte()
+    val Msg81: Byte = 0x81.toByte()
+
+    lateinit var afterBytes: ByteArray
+    val dealBytesList = ArrayList<Byte>()
 
     /**
      * Convert hex string to byte[]
@@ -43,6 +56,74 @@ object ByteUtils {
             stringBuilder.append(hv)
         }
         return stringBuilder.toString()
+    }
+
+
+    fun reversSendCode(bytes:ByteArray?): ByteArray? {
+        dealBytesList.clear()
+
+        bytes?.let {
+            var i = 0
+            while (i < it.size) {
+                if (it[i] == FRAME55) {
+                    dealBytesList.add(FRAMEFF)
+                    dealBytesList.add(FRAME00)
+                } else if (it[i] == FRAMEFF){
+                    dealBytesList.add(FRAMEFF)
+                    dealBytesList.add(FRAMEFF)
+                }else{
+                    dealBytesList.add(it[i])
+                }
+                i++
+            }
+        }
+        dealBytesList.let {
+            afterBytes = ByteArray(it.size)
+            for (i in afterBytes.indices) {
+                afterBytes[i] = it[i]
+            }
+        }
+
+        return afterBytes
+    }
+
+
+    fun revercRevCode(bytes: ArrayList<Byte>?): ByteArray? {
+        dealBytesList.clear()
+        bytes?.let {
+            var i = 0
+            while (i < it.size) {
+                if (it[i] == FRAMEFF) {
+                    if (it[i + 1] == FRAMEFF) {
+                        dealBytesList.add(FRAMEFF)
+                        i++
+                    } else if (it[i + 1] == FRAME00) {
+                        dealBytesList.add(FRAME55)
+                        i++
+                    } else {
+                        dealBytesList.add(it[i])
+                    }
+                } else {
+                    dealBytesList.add(it[i])
+                }
+                i++
+            }
+        }
+
+        dealBytesList.let {
+            afterBytes = ByteArray(it.size)
+            for (i in afterBytes.indices) {
+                afterBytes[i] = it[i]
+            }
+        }
+
+        if (afterBytes[afterBytes.size - 1] == FRAME23 && afterBytes[0] == FRAME55) {
+            //CRC校验
+            //val crc16Str = getCrc16Str(tempBytes)
+            dealBytesList.clear()
+            return afterBytes
+        }
+        return null
     }
 
 

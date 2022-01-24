@@ -2,11 +2,18 @@ package com.xysss.keeplearning.app.ble
 
 import android.bluetooth.*
 import android.os.Build
-import com.swallowsonny.convertextlibrary.readByteArrayBE
-import com.swallowsonny.convertextlibrary.toAsciiString
+import com.swallowsonny.convertextlibrary.*
 import com.xysss.keeplearning.app.util.BleConstant
 import com.xysss.keeplearning.app.util.BleHelper
+import com.xysss.keeplearning.app.util.BleHelper.isMainThread
 import com.xysss.keeplearning.app.util.ByteUtils
+import com.xysss.keeplearning.app.util.ByteUtils.FRAME00
+import com.xysss.keeplearning.app.util.ByteUtils.FRAME23
+import com.xysss.keeplearning.app.util.ByteUtils.FRAME55
+import com.xysss.keeplearning.app.util.ByteUtils.Msg80
+import com.xysss.keeplearning.app.util.ByteUtils.Msg81
+import com.xysss.keeplearning.app.util.ByteUtils.Msg90
+import com.xysss.keeplearning.app.util.ByteUtils.revercRevCode
 import com.xysss.keeplearning.app.util.getString
 import com.xysss.keeplearning.viewmodel.DeviceInfo
 import com.xysss.keeplearning.viewmodel.MaterialInfo
@@ -22,17 +29,9 @@ import kotlin.collections.ArrayList
  */
 class BleCallback : BluetoothGattCallback() {
     private val TAG = BleCallback::class.java.simpleName
-    private lateinit var afterBytes: ByteArray
+
+
     private val tempBytesList = ArrayList<Byte>()
-    private val dealBytesList = ArrayList<Byte>()
-    private val FRAME_START: Byte = 0x55
-    private val FRAME_END: Byte = 0x23
-    private val FRAMEFF: Byte = 0xFF.toByte()
-    private val FRAME00: Byte = 0x00
-
-    private val Msg80: Byte = 0x80.toByte()
-    private val Msg90: Byte = 0x90.toByte()
-
     private lateinit var uiCallback: UiCallback
 
     fun setUiCallback(uiCallback: UiCallback) {
@@ -148,16 +147,19 @@ class BleCallback : BluetoothGattCallback() {
 
         val content = ByteUtils.bytesToHexString(characteristic.value)
         "收到数据：$content".logE("xysLog")
+//        val id = Thread.currentThread().id
+//        "蓝牙回调方法中的线程号：$id".logE("xysLog")
+//        "蓝牙回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
 
         for (i in characteristic.value.indices) {
-            if (characteristic.value[i] == FRAME_START) {
+            if (characteristic.value[i] == FRAME55) {
                 tempBytesList.clear()
                 tempBytesList.add(characteristic.value[i])
             } else {
                 tempBytesList.add(characteristic.value[i])
-                if (tempBytesList[tempBytesList.size - 1] == FRAME_END) {
-                    if (tempBytesList[0] == FRAME_START) {
-                        dealBytes(tempBytesList)
+                if (tempBytesList[tempBytesList.size - 1] == FRAME23) {
+                    if (tempBytesList[0] == FRAME55) {
+                        dealMessage(revercRevCode(tempBytesList))
                     }
                     tempBytesList.clear()
                 }
@@ -165,53 +167,12 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
-    fun dealBytes(recData: ArrayList<Byte>?) {
-        recData?.let {
-            var i = 0
-            while (i < it.size) {
-                if (it[i] == FRAMEFF) {
-                    if (it[i + 1] == FRAMEFF) {
-                        dealBytesList.add(FRAMEFF)
-                        i++
-                    } else if (it[i + 1] == FRAME00) {
-                        dealBytesList.add(FRAME_START)
-                        i++
-                    } else {
-                        dealBytesList.add(it[i])
-                    }
-                } else {
-                    dealBytesList.add(it[i])
-                }
-                i++
-            }
-        }
-
-        dealBytesList.let {
-            afterBytes = ByteArray(it.size)
-            for (i in afterBytes.indices) {
-                afterBytes[i] = it[i]
-            }
-        }
-
-        if (afterBytes[afterBytes.size - 1] == FRAME_END && afterBytes[0] == FRAME_START) {
-            //CRC校验
-            //val crc16Str = getCrc16Str(tempBytes)
-            dealBytesList.clear()
-            val realStr = ByteUtils.bytesToHexString(afterBytes)
-            uiCallback.state(realStr)
-
-            handMessage(afterBytes)
-
-//            val id = Thread.currentThread().id
-//            "蓝牙回调方法中的线程号：$id".logE("xysLog")
-//            "蓝牙回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
-
-        }
-    }
-
-    fun handMessage(mBytes: ByteArray?){
+    fun dealMessage(mBytes: ByteArray?){
         mBytes?.let {
+            val content = ByteUtils.bytesToHexString(mBytes)
+            uiCallback.state(content)
             when(it[4]){
+                //设备信息
                 Msg80->{
                     if (it.size==71){
                         val hardWareMainVersion:Int=it[7].toInt()
@@ -232,6 +193,7 @@ class BleCallback : BluetoothGattCallback() {
 //                        uiCallback.state(tempBytesStr)
                     }
                 }
+                //实时数据
                 Msg90->{
                     if (it.size==22){
                         val concentrationNumBefore :ByteArray=it.readByteArrayBE(7,4)
@@ -259,6 +221,13 @@ class BleCallback : BluetoothGattCallback() {
                         val materialInfo= MaterialInfo(concentrationNum, concentrationState.toString(),
                             materialLibraryIndex.toString(),concentrationUnit)
                         uiCallback.state(materialInfo.toString())
+                    }
+                }
+                //历史记录
+                Msg81->{
+                    if (it.size>18){
+                        uiCallback.state(it.toHexString())
+
                     }
                 }
             }

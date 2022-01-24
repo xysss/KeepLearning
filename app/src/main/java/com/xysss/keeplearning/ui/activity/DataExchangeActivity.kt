@@ -9,14 +9,17 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import com.blankj.utilcode.util.ToastUtils
+import com.swallowsonny.convertextlibrary.toHexString
+import com.swallowsonny.convertextlibrary.writeInt32BE
+import com.swallowsonny.convertextlibrary.writeInt32LE
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils.getBCCResult
+import com.xysss.keeplearning.app.util.ByteUtils.reversSendCode
 import com.xysss.keeplearning.databinding.ActivityDataExchangeBinding
 import com.xysss.keeplearning.viewmodel.BlueToothViewModel
 import com.xysss.mvvmhelper.ext.logE
-import com.xysss.keeplearning.app.util.BleHelper.isMainThread
 
 
 class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchangeBinding>(),
@@ -33,6 +36,10 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
 
     private val send00Msg="55000a09000001000023"  //读取设备信息
     private val send10Msg="55000a09100001000023"  //读取实时数据
+    private val send0100Msg="55000a09 00 0001 00 0023"  //读取数据记录
+
+
+    private val send0101Msg="55000a09 01 0001 01 0023"  //读取报警记录
 
     override fun initView(savedInstanceState: Bundle?) {
         supportActionBar?.apply {
@@ -50,12 +57,23 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
         }
         //发送指令
         mViewBinding.btnSendCommand.setOnClickListener {
-            var command = mViewBinding.etCommand.text.toString().trim()
+            //var command = mViewBinding.etCommand.text.toString().trim()
+
+            //55000a09 01 0001 00 0023  //读取数据记录
+            val b0100Msg="5500120901000900"  //读取数据记录
+            val startIndexByteArray0100=ByteArray(4)
+            val readNumByteArray0100=ByteArray(4)
+            val startIndex=1L
+            val readNum=1L
+            val sendByteArry= reversSendCode(startIndexByteArray0100.writeInt32LE(startIndex) + readNumByteArray0100.writeInt32LE(readNum))
+            var command=b0100Msg+sendByteArry?.toHexString(false)+"0023".trim()
+            "sendMsg:$command".logE("xysLog")
             if (command.isEmpty()) {
                 ToastUtils.showShort("请输入指令")
                 return@setOnClickListener
             }
-            command += getBCCResult(command)
+
+            //command += getBCCResult(command)
             //发送指令
             BleHelper.sendCommand(gatt, command, true)
         }

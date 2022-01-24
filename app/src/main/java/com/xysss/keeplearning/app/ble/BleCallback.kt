@@ -8,6 +8,7 @@ import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.BleHelper.isMainThread
 import com.xysss.keeplearning.app.util.ByteUtils
 import com.xysss.keeplearning.app.util.ByteUtils.FRAME00
+import com.xysss.keeplearning.app.util.ByteUtils.FRAME01
 import com.xysss.keeplearning.app.util.ByteUtils.FRAME23
 import com.xysss.keeplearning.app.util.ByteUtils.FRAME55
 import com.xysss.keeplearning.app.util.ByteUtils.Msg80
@@ -17,6 +18,7 @@ import com.xysss.keeplearning.app.util.ByteUtils.revercRevCode
 import com.xysss.keeplearning.app.util.getString
 import com.xysss.keeplearning.viewmodel.DeviceInfo
 import com.xysss.keeplearning.viewmodel.MaterialInfo
+import com.xysss.keeplearning.viewmodel.RecordingData
 import com.xysss.mvvmhelper.ext.logE
 import java.nio.ByteBuffer
 import java.util.*
@@ -29,8 +31,6 @@ import kotlin.collections.ArrayList
  */
 class BleCallback : BluetoothGattCallback() {
     private val TAG = BleCallback::class.java.simpleName
-
-
     private val tempBytesList = ArrayList<Byte>()
     private lateinit var uiCallback: UiCallback
 
@@ -144,9 +144,7 @@ class BleCallback : BluetoothGattCallback() {
         gatt: BluetoothGatt,
         characteristic: BluetoothGattCharacteristic
     ) {
-
-        val content = ByteUtils.bytesToHexString(characteristic.value)
-        "收到数据：$content".logE("xysLog")
+        "收到数据：${characteristic.value.toHexString()}".logE("xysLog")
 //        val id = Thread.currentThread().id
 //        "蓝牙回调方法中的线程号：$id".logE("xysLog")
 //        "蓝牙回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
@@ -157,20 +155,24 @@ class BleCallback : BluetoothGattCallback() {
                 tempBytesList.add(characteristic.value[i])
             } else {
                 tempBytesList.add(characteristic.value[i])
-                if (tempBytesList[tempBytesList.size - 1] == FRAME23) {
-                    if (tempBytesList[0] == FRAME55) {
-                        dealMessage(revercRevCode(tempBytesList))
-                    }
-                    tempBytesList.clear()
-                }
+            }
+        }
+        if (tempBytesList[tempBytesList.size - 1] == FRAME23) {
+            val bytes=ByteArray(2)
+            bytes[0]=tempBytesList[1]
+            bytes[1]=tempBytesList[2]
+            val length=bytes.readInt16BE()
+            "length: $length".logE("xysLog")
+            if (tempBytesList[0] == FRAME55&&length==tempBytesList.size) {
+                dealMessage(revercRevCode(tempBytesList))
+                tempBytesList.clear()
             }
         }
     }
 
-    fun dealMessage(mBytes: ByteArray?){
+    private fun dealMessage(mBytes: ByteArray?){
         mBytes?.let {
-            val content = ByteUtils.bytesToHexString(mBytes)
-            uiCallback.state(content)
+            uiCallback.state(mBytes.toHexString())
             when(it[4]){
                 //设备信息
                 Msg80->{
@@ -196,19 +198,11 @@ class BleCallback : BluetoothGattCallback() {
                 //实时数据
                 Msg90->{
                     if (it.size==22){
-                        val concentrationNumBefore :ByteArray=it.readByteArrayBE(7,4)
-                        val reverse =ByteArray(4)
-
-                        reverse[3]=concentrationNumBefore[0]
-                        reverse[2]=concentrationNumBefore[1]
-                        reverse[1]=concentrationNumBefore[2]
-                        reverse[0]=concentrationNumBefore[3]
                         //浓度值
-                        val concentrationNumTemp=ByteBuffer.wrap(reverse).float
+                        val concentrationNumTemp=it.readByteArrayBE(7,4).readFloatLE()
                         val concentrationNum=String.format("%.3f", concentrationNumTemp)
-                        //
-                        val concentrationState=ByteBuffer.wrap(it.readByteArrayBE(11,4)).int
-                        val materialLibraryIndex=ByteBuffer.wrap(it.readByteArrayBE(15,4)).int
+                        val concentrationState=it.readByteArrayBE(11,4).readInt32LE()
+                        val materialLibraryIndex=it.readByteArrayBE(15,4).readInt32LE()
                         //浓度单位
                         val concentrationUnit:String
                         when(it[19].toInt()){
@@ -226,13 +220,23 @@ class BleCallback : BluetoothGattCallback() {
                 //历史记录
                 Msg81->{
                     if (it.size>18){
-                        uiCallback.state(it.toHexString())
+                        //数据记录
+                        if (it[7]== FRAME00){
+                            //var recordingData=RecordingData()
+                            //开始记录索引
+                            val dataIndex=it.readByteArrayBE(8,4).readInt32BE()
+                            //记录条数
+                            val dataNum=it.readByteArrayBE(12,4).readInt32BE()
+                        }
+                        //报警解析
+                        else if ((it[7]==FRAME01)){
 
+                        }
+                        uiCallback.state(it.toHexString())
                     }
                 }
             }
         }
-
     }
 
     /**
@@ -244,10 +248,12 @@ class BleCallback : BluetoothGattCallback() {
         characteristic: BluetoothGattCharacteristic,
         status: Int
     ) {
-        val command = ByteUtils.bytesToHexString(characteristic.value)
-        "发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："}$command code: $status".logE(
+        ("发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："}" +
+                "${characteristic.value.toHexString()} code: $status").logE(
             "xysLog"
         )
+        uiCallback.state("发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："}" +
+                "${characteristic.value.toHexString()} code: $status")
     }
 
     /**

@@ -7,7 +7,7 @@
     tools:context=".ui.activity.DemoActivity">
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/demo_button1"
         android:text="关闭日期显示"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/demo_button2"
         android:text="text1"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"

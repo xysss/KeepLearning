@@ -8,15 +8,15 @@ import kotlin.experimental.xor
 
 object ByteUtils {
 
-    val FRAME55: Byte = 0x55
-    val FRAME23: Byte = 0x23
-    val FRAMEFF: Byte = 0xFF.toByte()
-    val FRAME00: Byte = 0x00
+    const val FRAME55: Byte = 0x55
+    const val FRAME23: Byte = 0x23
+    const val FRAMEFF: Byte = 0xFF.toByte()
+    const val FRAME00: Byte = 0x00
+    const val FRAME01:Byte=0x01
 
     val Msg80: Byte = 0x80.toByte()
     val Msg90: Byte = 0x90.toByte()
     val Msg81: Byte = 0x81.toByte()
-
     lateinit var afterBytes: ByteArray
     val dealBytesList = ArrayList<Byte>()
 

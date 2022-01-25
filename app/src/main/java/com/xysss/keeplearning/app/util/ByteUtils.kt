@@ -59,35 +59,6 @@ object ByteUtils {
     }
 
 
-    fun reversSendCode(bytes:ByteArray?): ByteArray? {
-        dealBytesList.clear()
-
-        bytes?.let {
-            var i = 0
-            while (i < it.size) {
-                if (it[i] == FRAME55) {
-                    dealBytesList.add(FRAMEFF)
-                    dealBytesList.add(FRAME00)
-                } else if (it[i] == FRAMEFF){
-                    dealBytesList.add(FRAMEFF)
-                    dealBytesList.add(FRAMEFF)
-                }else{
-                    dealBytesList.add(it[i])
-                }
-                i++
-            }
-        }
-        dealBytesList.let {
-            afterBytes = ByteArray(it.size)
-            for (i in afterBytes.indices) {
-                afterBytes[i] = it[i]
-            }
-        }
-
-        return afterBytes
-    }
-
-
     fun revercRevCode(bytes: ArrayList<Byte>?): ByteArray? {
         dealBytesList.clear()
         bytes?.let {

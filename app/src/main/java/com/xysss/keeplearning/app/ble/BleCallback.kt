@@ -33,6 +33,7 @@ class BleCallback : BluetoothGattCallback() {
     private val TAG = BleCallback::class.java.simpleName
     private val tempBytesList = ArrayList<Byte>()
     private lateinit var uiCallback: UiCallback
+    private lateinit var afterBytes: ByteArray
 
     fun setUiCallback(uiCallback: UiCallback) {
         this.uiCallback = uiCallback
@@ -144,92 +145,122 @@ class BleCallback : BluetoothGattCallback() {
         gatt: BluetoothGatt,
         characteristic: BluetoothGattCharacteristic
     ) {
-        "收到数据：${characteristic.value.toHexString()}".logE("xysLog")
 //        val id = Thread.currentThread().id
 //        "蓝牙回调方法中的线程号：$id".logE("xysLog")
 //        "蓝牙回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
 
-        for (i in characteristic.value.indices) {
+        "收到数据：${characteristic.value.toHexString()}".logE("xysLog")
+
+        var i = 0
+        while (i < characteristic.value.size) {
+            //校验开头
             if (characteristic.value[i] == FRAME55) {
                 tempBytesList.clear()
                 tempBytesList.add(characteristic.value[i])
             } else {
-                tempBytesList.add(characteristic.value[i])
+                //转码
+                if (characteristic.value[i] == ByteUtils.FRAMEFF) {
+                    if (characteristic.value[i + 1] == ByteUtils.FRAMEFF) {
+                        tempBytesList.add(ByteUtils.FRAMEFF)
+                        i++
+                    } else if (characteristic.value[i + 1] == FRAME00) {
+                        tempBytesList.add(FRAME55)
+                        i++
+                    } else {
+                        tempBytesList.add(characteristic.value[i])
+                    }
+                } else {
+                    tempBytesList.add(characteristic.value[i])
+                }
             }
+            i++
         }
+
+        //校验结尾
         if (tempBytesList[tempBytesList.size - 1] == FRAME23) {
-            val bytes=ByteArray(2)
-            bytes[0]=tempBytesList[1]
-            bytes[1]=tempBytesList[2]
-            val length=bytes.readInt16BE()
+            val bytes = ByteArray(2)
+            bytes[0] = tempBytesList[1]
+            bytes[1] = tempBytesList[2]
+            val length = bytes.readInt16BE()
             "length: $length".logE("xysLog")
-            if (tempBytesList[0] == FRAME55&&length==tempBytesList.size) {
-                dealMessage(revercRevCode(tempBytesList))
+            if (tempBytesList[0] == FRAME55 && length == tempBytesList.size) {
+                //校验数据长度
+                tempBytesList.let {
+                    afterBytes = ByteArray(it.size)
+                    for (k in afterBytes.indices) {
+                        afterBytes[k] = it[k]
+                    }
+                }
+                dealMessage(afterBytes)
                 tempBytesList.clear()
             }
         }
     }
 
-    private fun dealMessage(mBytes: ByteArray?){
+    private fun dealMessage(mBytes: ByteArray?) {
         mBytes?.let {
             uiCallback.state(mBytes.toHexString())
-            when(it[4]){
+            when (it[4]) {
                 //设备信息
-                Msg80->{
-                    if (it.size==71){
-                        val hardWareMainVersion:Int=it[7].toInt()
-                        val hardWareSecondVersion:Int=it[8].toInt()
-                        val softWareMainVersion:Int=it[9].toInt()
-                        val softWareSecondVersion:Int=it[10].toInt()
+                Msg80 -> {
+                    if (it.size == 71) {
+                        val hardWareMainVersion: Int = it[7].toInt()
+                        val hardWareSecondVersion: Int = it[8].toInt()
+                        val softWareMainVersion: Int = it[9].toInt()
+                        val softWareSecondVersion: Int = it[10].toInt()
                         //设备序列号
-                        var i=49
-                        while (i<it.size)
-                            if (it[i]==FRAME00) break else i++
-                        var tempBytes: ByteArray = it.readByteArrayBE(49,i-49)
+                        var i = 49
+                        while (i < it.size)
+                            if (it[i] == FRAME00) break else i++
+                        val tempBytes: ByteArray = it.readByteArrayBE(49, i - 49)
                         val deviceId = tempBytes.toAsciiString()
 
-                        var deviceInfo=DeviceInfo("$hardWareMainVersion:$hardWareSecondVersion",
-                            "$softWareMainVersion:$softWareSecondVersion",deviceId)
+                        val deviceInfo = DeviceInfo(
+                            "$hardWareMainVersion:$hardWareSecondVersion",
+                            "$softWareMainVersion:$softWareSecondVersion", deviceId
+                        )
                         uiCallback.state(deviceInfo.toString())
 //                        val tempBytesStr = ByteUtils.bytesToHexString(tempBytes)
 //                        uiCallback.state(tempBytesStr)
                     }
                 }
                 //实时数据
-                Msg90->{
-                    if (it.size==22){
+                Msg90 -> {
+                    if (it.size == 22) {
                         //浓度值
-                        val concentrationNumTemp=it.readByteArrayBE(7,4).readFloatLE()
-                        val concentrationNum=String.format("%.3f", concentrationNumTemp)
-                        val concentrationState=it.readByteArrayBE(11,4).readInt32LE()
-                        val materialLibraryIndex=it.readByteArrayBE(15,4).readInt32LE()
+                        val concentrationNumTemp = it.readByteArrayBE(7, 4).readFloatLE()
+                        val concentrationNum = String.format("%.3f", concentrationNumTemp)
+                        val concentrationState = it.readByteArrayBE(11, 4).readInt32LE()
+                        val materialLibraryIndex = it.readByteArrayBE(15, 4).readInt32LE()
                         //浓度单位
-                        val concentrationUnit:String
-                        when(it[19].toInt()){
-                            0->concentrationUnit="ppm"
-                            1->concentrationUnit="ppb"
-                            2->concentrationUnit="mg/m3"
-                            else->concentrationUnit=""
+                        val concentrationUnit: String
+                        when (it[19].toInt()) {
+                            0 -> concentrationUnit = "ppm"
+                            1 -> concentrationUnit = "ppb"
+                            2 -> concentrationUnit = "mg/m3"
+                            else -> concentrationUnit = ""
                         }
 
-                        val materialInfo= MaterialInfo(concentrationNum, concentrationState.toString(),
-                            materialLibraryIndex.toString(),concentrationUnit)
+                        val materialInfo = MaterialInfo(
+                            concentrationNum, concentrationState.toString(),
+                            materialLibraryIndex.toString(), concentrationUnit
+                        )
                         uiCallback.state(materialInfo.toString())
                     }
                 }
                 //历史记录
-                Msg81->{
-                    if (it.size>18){
+                Msg81 -> {
+                    if (it.size > 18) {
                         //数据记录
-                        if (it[7]== FRAME00){
+                        if (it[7] == FRAME00) {
                             //var recordingData=RecordingData()
                             //开始记录索引
-                            val dataIndex=it.readByteArrayBE(8,4).readInt32BE()
+                            val dataIndex = it.readByteArrayBE(8, 4).readInt32BE()
                             //记录条数
-                            val dataNum=it.readByteArrayBE(12,4).readInt32BE()
+                            val dataNum = it.readByteArrayBE(12, 4).readInt32BE()
                         }
                         //报警解析
-                        else if ((it[7]==FRAME01)){
+                        else if ((it[7] == FRAME01)) {
 
                         }
                         uiCallback.state(it.toHexString())
@@ -252,8 +283,10 @@ class BleCallback : BluetoothGattCallback() {
                 "${characteristic.value.toHexString()} code: $status").logE(
             "xysLog"
         )
-        uiCallback.state("发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："}" +
-                "${characteristic.value.toHexString()} code: $status")
+        uiCallback.state(
+            "发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："}" +
+                    "${characteristic.value.toHexString()} code: $status"
+        )
     }
 
     /**

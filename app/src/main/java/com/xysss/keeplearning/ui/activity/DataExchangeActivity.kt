@@ -50,10 +50,6 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
         } else {
             gatt = device!!.connectGatt(this, false, bleCallback)
         }
-        //发送指令
-        mViewBinding.btnSendCommand.setOnClickListener {
-
-        }
         //Ble状态页面UI回调
         bleCallback.setUiCallback(this)
     }

@@ -5,7 +5,7 @@ import com.gyf.immersionbar.ktx.immersionBar
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.databinding.FragmentThreeBinding
-import com.xysss.keeplearning.data.response.TestViewModel
+import com.xysss.keeplearning.viewmodel.TestViewModel
 import jni.JniKit
 
 /**

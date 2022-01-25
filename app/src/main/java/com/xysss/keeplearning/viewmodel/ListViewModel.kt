@@ -1,4 +1,4 @@
-package com.xysss.keeplearning.data.response
+package com.xysss.keeplearning.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import com.xysss.keeplearning.app.api.NetUrl

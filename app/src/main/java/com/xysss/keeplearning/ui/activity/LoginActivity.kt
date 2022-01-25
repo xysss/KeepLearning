@@ -7,7 +7,7 @@ import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.initBack
 import com.xysss.keeplearning.databinding.ActivityLoginBinding
-import com.xysss.keeplearning.data.response.LoginViewModel
+import com.xysss.keeplearning.viewmodel.LoginViewModel
 import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadStatusEntity
 import com.xysss.mvvmhelper.net.LoadingDialogEntity

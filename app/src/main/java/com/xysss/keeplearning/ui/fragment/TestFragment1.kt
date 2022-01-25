@@ -6,7 +6,7 @@ import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.databinding.ActivityListBinding
 import com.xysss.keeplearning.ui.adapter.TestAdapter
-import com.xysss.keeplearning.data.response.ListViewModel
+import com.xysss.keeplearning.viewmodel.ListViewModel
 import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadStatusEntity
 import com.xysss.mvvmhelper.util.decoration.DividerOrientation

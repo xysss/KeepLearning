@@ -1,8 +1,7 @@
-package com.xysss.keeplearning.viewmodel
+package com.xysss.keeplearning.data.response
 
 import android.annotation.SuppressLint
 import android.os.Parcelable
-import com.xysss.keeplearning.viewmodel.TagsResponse
 import kotlinx.android.parcel.Parcelize
 
 /**

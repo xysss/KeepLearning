@@ -4,6 +4,8 @@ import androidx.lifecycle.MutableLiveData
 import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.network.ListDataUiState
 import com.xysss.keeplearning.data.repository.UserRepository
+import com.xysss.keeplearning.data.response.AriticleResponse
+import com.xysss.keeplearning.data.response.ClassifyResponse
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.ext.rxHttpRequest
 import com.xysss.mvvmhelper.net.LoadingType

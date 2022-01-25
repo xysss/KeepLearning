@@ -6,13 +6,12 @@ import android.os.Bundle
 import com.blankj.utilcode.util.ToastUtils
 import com.gyf.immersionbar.ktx.immersionBar
 import com.tbruyelle.rxpermissions2.RxPermissions
-import com.tencent.bugly.beta.Beta
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.databinding.FragmentOneBinding
 import com.xysss.keeplearning.ui.activity.*
-import com.xysss.keeplearning.viewmodel.TestViewModel
+import com.xysss.keeplearning.data.response.TestViewModel
 import com.xysss.mvvmhelper.ext.msg
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
 import com.xysss.mvvmhelper.ext.showDialogMessage

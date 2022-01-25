@@ -190,4 +190,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
     //ByteArray与基本类型的转换工具(位运算)
     implementation 'com.swallowsonny:convert-ext:1.0.4'
+    //mqtt
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 }

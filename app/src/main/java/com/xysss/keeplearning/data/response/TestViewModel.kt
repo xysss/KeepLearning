@@ -1,4 +1,4 @@
-package com.xysss.keeplearning.viewmodel
+package com.xysss.keeplearning.data.response
 
 import android.net.Uri
 import android.os.Build

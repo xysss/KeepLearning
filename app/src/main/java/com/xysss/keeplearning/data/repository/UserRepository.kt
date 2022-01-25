@@ -4,8 +4,8 @@ import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.network.ListDataUiState
 import com.xysss.keeplearning.data.response.ApiPagerResponse
 import com.xysss.keeplearning.data.response.UserInfo
-import com.xysss.keeplearning.viewmodel.AriticleResponse
-import com.xysss.keeplearning.viewmodel.ClassifyResponse
+import com.xysss.keeplearning.data.response.AriticleResponse
+import com.xysss.keeplearning.data.response.ClassifyResponse
 import rxhttp.wrapper.coroutines.Await
 import rxhttp.wrapper.param.RxHttp
 import rxhttp.wrapper.param.toResponse

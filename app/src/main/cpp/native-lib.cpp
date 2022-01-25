@@ -122,7 +122,7 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_jni_JniKit_findClass(JNIEnv *env, jobject thiz) {
     // 1. 获取 Class
-    jclass pClazz = env->FindClass("com/xysss/keeplearning/viewmodel/Person");
+    jclass pClazz = env->FindClass("com/xysss/keeplearning/data/response/Person");
     // 2. 获取构造方法，方法名固定为<init>
     jmethodID constructID = env->GetMethodID(pClazz,"<init>","(ILjava/lang/String;)V");
     if(constructID == NULL){

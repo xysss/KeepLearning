@@ -1,4 +1,4 @@
-package com.xysss.keeplearning.viewmodel
+package com.xysss.keeplearning.data.response
 
 import com.xysss.mvvmhelper.ext.logD
 import com.xysss.mvvmhelper.ext.logE

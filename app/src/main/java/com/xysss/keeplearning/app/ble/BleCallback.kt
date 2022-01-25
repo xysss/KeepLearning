@@ -5,7 +5,6 @@ import android.os.Build
 import com.swallowsonny.convertextlibrary.*
 import com.xysss.keeplearning.app.util.BleConstant
 import com.xysss.keeplearning.app.util.BleHelper
-import com.xysss.keeplearning.app.util.BleHelper.isMainThread
 import com.xysss.keeplearning.app.util.ByteUtils
 import com.xysss.keeplearning.app.util.ByteUtils.FRAME00
 import com.xysss.keeplearning.app.util.ByteUtils.FRAME01
@@ -14,13 +13,10 @@ import com.xysss.keeplearning.app.util.ByteUtils.FRAME55
 import com.xysss.keeplearning.app.util.ByteUtils.Msg80
 import com.xysss.keeplearning.app.util.ByteUtils.Msg81
 import com.xysss.keeplearning.app.util.ByteUtils.Msg90
-import com.xysss.keeplearning.app.util.ByteUtils.revercRevCode
 import com.xysss.keeplearning.app.util.getString
-import com.xysss.keeplearning.viewmodel.DeviceInfo
-import com.xysss.keeplearning.viewmodel.MaterialInfo
-import com.xysss.keeplearning.viewmodel.RecordingData
+import com.xysss.keeplearning.data.response.DeviceInfo
+import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.mvvmhelper.ext.logE
-import java.nio.ByteBuffer
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -255,9 +251,9 @@ class BleCallback : BluetoothGattCallback() {
                         if (it[7] == FRAME00) {
                             //var recordingData=RecordingData()
                             //开始记录索引
-                            val dataIndex = it.readByteArrayBE(8, 4).readInt32BE()
+                            val dataIndex = it.readByteArrayBE(8, 4).readInt32LE()
                             //记录条数
-                            val dataNum = it.readByteArrayBE(12, 4).readInt32BE()
+                            val dataNum = it.readByteArrayBE(12, 4).readInt32LE()
                         }
                         //报警解析
                         else if ((it[7] == FRAME01)) {

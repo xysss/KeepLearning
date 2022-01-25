@@ -7,7 +7,7 @@ import com.xysss.keeplearning.databinding.FragmentFourBinding
 import com.xysss.keeplearning.ui.activity.DemoActivity
 import com.xysss.keeplearning.ui.activity.SettingActivity
 import com.xysss.keeplearning.ui.activity.WebActivity
-import com.xysss.keeplearning.viewmodel.TestViewModel
+import com.xysss.keeplearning.data.response.TestViewModel
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
 import com.xysss.mvvmhelper.ext.toStartActivity
 

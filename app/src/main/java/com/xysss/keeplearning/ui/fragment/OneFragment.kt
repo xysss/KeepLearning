@@ -35,14 +35,16 @@ import com.xysss.mvvmhelper.ext.toStartActivity
 class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
 
     private var downloadApkPath = ""
-
-    lateinit var mBinder: MQTTService.MQTTBinder
+    private val publishTopic = "HT308PRD/VP200/C2S/{SN}" //发送主题
+    private var mService: MQTTService? = null
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            mBinder = service as MQTTService.MQTTBinder
-            mBinder.startTask1()
+            val mBinder = service as MQTTService.MyBinder
+            mService = mBinder.service
+            mService?.connect(appContext)
+
         }
 
         //崩溃被杀掉的时候回调
@@ -105,12 +107,14 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
                     toStartActivity(LoginActivity::class.java)
                 }
                 R.id.testPageBtn -> {
-                    toStartActivity(TestActivity::class.java)
+                    //toStartActivity(TestActivity::class.java)
+                    mService?.publish(publishTopic,"Test")
                 }
                 R.id.testListBtn -> {
                     //toStartActivity(ListActivity::class.java)
                     val intent = Intent(appContext, MQTTService::class.java)
                     appContext.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+
                 }
                 R.id.linkBlueTooth -> {
                     toStartActivity(LinkBleBlueTooth::class.java)

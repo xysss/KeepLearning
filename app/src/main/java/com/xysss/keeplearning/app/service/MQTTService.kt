@@ -3,6 +3,7 @@ package com.xysss.keeplearning.app.service
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.net.ConnectivityManager
 import android.os.Binder
 import android.os.Handler
@@ -17,13 +18,12 @@ class MQTTService : Service() {
 
     private val userName = "admin" //用户名
     private val password = "password" //密码
-    private val publishTopic = "HT308PRD/VP200/C2S/{SN}" //发送主题
     private val receiveTopic = "HT308PRD/VP200/S2C/{SN}" //接收主题
     private val qos = 1
     private val serverURI = "tcp://broker.emqx.io:1883"
     private val clientId = "blueTooth_client"
     private lateinit var mqttClient: MqttAndroidClient
-    private val mBinder = MQTTBinder()
+    private val mBinder = MyBinder()
 
     companion object {
         const val TAG = "AndroidMqttClient"
@@ -35,13 +35,9 @@ class MQTTService : Service() {
 //        }
     }
 
-    class MQTTBinder : Binder() {
-        fun startTask1() {
-            "starting1".logE(TAG)
-        }
-        fun startTask2(){
-            "starting2".logE(TAG)
-        }
+    inner class MyBinder : Binder() {
+        val service: MQTTService
+            get() = this@MQTTService
     }
 
 //    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -180,8 +176,8 @@ class MQTTService : Service() {
     /**
      * 判断网络是否连接
      */
-    private val isConnectIsNomarl: Boolean
-        private get() {
+    val isConnectIsNomarl: Boolean
+    get() {
             val connectivityManager =
                 this.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val info = connectivityManager.activeNetworkInfo
@@ -205,7 +201,7 @@ class MQTTService : Service() {
      *
      * @param message 消息
      */
-    private fun response(message: String) {
+    fun response(message: String) {
         val topic = receiveTopic
         val qos = 2
         val retained = false
@@ -220,8 +216,10 @@ class MQTTService : Service() {
         }
     }
 
-    override fun onDestroy() {
+
+    override fun unbindService(conn: ServiceConnection) {
         disconnect()
-        super.onDestroy()
+        super.unbindService(conn)
     }
+
 }

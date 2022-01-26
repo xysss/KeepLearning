@@ -46,6 +46,7 @@
         <service
             android:name=".app.service.MQTTService"
             android:enabled="true"
+            android:priority = "1000"
             android:exported="false"/>
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 

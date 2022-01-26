@@ -2,16 +2,26 @@ package com.xysss.keeplearning.ui.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import com.blankj.utilcode.util.ToastUtils
 import com.gyf.immersionbar.ktx.immersionBar
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
+import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.databinding.FragmentOneBinding
-import com.xysss.keeplearning.ui.activity.*
+import com.xysss.keeplearning.ui.activity.LinkBleBlueTooth
+import com.xysss.keeplearning.ui.activity.LoginActivity
+import com.xysss.keeplearning.ui.activity.RoomSampleActivity
+import com.xysss.keeplearning.ui.activity.TestActivity
 import com.xysss.keeplearning.viewmodel.TestViewModel
+import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.msg
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
 import com.xysss.mvvmhelper.ext.showDialogMessage
@@ -25,6 +35,20 @@ import com.xysss.mvvmhelper.ext.toStartActivity
 class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
 
     private var downloadApkPath = ""
+
+    lateinit var mBinder: MQTTService.MQTTBinder
+
+    private val connection = object : ServiceConnection {
+        //与服务绑定成功的时候自动回调
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            mBinder = service as MQTTService.MQTTBinder
+            mBinder.startTask1()
+        }
+
+        //崩溃被杀掉的时候回调
+        override fun onServiceDisconnected(name: ComponentName?) {
+        }
+    }
 
     override fun initView(savedInstanceState: Bundle?) {
         mViewBinding.customToolbar.setCenterTitle(R.string.bottom_title_read)
@@ -58,10 +82,18 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
             }
     }
 
+    override fun onDestroyView() {
+        appContext.unbindService(connection)
+        super.onDestroyView()
+    }
+
+    @SuppressLint("SetTextI18n")
     override fun onBindViewClick() {
-        setOnclickNoRepeat(mViewBinding.loginBtn, mViewBinding.testPageBtn, mViewBinding.testListBtn,
-            mViewBinding.testDownload, mViewBinding.testUpload,mViewBinding.testCrash,
-            mViewBinding.getPermission,mViewBinding.testRoom,mViewBinding.linkBlueTooth) {
+        setOnclickNoRepeat(
+            mViewBinding.loginBtn, mViewBinding.testPageBtn, mViewBinding.testListBtn,
+            mViewBinding.testDownload, mViewBinding.testUpload, mViewBinding.testCrash,
+            mViewBinding.getPermission, mViewBinding.testRoom, mViewBinding.linkBlueTooth
+        ) {
             when (it.id) {
                 R.id.testRoom -> {
                     toStartActivity(RoomSampleActivity::class.java)
@@ -76,9 +108,11 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
                     toStartActivity(TestActivity::class.java)
                 }
                 R.id.testListBtn -> {
-                    toStartActivity(ListActivity::class.java)
+                    //toStartActivity(ListActivity::class.java)
+                    val intent = Intent(appContext, MQTTService::class.java)
+                    appContext.bindService(intent, connection, Context.BIND_AUTO_CREATE)
                 }
-                R.id.linkBlueTooth->{
+                R.id.linkBlueTooth -> {
                     toStartActivity(LinkBleBlueTooth::class.java)
                 }
 

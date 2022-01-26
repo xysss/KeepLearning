@@ -9,18 +9,18 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import com.blankj.utilcode.util.ToastUtils
-import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.databinding.ActivityDataExchangeBinding
 import com.xysss.keeplearning.viewmodel.BlueToothViewModel
-import com.xysss.mvvmhelper.ext.*
+import com.xysss.mvvmhelper.ext.logE
+import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
 
 
 class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchangeBinding>(),
-    BleCallback.UiCallback {
+    BleCallback.UiCallback{
 
     //Gatt
     private lateinit var gatt: BluetoothGatt

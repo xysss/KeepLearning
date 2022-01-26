@@ -43,6 +43,11 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute,LockedOrientationActivity"
         tools:replace="android:allowBackup,android:networkSecurityConfig">
+        <service
+            android:name=".app.service.MQTTService"
+            android:enabled="true"
+            android:exported="false"/>
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
 
         <activity
             android:name=".ui.activity.DemoActivity"
@@ -118,12 +123,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
-        <service
-            android:name=".app.service.MyMqttService"
-            android:enabled="true"
-            android:exported="false"/>
-        <service android:name="org.eclipse.paho.android.service.MqttService" />
 
         <meta-data
             android:name="android.webkit.WebView.EnableSafeBrowsing"

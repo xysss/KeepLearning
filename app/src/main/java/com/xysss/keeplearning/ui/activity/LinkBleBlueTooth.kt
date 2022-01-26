@@ -14,6 +14,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.SeekBar
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.blankj.utilcode.util.ToastUtils
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -261,6 +262,7 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
     /**
      * 过滤设备列表
      */
+    @SuppressLint("NotifyDataSetChanged")
     private fun filterDeviceList() {
         if (mList.size > 0) {
             val mIterator = mList.iterator()
@@ -284,8 +286,10 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
     /**
      * 请求权限
      */
+    @RequiresApi(Build.VERSION_CODES.M)
     private fun requestPermission() =
-        PermissionX.init(this).permissions(Manifest.permission.ACCESS_FINE_LOCATION)
+        PermissionX.init(this).permissions(Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission_group.PHONE)
             .request { allGranted, _, _ -> if (allGranted) openBluetooth() else ToastUtils.showShort("权限被拒绝") }
     /**
      * 打开蓝牙

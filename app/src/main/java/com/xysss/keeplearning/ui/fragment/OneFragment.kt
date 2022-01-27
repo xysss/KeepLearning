@@ -43,7 +43,7 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val mBinder = service as MQTTService.MyBinder
             mService = mBinder.service
-            mService?.connect(appContext)
+            //mService?.connect(appContext)
 
         }
 

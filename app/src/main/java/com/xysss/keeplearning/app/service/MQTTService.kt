@@ -1,13 +1,18 @@
 package com.xysss.keeplearning.app.service
 
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.os.Binder
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
+import androidx.core.app.NotificationCompat
+import com.xysss.keeplearning.R
+import com.xysss.keeplearning.ui.activity.MainActivity
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
 import org.eclipse.paho.android.service.MqttAndroidClient
@@ -40,10 +45,28 @@ class MQTTService : Service() {
             get() = this@MQTTService
     }
 
-//    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    //    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 //        connect(appContext)
 //        return super.onStartCommand(intent, flags, startId)
 //    }
+    override fun onCreate() {
+        super.onCreate()
+        val manager=getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+            val channel=NotificationChannel("my_service","前台Service通知",NotificationManager.IMPORTANCE_DEFAULT)
+            manager.createNotificationChannel(channel)
+        }
+        val intent=Intent(this,MainActivity::class.java)
+        val pi=PendingIntent.getActivity(this,0,intent,0)
+        val notification=NotificationCompat.Builder(this,"my_service")
+            .setContentTitle("This is content title")
+            .setContentText("This is content text")
+            .setSmallIcon(R.drawable.ic_demo)
+            .setLargeIcon(BitmapFactory.decodeResource(resources,R.drawable.ic_launcher))
+            .setContentIntent(pi)
+            .build()
+        startForeground(1,notification)
+    }
 
     override fun onBind(intent: Intent): IBinder {
         return mBinder

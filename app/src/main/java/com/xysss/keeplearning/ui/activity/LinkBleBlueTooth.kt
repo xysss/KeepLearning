@@ -288,8 +288,10 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
      */
     @RequiresApi(Build.VERSION_CODES.M)
     private fun requestPermission() =
-        PermissionX.init(this).permissions(Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission_group.PHONE)
+        PermissionX.init(this).permissions(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+//            Manifest.permission_group.PHONE
+            )
             .request { allGranted, _, _ -> if (allGranted) openBluetooth() else ToastUtils.showShort("权限被拒绝") }
     /**
      * 打开蓝牙

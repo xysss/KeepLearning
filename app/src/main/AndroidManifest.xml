@@ -21,7 +21,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- mqtt 需要 -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/> <!-- 前台服务需要 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!-- 前台服务需要 -->
     <uses-permission
         android:name="android.permission.READ_LOGS"
         tools:ignore="ProtectedPermissions" /> <!-- Arms 配置 -->
@@ -45,10 +45,14 @@
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute,LockedOrientationActivity"
         tools:replace="android:allowBackup,android:networkSecurityConfig">
         <service
+            android:name=".app.service.BleBlueToothService"
+            android:enabled="true"
+            android:exported="true"></service>
+        <service
             android:name=".app.service.MQTTService"
             android:enabled="true"
-            android:priority = "1000"
-            android:exported="false"/>
+            android:exported="false"
+            android:priority="1000" />
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
         <activity

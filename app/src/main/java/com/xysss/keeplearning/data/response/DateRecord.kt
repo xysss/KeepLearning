@@ -11,18 +11,17 @@ import kotlinx.android.parcel.Parcelize
  */
 @SuppressLint("ParcelCreator")
 @Parcelize
-data class RecordingData(
+data class DateRecord(
     val timestamp:String,
-    val reserv:String,
-    val ppm:Int,
-    val cf:Int,
+    val reserv:Int,
+    val ppm:String,
+    val cf:Float,
     val voc_index:Int,  //物质库条目索引
     val alarm:Int,  //报警状态
-    val thresh_hi:Int,  //报警阈值
-    val thresh_lo: Int,
-    val thresh_twa:Int,
-    val thresh_stel:Int,
+    val thresh_hi:Float,  //报警阈值
+    val thresh_lo: Float,
+    val thresh_twa:Float,
+    val thresh_stel:Float,
     val user_id:Int,  //用户ID
-    val place_id:Int,  //地点ID
-    val stelNumber:Int
+    val place_id:Int  //地点ID
 ):Parcelable

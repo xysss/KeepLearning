@@ -1,6 +1,13 @@
 package com.xysss.keeplearning.app.util
 
+import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import java.math.RoundingMode
+import java.text.DecimalFormat
+import java.text.ParsePosition
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.experimental.xor
@@ -17,6 +24,7 @@ object ByteUtils {
     val Msg80: Byte = 0x80.toByte()
     val Msg90: Byte = 0x90.toByte()
     val Msg81: Byte = 0x81.toByte()
+    val MsgA1: Byte = 0xA1.toByte()
     lateinit var afterBytes: ByteArray
     val dealBytesList = ArrayList<Byte>()
 
@@ -37,6 +45,23 @@ object ByteUtils {
         }
         Log.d("TAG", "hexStringToBytes: "+ byteArrayResult.contentToString())
         return byteArrayResult
+    }
+
+    fun getNoMoreThanTwoDigits(number: Float): String {
+        val format = DecimalFormat("0.###")
+        //未保留小数的舍弃规则，RoundingMode.FLOOR表示直接舍弃。
+        format.roundingMode = RoundingMode.FLOOR
+        return format.format(number)
+    }
+
+    fun getDateTime(s: String): String {
+        return try {
+            val sdf = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+            val netDate = Date(s.toLong() * 1000)
+            sdf.format(netDate)
+        } catch (e: Exception) {
+            e.toString()
+        }
     }
 
     /**

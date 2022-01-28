@@ -35,6 +35,7 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
     private val send10Msg="55000a09100001000023"  //读取实时数据
     private val send0100Msg="550012090100090001000000050000000023"  //读取数据记录
     private val send0101Msg="550012090100090101000000050000000023"  //读取报警记录
+    private val send21Msg="55000D09210400000000000023"  //读取物质信息
 
     override fun initView(savedInstanceState: Bundle?) {
         supportActionBar?.apply {
@@ -112,6 +113,7 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
                     mViewBinding.etCommand.setText(send0101Msg)
                 }
                 R.id.button5 -> {
+                    mViewBinding.etCommand.setText(send21Msg)
                 }
                 R.id.button6 -> {
                 }
@@ -138,10 +140,17 @@ class DataExchangeActivity : BaseActivity<BlueToothViewModel, ActivityDataExchan
 //        val id = Thread.currentThread().id
 //        "state方法中的线程号：$id".logE("xysLog")
 //        "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
-        "解析完数据长度: ${state?.length}: $state".logE("xysLog")
+        state.logE("xysLog")
         //mViewBinding.tvState.text = "收到转码后的数据长度: ${state?.length}: $state"
-        stringBuffer.append("解析完数据长度: ${state?.length}: "+state).append("\n")
+        stringBuffer.append(state).append("\n")
         mViewBinding.tvState.text = stringBuffer.toString()
         mViewBinding.scroll.apply { viewTreeObserver.addOnGlobalLayoutListener { post { fullScroll(View.FOCUS_DOWN) } } }
+    }
+
+    override fun onDestroy() {
+        gatt.disconnect()
+        gatt.close()
+        super.onDestroy()
+
     }
 }

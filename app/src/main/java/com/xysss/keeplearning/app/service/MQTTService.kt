@@ -17,6 +17,7 @@ import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
+import kotlin.concurrent.thread
 
 
 class MQTTService : Service() {
@@ -74,53 +75,53 @@ class MQTTService : Service() {
 
     //连接
     fun connect(context: Context) {
-        mqttClient = MqttAndroidClient(context, serverURI, clientId)
+        thread {
+            mqttClient = MqttAndroidClient(context, serverURI, clientId)
+            //订阅主题的回调
+            mqttClient.setCallback(object : MqttCallback {
+                //messageArrived：收到 broker 新消息
+                override fun messageArrived(topic: String?, message: MqttMessage?) {
+                    "Receive message: ${message.toString()} from topic: $topic".logE(TAG)
 
-        //订阅主题的回调
-        mqttClient.setCallback(object : MqttCallback {
-            //messageArrived：收到 broker 新消息
-            override fun messageArrived(topic: String?, message: MqttMessage?) {
-                "Receive message: ${message.toString()} from topic: $topic".logE(TAG)
-
-                response("message arrived")
-            }
-
-            //connectionLost：与 broker 连接丢失
-            override fun connectionLost(cause: Throwable?) {
-                "Connection lost ${cause.toString()}".logE(TAG)
-            }
-
-            //deliveryComplete：消息到 broker 传递完成
-            override fun deliveryComplete(token: IMqttDeliveryToken?) {
-
-            }
-        })
-
-        //MqttConnectOptions 用于配置连接设置，包含用户名密码，超时配置等，具体可以查看其方法。
-        val options = MqttConnectOptions()
-        options.isCleanSession = true //设置是否清除缓存
-        options.connectionTimeout = 10 //设置超时时间，单位：秒
-        options.keepAliveInterval = 20 //设置心跳包发送间隔，单位：秒
-        options.userName = userName //设置用户名
-        options.password = password.toCharArray() //设置密码
-        try {
-            mqttClient.connect(options, null, object : IMqttActionListener {
-                override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    "MQTT Connection success".logE(TAG)
-                    //去订阅主题
-                    subscribe(receiveTopic, qos)
+                    response("message arrived")
                 }
 
-                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                    "MQTT Connection failure".logE(TAG)
-                    // 连接失败，重连
-                    //connect(appContext)
+                //connectionLost：与 broker 连接丢失
+                override fun connectionLost(cause: Throwable?) {
+                    "Connection lost ${cause.toString()}".logE(TAG)
+                }
+
+                //deliveryComplete：消息到 broker 传递完成
+                override fun deliveryComplete(token: IMqttDeliveryToken?) {
+
                 }
             })
-        } catch (e: MqttException) {
-            e.printStackTrace()
-        }
 
+            //MqttConnectOptions 用于配置连接设置，包含用户名密码，超时配置等，具体可以查看其方法。
+            val options = MqttConnectOptions()
+            options.isCleanSession = true //设置是否清除缓存
+            options.connectionTimeout = 10 //设置超时时间，单位：秒
+            options.keepAliveInterval = 20 //设置心跳包发送间隔，单位：秒
+            options.userName = userName //设置用户名
+            options.password = password.toCharArray() //设置密码
+            try {
+                mqttClient.connect(options, null, object : IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken?) {
+                        "MQTT Connection success".logE(TAG)
+                        //去订阅主题
+                        subscribe(receiveTopic, qos)
+                    }
+
+                    override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                        "MQTT Connection failure".logE(TAG)
+                        // 连接失败，重连
+                        //connect(appContext)
+                    }
+                })
+            } catch (e: MqttException) {
+                e.printStackTrace()
+            }
+        }
     }
 
     //订阅 topic

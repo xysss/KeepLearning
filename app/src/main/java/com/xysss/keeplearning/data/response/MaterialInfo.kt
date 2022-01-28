@@ -15,4 +15,6 @@ data class MaterialInfo(
     val concentrationNum:String,
     val concentrationState:String,
     val materialLibraryIndex:String,
-    val concentrationUnit:String) : Parcelable
+    val concentrationUnit:String,
+    val cfNum:String,
+    val materialName:String) : Parcelable

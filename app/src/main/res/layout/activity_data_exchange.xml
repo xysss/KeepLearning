@@ -67,7 +67,7 @@
             android:id="@+id/button5"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="清除历史记录"
+            android:text="读取物质库条目"
             android:layout_height="wrap_content"/>
 
     </LinearLayout>
@@ -80,13 +80,13 @@
             android:id="@+id/button6"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="读取物质库信息"
+            android:text="清除历史记录"
             android:layout_height="wrap_content"/>
         <Button
             android:id="@+id/button7"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="读取物质库条目"
+            android:text="读取物质库信息"
             android:layout_height="wrap_content"/>
         <Button
             android:id="@+id/button8"

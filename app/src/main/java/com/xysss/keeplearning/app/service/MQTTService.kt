@@ -1,6 +1,8 @@
 package com.xysss.keeplearning.app.service
 
 import android.app.*
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothGatt
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
@@ -11,7 +13,10 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import com.blankj.utilcode.util.ToastUtils
 import com.xysss.keeplearning.R
+import com.xysss.keeplearning.app.ble.BleCallback
+import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.ui.activity.MainActivity
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
@@ -20,7 +25,7 @@ import org.eclipse.paho.client.mqttv3.*
 import kotlin.concurrent.thread
 
 
-class MQTTService : Service() {
+class MQTTService : Service(){
 
     private val userName = "admin" //用户名
     private val password = "password" //密码
@@ -30,6 +35,21 @@ class MQTTService : Service() {
     private val clientId = "blueTooth_client"
     private lateinit var mqttClient: MqttAndroidClient
     private val mBinder = MyBinder()
+
+    //Gatt
+    private lateinit var gatt: BluetoothGatt
+
+    //Ble回调
+    private val bleCallback = BleCallback()
+
+    //状态缓存
+    private var stringBuffer = StringBuffer()
+
+    private val send00Msg="55000a09000001000023"  //读取设备信息
+    private val send10Msg="55000a09100001000023"  //读取实时数据
+    private val send0100Msg="550012090100090001000000050000000023"  //读取数据记录
+    private val send0101Msg="550012090100090101000000050000000023"  //读取报警记录
+    private val send21Msg="55000D09210400000000000023"  //读取物质信息
 
     companion object {
         const val TAG = "AndroidMqttClient"
@@ -72,6 +92,60 @@ class MQTTService : Service() {
     override fun onBind(intent: Intent): IBinder {
         return mBinder
     }
+
+    fun blueToothConnect(device:BluetoothDevice?){
+        //gatt连接 第二个参数表示是否需要自动连接。如果设置为 true, 表示如果设备断开了，会不断的尝试自动连接。设置为 false 表示只进行一次连接尝试。
+        //第三个参数是连接后进行的一系列操作的回调，例如连接和断开连接的回调，发现服务的回调，成功写入数据，成功读取数据的回调等等。
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //gatt = device?.connectGatt(this, false, bleCallback, BluetoothDevice.TRANSPORT_LE) ?: null
+            gatt = device?.connectGatt(this, false, bleCallback, BluetoothDevice.TRANSPORT_LE) as BluetoothGatt
+        } else {
+            //gatt = device.connectGatt(this, false, bleCallback)
+            gatt = device?.connectGatt(this, false, bleCallback) as BluetoothGatt
+        }
+    }
+    fun blueToothSendMsg(command: String){
+        if (command.trim().isEmpty()) {
+            ToastUtils.showShort("请输入指令")
+        }
+        //command += getBCCResult(command)
+        //发送指令
+        //BleHelper.sendCommand(gatt, command, true)
+
+
+        //55000a09 01 0001 00 0023  //读取数据记录
+//            val b0100Msg="5500120901000900"  //读取数据记录
+//            val startIndexByteArray0100=ByteArray(4)
+//            val readNumByteArray0100=ByteArray(4)
+//            val startIndex=1L
+//            val readNum=5L
+//            val sendByteArry= reversSendCode(startIndexByteArray0100.writeInt32LE(startIndex) + readNumByteArray0100.writeInt32LE(readNum))
+//            val command=b0100Msg+sendByteArry?.toHexString(false)+"0023".trim()
+//            "sendMsg:$command".logE("xysLog")
+        //command="123456789012345678901234567890"
+
+        val stringBuffer = StringBuffer()
+        if (command.length>40){
+            for (i in command.indices){
+                stringBuffer.append(command[i])
+                if (stringBuffer.length==40){
+                    BleHelper.sendCommand(gatt, stringBuffer.toString(), true)
+                    "stringBuffer:$stringBuffer".logE("xysLog")
+                    stringBuffer.delete( 0, stringBuffer.length)
+                    Thread.sleep(200)
+                }
+            }
+            BleHelper.sendCommand(gatt, stringBuffer.toString(), true)
+            "stringBuffer:$stringBuffer".logE("xysLog")
+        }else{
+            BleHelper.sendCommand(gatt, command, true)
+            command.logE("xysLog")
+        }
+    }
+
+
+
 
     //连接
     fun connect(context: Context) {
@@ -180,7 +254,7 @@ class MQTTService : Service() {
     }
 
     //断开MQTT连接
-    private fun disconnect() {
+    private fun mpttDisconnect() {
         try {
             mqttClient.disconnect(null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
@@ -242,8 +316,9 @@ class MQTTService : Service() {
 
 
     override fun unbindService(conn: ServiceConnection) {
-        disconnect()
+        mpttDisconnect()
+        gatt.disconnect()
+        gatt.close()
         super.unbindService(conn)
     }
-
 }

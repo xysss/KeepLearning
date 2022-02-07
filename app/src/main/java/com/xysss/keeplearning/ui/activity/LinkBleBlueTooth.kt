@@ -3,7 +3,6 @@ package com.xysss.keeplearning.ui.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.graphics.Color
@@ -22,15 +21,14 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.permissionx.guolindev.PermissionX
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
-import com.xysss.keeplearning.app.bluetooth.BleDevice
-import com.xysss.keeplearning.app.bluetooth.BleDeviceAdapter
+import com.xysss.keeplearning.app.ble.BleDevice
+import com.xysss.keeplearning.app.ble.BleDeviceAdapter
 import com.xysss.keeplearning.app.util.*
 import com.xysss.keeplearning.databinding.ActivityLinkBluetoothBinding
 import com.xysss.keeplearning.databinding.DialogScanFilterBinding
 import com.xysss.keeplearning.databinding.DialogUuidEditBinding
 import com.xysss.keeplearning.viewmodel.LinkBlueToothViewModel
 import com.xysss.mvvmhelper.base.appContext
-import com.xysss.mvvmhelper.ext.toStartActivity
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat
 import no.nordicsemi.android.support.v18.scanner.ScanCallback
 import no.nordicsemi.android.support.v18.scanner.ScanResult
@@ -90,7 +88,11 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
                     //传递数据
                     val bundle = Bundle()
                     bundle.putParcelable("device", device)
-                    toStartActivity(DataExchangeActivity::class.java,bundle)
+                    //toStartActivity(DataExchangeActivity::class.java,bundle)
+                    val intent=Intent()
+                    intent.putExtras(bundle)
+                    setResult(RESULT_OK,intent)
+                    finish()
                 }
             }
             animationEnable = true
@@ -235,6 +237,7 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
     /**
      * 添加到设备列表
      */
+    @SuppressLint("NotifyDataSetChanged")
     private fun addDeviceList(bleDevice: BleDevice) {
         //过滤设备名为null的设备
         if (getBoolean(BleConstant.NULL_NAME) && bleDevice.device.name == null) {

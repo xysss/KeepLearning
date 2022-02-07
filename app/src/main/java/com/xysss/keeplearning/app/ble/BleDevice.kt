@@ -1,4 +1,4 @@
-package com.xysss.keeplearning.app.bluetooth
+package com.xysss.keeplearning.app.ble
 
 import android.bluetooth.BluetoothDevice
 

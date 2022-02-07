@@ -2,12 +2,16 @@ package com.xysss.keeplearning.ui.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity.RESULT_OK
+import android.bluetooth.BluetoothDevice
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import androidx.activity.result.contract.ActivityResultContracts
+import com.blankj.utilcode.util.ServiceUtils.bindService
 import com.blankj.utilcode.util.ToastUtils
 import com.gyf.immersionbar.ktx.immersionBar
 import com.tbruyelle.rxpermissions2.RxPermissions
@@ -16,10 +20,8 @@ import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.databinding.FragmentOneBinding
-import com.xysss.keeplearning.ui.activity.LinkBleBlueTooth
-import com.xysss.keeplearning.ui.activity.LoginActivity
-import com.xysss.keeplearning.ui.activity.RoomSampleActivity
-import com.xysss.keeplearning.ui.activity.TestActivity
+import com.xysss.keeplearning.ui.activity.*
+import com.xysss.keeplearning.viewmodel.BlueToothViewModel
 import com.xysss.keeplearning.viewmodel.TestViewModel
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.msg
@@ -32,7 +34,7 @@ import com.xysss.mvvmhelper.ext.toStartActivity
  * Time:2021/9/2811:15
  */
 
-class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
+class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
 
     private var downloadApkPath = ""
     private val publishTopic = "HT308PRD/VP200/C2S/{SN}" //发送主题
@@ -57,6 +59,11 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
         mViewBinding.customToolbar.setBackgroundResource(R.color.colorOrange)
         //bugly进入首页检查更新
         //Beta.checkUpgrade(false, true)
+        //开启服务
+        val intentMqttService = Intent(appContext, MQTTService::class.java)
+        bindService(intentMqttService, connection, Context.BIND_AUTO_CREATE)
+        //注册回调
+        mViewModel.bleCallBack()
     }
 
     override fun onResume() {
@@ -89,6 +96,16 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
         super.onDestroyView()
     }
 
+    private val requestDataLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val device = result.data?.getParcelableExtra<BluetoothDevice>("device")
+                //val data = result.data?.getStringExtra("data")
+                // Handle data from SecondActivity
+                mService?.blueToothConnect(device)
+            }
+        }
+
     @SuppressLint("SetTextI18n")
     override fun onBindViewClick() {
         setOnclickNoRepeat(
@@ -108,16 +125,17 @@ class OneFragment : BaseFragment<TestViewModel, FragmentOneBinding>() {
                 }
                 R.id.testPageBtn -> {
                     //toStartActivity(TestActivity::class.java)
-                    mService?.publish(publishTopic,"Test")
+                    mService?.publish(publishTopic, "Test")
                 }
                 R.id.testListBtn -> {
                     //toStartActivity(ListActivity::class.java)
-                    val intent = Intent(appContext, MQTTService::class.java)
-                    appContext.bindService(intent, connection, Context.BIND_AUTO_CREATE)
-
+                    mService?.blueToothSendMsg("55000a09000001000023")
                 }
                 R.id.linkBlueTooth -> {
-                    toStartActivity(LinkBleBlueTooth::class.java)
+                    //toStartActivity(LinkBleBlueTooth::class.java)
+                    val intentBle = Intent(appContext, LinkBleBlueTooth::class.java)
+                    requestDataLauncher.launch(intentBle)
+
                 }
 
                 R.id.testDownload -> {

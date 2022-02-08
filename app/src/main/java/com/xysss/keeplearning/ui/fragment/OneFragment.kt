@@ -21,9 +21,11 @@ import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.app.ble.BleCallback
+import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.BleHelper.isMainThread
+import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.FragmentOneBinding
 import com.xysss.keeplearning.ui.activity.*
 import com.xysss.keeplearning.viewmodel.BlueToothViewModel
@@ -76,6 +78,12 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(), BleC
         bindService(intentMqttService, connection, Context.BIND_AUTO_CREATE)
         //注册回调
         bleCallback.setUiCallback(this)
+
+        if (mmkv.getInt(ValueKey.dataIndex,0)==0){
+            if (!mmkv.getString(ValueKey.dataName,"0").equals("异丁烯")){
+                mmkv.putString(ValueKey.dataName,"异丁烯")
+            }
+        }
     }
 
     override fun onResume() {

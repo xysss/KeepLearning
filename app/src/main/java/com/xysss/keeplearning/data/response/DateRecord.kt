@@ -23,5 +23,6 @@ data class DateRecord(
     val thresh_twa:Float,
     val thresh_stel:Float,
     val user_id:Int,  //用户ID
-    val place_id:Int  //地点ID
+    val place_id:Int,  //地点ID
+    val name:String
 ):Parcelable

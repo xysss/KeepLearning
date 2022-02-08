@@ -3,6 +3,7 @@ package com.xysss.keeplearning.app.ble
 import android.bluetooth.*
 import android.os.Build
 import com.swallowsonny.convertextlibrary.*
+import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.util.BleConstant
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils
@@ -15,6 +16,7 @@ import com.xysss.keeplearning.app.util.ByteUtils.Msg81
 import com.xysss.keeplearning.app.util.ByteUtils.Msg90
 import com.xysss.keeplearning.app.util.ByteUtils.MsgA1
 import com.xysss.keeplearning.app.util.getString
+import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.data.response.AlarmRecord
 import com.xysss.keeplearning.data.response.DeviceInfo
 import com.xysss.keeplearning.data.response.MaterialInfo
@@ -279,7 +281,6 @@ class BleCallback : BluetoothGattCallback() {
                                     val mCF=it.readByteArrayBE(firstIndex+12,4).readFloatLE()
                                     val mVocIndex=it.readByteArrayBE(firstIndex+16,4).readInt32LE()
 
-
                                     val mAlarm=it.readByteArrayBE(firstIndex+20,4).readInt32LE()
                                     val mHi=it.readByteArrayBE(firstIndex+24,4).readFloatLE()
                                     val mLo=it.readByteArrayBE(firstIndex+28,4).readFloatLE()
@@ -288,9 +289,17 @@ class BleCallback : BluetoothGattCallback() {
                                     val mUserId=it.readByteArrayBE(firstIndex+40,4).readInt32LE()
                                     val mPlaceId=it.readByteArrayBE(firstIndex+44,4).readInt32LE()
 
+
+                                    val defaultIndex=mmkv.getInt(ValueKey.dataIndex,0)
+                                    val defaultName= mmkv.getString(ValueKey.dataName,"异丁烯")
+                                    var name="异丁烯"
+                                    if(mVocIndex==defaultIndex) name=defaultName?:"异丁烯" else {
+
+                                    }
                                     val dateRecord=DateRecord(mdateTimeStr,mReserve,mPpmStr,mCF,mVocIndex,mAlarm,mHi,
-                                        mLo,mTwa,mStel,mUserId,mPlaceId)
+                                        mLo,mTwa,mStel,mUserId,mPlaceId,name)
                                     dateRecordArrayList.add(dateRecord)
+
                                 }
                             }
 
@@ -325,12 +334,15 @@ class BleCallback : BluetoothGattCallback() {
                     if (it.size == 57) {
                         //物质索引号
                         val mIndex=it.readByteArrayBE(7,4).readInt32LE()
-                        //设备序列号
                         var i = 35
                         while (i < it.size)
                             if (it[i] == FRAME00) break else i++
                         val tempBytes: ByteArray = it.readByteArrayBE(35, i - 35)
                         val name = String(tempBytes)
+
+                        mmkv.putInt(ValueKey.dataIndex,mIndex)
+                        mmkv.putString(ValueKey.dataName,name)
+
                         uiCallback.state("查询物质信息: $mIndex: $name")
                     }
                 }

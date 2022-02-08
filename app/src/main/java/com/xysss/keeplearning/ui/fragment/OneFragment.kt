@@ -52,7 +52,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(), BleC
     private val send10Msg="55000a09100001000023"  //读取实时数据
     private val send0100Msg="550012090100090001000000050000000023"  //读取数据记录
     private val send0101Msg="550012090100090101000000050000000023"  //读取报警记录
-    private val send21Msg="55000D09210400000000000023"  //读取物质信息
+    private val send21Msg="55000D09210004000000000023"  //读取物质信息
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
@@ -163,8 +163,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(), BleC
                     val intentBle = Intent(appContext, LinkBleBlueTooth::class.java)
                     requestDataLauncher.launch(intentBle)
                 }
-
-
 
 
 

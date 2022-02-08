@@ -213,8 +213,8 @@ class BleCallback : BluetoothGattCallback() {
                         while (i < it.size)
                             if (it[i] == FRAME00) break else i++
                         val tempBytes: ByteArray = it.readByteArrayBE(49, i - 49)
-                        val deviceId = tempBytes.toAsciiString()
-
+                        //val deviceId = tempBytes.toAsciiString()
+                        val deviceId= String(tempBytes)
                         val deviceInfo = DeviceInfo(
                             "$hardWareMainVersion:$hardWareSecondVersion",
                             "$softWareMainVersion:$softWareSecondVersion", deviceId
@@ -245,9 +245,9 @@ class BleCallback : BluetoothGattCallback() {
                         var i = 27
                         while (i < it.size)
                             if (it[i] == FRAME00) break else i++
-                        val tempBytes: ByteArray = it.readByteArrayBE(27, i - 27)
-                        val name = tempBytes.toAsciiString()
-
+                        val tempBytes: ByteArray = it.readByteArrayBE(27, i-27)
+                        //val name = tempBytes.toAsciiString()
+                        val name= String(tempBytes)
                         val materialInfo = MaterialInfo(
                             concentrationNum, concentrationState.toString(),
                             materialLibraryIndex.toString(), concentrationUnit,cfNum.toString(),name
@@ -269,12 +269,17 @@ class BleCallback : BluetoothGattCallback() {
                                 val firstIndex=16+i*48
                                 if (firstIndex+44<it.size&&dataNum>0){
                                     val mTimestamp=it.readByteArrayBE(firstIndex,4).readUInt32LE()
-                                    val dateTimeStr=ByteUtils.getDateTime(mTimestamp.toString())
+                                    val mdateTimeStr=ByteUtils.getDateTime(mTimestamp.toString())
+
                                     val mReserve=it.readByteArrayBE(firstIndex+4,4).readInt32LE()
+
                                     val mPpm=it.readByteArrayBE(firstIndex+8,4).readFloatLE()
                                     val mPpmStr=ByteUtils.getNoMoreThanTwoDigits(mPpm)
+
                                     val mCF=it.readByteArrayBE(firstIndex+12,4).readFloatLE()
                                     val mVocIndex=it.readByteArrayBE(firstIndex+16,4).readInt32LE()
+
+
                                     val mAlarm=it.readByteArrayBE(firstIndex+20,4).readInt32LE()
                                     val mHi=it.readByteArrayBE(firstIndex+24,4).readFloatLE()
                                     val mLo=it.readByteArrayBE(firstIndex+28,4).readFloatLE()
@@ -283,7 +288,7 @@ class BleCallback : BluetoothGattCallback() {
                                     val mUserId=it.readByteArrayBE(firstIndex+40,4).readInt32LE()
                                     val mPlaceId=it.readByteArrayBE(firstIndex+44,4).readInt32LE()
 
-                                    val dateRecord=DateRecord(dateTimeStr,mReserve,mPpmStr,mCF,mVocIndex,mAlarm,mHi,
+                                    val dateRecord=DateRecord(mdateTimeStr,mReserve,mPpmStr,mCF,mVocIndex,mAlarm,mHi,
                                         mLo,mTwa,mStel,mUserId,mPlaceId)
                                     dateRecordArrayList.add(dateRecord)
                                 }
@@ -325,7 +330,7 @@ class BleCallback : BluetoothGattCallback() {
                         while (i < it.size)
                             if (it[i] == FRAME00) break else i++
                         val tempBytes: ByteArray = it.readByteArrayBE(35, i - 35)
-                        val name = tempBytes.toAsciiString()
+                        val name = String(tempBytes)
                         uiCallback.state("查询物质信息: $mIndex: $name")
                     }
                 }

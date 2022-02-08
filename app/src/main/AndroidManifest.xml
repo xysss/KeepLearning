@@ -109,12 +109,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.BleDemoKotlin" />
         <activity
-            android:name=".ui.activity.DataExchangeActivity"
-            android:label="蓝牙界面"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.BleDemoKotlin" />
-        <activity
             android:name=".ui.activity.NavigationActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"

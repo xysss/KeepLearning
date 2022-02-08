@@ -10,43 +10,55 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import com.blankj.utilcode.util.ServiceUtils.bindService
+import com.blankj.utilcode.util.ThreadUtils.runOnUiThread
 import com.blankj.utilcode.util.ToastUtils
 import com.gyf.immersionbar.ktx.immersionBar
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
+import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.service.MQTTService
+import com.xysss.keeplearning.app.util.BleHelper
+import com.xysss.keeplearning.app.util.BleHelper.isMainThread
 import com.xysss.keeplearning.databinding.FragmentOneBinding
 import com.xysss.keeplearning.ui.activity.*
 import com.xysss.keeplearning.viewmodel.BlueToothViewModel
 import com.xysss.keeplearning.viewmodel.TestViewModel
 import com.xysss.mvvmhelper.base.appContext
-import com.xysss.mvvmhelper.ext.msg
-import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
-import com.xysss.mvvmhelper.ext.showDialogMessage
-import com.xysss.mvvmhelper.ext.toStartActivity
+import com.xysss.mvvmhelper.ext.*
 
 /**
  * Author:bysd-2
  * Time:2021/9/2811:15
  */
 
-class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
+class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(), BleCallback.UiCallback {
 
     private var downloadApkPath = ""
     private val publishTopic = "HT308PRD/VP200/C2S/{SN}" //发送主题
     private var mService: MQTTService? = null
+
+    //状态缓存
+    private var stringBuffer = StringBuffer()
+
+    //Ble回调
+    private val bleCallback = BleCallback()
+
+    private val send00Msg="55000a09000001000023"  //读取设备信息
+    private val send10Msg="55000a09100001000023"  //读取实时数据
+    private val send0100Msg="550012090100090001000000050000000023"  //读取数据记录
+    private val send0101Msg="550012090100090101000000050000000023"  //读取报警记录
+    private val send21Msg="55000D09210400000000000023"  //读取物质信息
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val mBinder = service as MQTTService.MyBinder
             mService = mBinder.service
-            //mService?.connect(appContext)
-
         }
 
         //崩溃被杀掉的时候回调
@@ -63,7 +75,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         val intentMqttService = Intent(appContext, MQTTService::class.java)
         bindService(intentMqttService, connection, Context.BIND_AUTO_CREATE)
         //注册回调
-        mViewModel.bleCallBack()
+        bleCallback.setUiCallback(this)
     }
 
     override fun onResume() {
@@ -101,8 +113,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             if (result.resultCode == RESULT_OK) {
                 val device = result.data?.getParcelableExtra<BluetoothDevice>("device")
                 //val data = result.data?.getStringExtra("data")
-                // Handle data from SecondActivity
-                mService?.blueToothConnect(device)
+                mService?.blueToothConnect(device,bleCallback)
+                //mService?.connect(appContext)
+
             }
         }
 
@@ -111,9 +124,50 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         setOnclickNoRepeat(
             mViewBinding.loginBtn, mViewBinding.testPageBtn, mViewBinding.testListBtn,
             mViewBinding.testDownload, mViewBinding.testUpload, mViewBinding.testCrash,
-            mViewBinding.getPermission, mViewBinding.testRoom, mViewBinding.linkBlueTooth
+            mViewBinding.getPermission, mViewBinding.testRoom, mViewBinding.linkBlueTooth,
+
+            mViewBinding.button1, mViewBinding.button2, mViewBinding.button3,
+            mViewBinding.button4, mViewBinding.button5,mViewBinding.button6, mViewBinding.button7,
+            mViewBinding.button8,mViewBinding.button9, mViewBinding.button10,mViewBinding.btnSendCommand
         ) {
             when (it.id) {
+                R.id.btnSendCommand -> {
+                    val command = mViewBinding.etCommand.text.toString().trim()
+                    mService?.blueToothSendMsg(command)
+                }
+                R.id.button1 -> {
+                    mViewBinding.etCommand.setText(send00Msg)
+                }
+                R.id.button2 -> {
+                    mViewBinding.etCommand.setText(send10Msg)
+                }
+                R.id.button3 -> {
+                    mViewBinding.etCommand.setText(send0100Msg)
+                }
+                R.id.button4 -> {
+                    mViewBinding.etCommand.setText(send0101Msg)
+                }
+                R.id.button5 -> {
+                    mViewBinding.etCommand.setText(send21Msg)
+                }
+                R.id.button6 -> {
+                }
+                R.id.button7 -> {
+                }
+                R.id.button8 -> {
+                }
+                R.id.button9 -> {
+                    mService?.publish(publishTopic, "TestMqtt")
+                }
+                R.id.button10 -> {
+                    val intentBle = Intent(appContext, LinkBleBlueTooth::class.java)
+                    requestDataLauncher.launch(intentBle)
+                }
+
+
+
+
+
                 R.id.testRoom -> {
                     toStartActivity(RoomSampleActivity::class.java)
                 }
@@ -124,20 +178,14 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                     toStartActivity(LoginActivity::class.java)
                 }
                 R.id.testPageBtn -> {
-                    //toStartActivity(TestActivity::class.java)
-                    mService?.publish(publishTopic, "Test")
+                    toStartActivity(TestActivity::class.java)
                 }
                 R.id.testListBtn -> {
-                    //toStartActivity(ListActivity::class.java)
-                    mService?.blueToothSendMsg("55000a09000001000023")
+                    toStartActivity(ListActivity::class.java)
                 }
                 R.id.linkBlueTooth -> {
                     //toStartActivity(LinkBleBlueTooth::class.java)
-                    val intentBle = Intent(appContext, LinkBleBlueTooth::class.java)
-                    requestDataLauncher.launch(intentBle)
-
                 }
-
                 R.id.testDownload -> {
                     mViewModel.downLoad({
                         //下载中
@@ -171,5 +219,18 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                 }
             }
         }
+    }
+
+    override fun state(state: String?)=runOnUiThread {
+//        val id = Thread.currentThread().id
+//        "state方法中的线程号：$id".logE("xysLog")
+//        "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
+        //mViewBinding.tvState.text = "收到转码后的数据长度: ${state?.length}: $state"
+        state.logE("xysLog")
+
+        stringBuffer.append(state).append("\n")
+        mViewBinding.tvState.text = stringBuffer.toString()
+        mViewBinding.scroll.apply { viewTreeObserver.addOnGlobalLayoutListener { post { fullScroll(
+            View.FOCUS_DOWN) } } }
     }
 }

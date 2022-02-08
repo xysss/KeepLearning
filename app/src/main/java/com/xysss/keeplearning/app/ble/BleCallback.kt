@@ -182,7 +182,7 @@ class BleCallback : BluetoothGattCallback() {
             bytes[0] = tempBytesList[1]
             bytes[1] = tempBytesList[2]
             val length = bytes.readInt16BE()
-            "length: $length".logE("xysLog")
+            //"length: $length".logE("xysLog")
             if (tempBytesList[0] == FRAME55 && length == tempBytesList.size) {
                 //校验数据长度
                 tempBytesList.let {

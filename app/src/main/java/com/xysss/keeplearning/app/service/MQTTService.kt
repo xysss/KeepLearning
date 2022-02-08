@@ -39,9 +39,6 @@ class MQTTService : Service(){
     //Gatt
     private lateinit var gatt: BluetoothGatt
 
-    //Ble回调
-    private val bleCallback = BleCallback()
-
     //状态缓存
     private var stringBuffer = StringBuffer()
 
@@ -93,7 +90,7 @@ class MQTTService : Service(){
         return mBinder
     }
 
-    fun blueToothConnect(device:BluetoothDevice?){
+    fun blueToothConnect(device:BluetoothDevice?,bleCallback:BleCallback){
         //gatt连接 第二个参数表示是否需要自动连接。如果设置为 true, 表示如果设备断开了，会不断的尝试自动连接。设置为 false 表示只进行一次连接尝试。
         //第三个参数是连接后进行的一系列操作的回调，例如连接和断开连接的回调，发现服务的回调，成功写入数据，成功读取数据的回调等等。
 
@@ -143,9 +140,6 @@ class MQTTService : Service(){
             command.logE("xysLog")
         }
     }
-
-
-
 
     //连接
     fun connect(context: Context) {

@@ -1,17 +1,13 @@
 package com.xysss.keeplearning.viewmodel
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
-import android.view.View
 import androidx.lifecycle.viewModelScope
 import com.xysss.keeplearning.app.api.NetUrl
-import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.util.Android10DownloadFactory
 import com.xysss.keeplearning.app.util.UriUtils
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.base.appContext
-import com.xysss.mvvmhelper.ext.logE
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -20,7 +16,7 @@ import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.param.RxHttp
 import java.io.File
 
-class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback  {
+class BlueToothViewModel : BaseViewModel()  {
 
     /**
      * 下载
@@ -28,14 +24,6 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback  {
      * @param downLoadSuccess Function1<String, Unit>
      * @param downLoadError Function1<Throwable, Unit>
      */
-
-    //Ble回调
-    private val bleCallback = BleCallback()
-
-    fun bleCallBack(){
-        bleCallback.setUiCallback(this)
-    }
-
 
     fun downLoad(downLoadData: (Progress) -> Unit = {}, downLoadSuccess: (String) -> Unit, downLoadError: (Throwable) -> Unit = {}) {
         viewModelScope.launch {
@@ -115,18 +103,6 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback  {
             }
 
         }
-    }
-    @SuppressLint("SetTextI18n")
-    override fun state(state: String?){
-//        val id = Thread.currentThread().id
-//        "state方法中的线程号：$id".logE("xysLog")
-//        "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
-        state.logE("xysLog")
-        //mViewBinding.tvState.text = "收到转码后的数据长度: ${state?.length}: $state"
-//        stringBuffer.append(state).append("\n")
-//        mViewBinding.tvState.text = stringBuffer.toString()
-//        mViewBinding.scroll.apply { viewTreeObserver.addOnGlobalLayoutListener { post { fullScroll(
-//            View.FOCUS_DOWN) } } }
     }
 }
 

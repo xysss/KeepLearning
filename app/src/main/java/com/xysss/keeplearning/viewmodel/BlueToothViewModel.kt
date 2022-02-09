@@ -2,8 +2,11 @@ package com.xysss.keeplearning.viewmodel
 
 import android.net.Uri
 import android.os.Build
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.xysss.keeplearning.app.api.NetUrl
+import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.util.Android10DownloadFactory
 import com.xysss.keeplearning.app.util.UriUtils
 import com.xysss.mvvmhelper.base.BaseViewModel
@@ -16,7 +19,18 @@ import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.param.RxHttp
 import java.io.File
 
-class BlueToothViewModel : BaseViewModel()  {
+class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback  {
+
+    val bleDate: LiveData<String?> get() = _bleDate
+    private val _bleDate=MutableLiveData<String?>()
+
+    //Ble回调
+    val bleCallBack = BleCallback()
+
+    fun setCallBack(){
+        //注册回调
+        bleCallBack.setUiCallback(this)
+    }
 
     /**
      * 下载
@@ -103,6 +117,10 @@ class BlueToothViewModel : BaseViewModel()  {
             }
 
         }
+    }
+
+    override fun state(state: String?) {
+        _bleDate.postValue(state)
     }
 }
 

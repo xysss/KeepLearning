@@ -20,43 +20,28 @@ import kotlin.concurrent.thread
 class RoomSampleActivity : BaseActivity<RoomSampleViewModel, FragmentRoomBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
 
-        mViewModel.userList.observe(this){ userList->
+        mViewModel.userList.observe(this){
             mViewBinding.infoText.text = ""
-            mViewBinding.infoText.text = userList.toString()
-            debugInfo(userList.toString())
+            mViewBinding.infoText.text = it.toString()
+            debugInfo(it.toString())
         }
 
-        val userDao = AppDatabase.getDatabase(this).userDao()
-        val user1 = User("Tom", "Brady", 40)
-        val user2 = User("Tom", "Hanks", 63)
         mViewBinding.addDataBtn.setOnClickListener {
-            thread {
-                userDao.insertUser(user1)
-                userDao.insertUser(user2)
-            }
+            mViewModel.insertUser()
         }
         mViewBinding.updateDataBtn.setOnClickListener {
-            thread {
-                user1.age = 13
-                userDao.updateUser(user1)
-            }
+            mViewModel.updateUser()
         }
 
         mViewBinding.getUserBtn.setOnClickListener {
-            thread {
-                mViewModel.userList.postValue(userDao.loadUsersOlderThan(45))
-            }
+            mViewModel.loadUsers()
         }
 
         mViewBinding.deleteDataBtn.setOnClickListener {
-            thread {
-                userDao.deleteUserByLastName("Tom")
-            }
+            mViewModel.deleteUserByLastName()
         }
         mViewBinding.queryDataBtn.setOnClickListener {
-            thread {
-                mViewModel.userList.postValue(userDao.loadAllUsers())
-            }
+            mViewModel.loadAllUsers()
         }
 
         mViewBinding.doWorkBtn.setOnClickListener {
@@ -87,7 +72,6 @@ class RoomSampleActivity : BaseActivity<RoomSampleViewModel, FragmentRoomBinding
                         debugInfo("do work failed")
                     }
                 }
-
         }
     }
 }

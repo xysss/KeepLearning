@@ -38,7 +38,7 @@ import com.xysss.mvvmhelper.ext.*
  * Time:2021/9/2811:15
  */
 
-class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(), BleCallback.UiCallback {
+class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
     private var downloadApkPath = ""
     private val publishTopic = "HT308PRD/VP200/C2S/{SN}" //发送主题
@@ -46,9 +46,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(), BleC
 
     //状态缓存
     private var stringBuffer = StringBuffer()
-
-    //Ble回调
-    private val bleCallback = BleCallback()
 
     private val send00Msg="55000a09000001000023"  //读取设备信息
     private val send10Msg="55000a09100001000023"  //读取实时数据
@@ -76,13 +73,27 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(), BleC
         //开启服务
         val intentMqttService = Intent(appContext, MQTTService::class.java)
         bindService(intentMqttService, connection, Context.BIND_AUTO_CREATE)
-        //注册回调
-        bleCallback.setUiCallback(this)
+
+        mViewModel.setCallBack()
 
         if (mmkv.getInt(ValueKey.dataIndex,0)==0){
             if (!mmkv.getString(ValueKey.dataName,"0").equals("异丁烯")){
                 mmkv.putString(ValueKey.dataName,"异丁烯")
             }
+        }
+
+        mViewModel.bleDate.observe(this){
+
+//            val id = Thread.currentThread().id
+//            "state方法中的线程号：$id".logE("xysLog")
+//            "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
+//            mViewBinding.tvState.text = "收到转码后的数据长度: ${it?.length}: $it"
+
+            it.logE("xysLog")
+            stringBuffer.append(it).append("\n")
+            mViewBinding.tvState.text = stringBuffer.toString()
+            mViewBinding.scroll.apply { viewTreeObserver.addOnGlobalLayoutListener { post { fullScroll(
+                View.FOCUS_DOWN) } } }
         }
     }
 
@@ -121,7 +132,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(), BleC
             if (result.resultCode == RESULT_OK) {
                 val device = result.data?.getParcelableExtra<BluetoothDevice>("device")
                 //val data = result.data?.getStringExtra("data")
-                mService?.blueToothConnect(device,bleCallback)
+                mService?.blueToothConnect(device,mViewModel.bleCallBack)
                 //mService?.connect(appContext)
 
             }
@@ -225,18 +236,5 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(), BleC
                 }
             }
         }
-    }
-
-    override fun state(state: String?)=runOnUiThread {
-//        val id = Thread.currentThread().id
-//        "state方法中的线程号：$id".logE("xysLog")
-//        "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
-        //mViewBinding.tvState.text = "收到转码后的数据长度: ${state?.length}: $state"
-        state.logE("xysLog")
-
-        stringBuffer.append(state).append("\n")
-        mViewBinding.tvState.text = stringBuffer.toString()
-        mViewBinding.scroll.apply { viewTreeObserver.addOnGlobalLayoutListener { post { fullScroll(
-            View.FOCUS_DOWN) } } }
     }
 }

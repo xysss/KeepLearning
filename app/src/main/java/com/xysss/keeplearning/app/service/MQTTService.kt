@@ -90,7 +90,7 @@ class MQTTService : Service(){
         return mBinder
     }
 
-    fun blueToothConnect(device:BluetoothDevice?,bleCallback:BleCallback){
+    fun connectBlueTooth(device:BluetoothDevice?,bleCallback:BleCallback){
         //gatt连接 第二个参数表示是否需要自动连接。如果设置为 true, 表示如果设备断开了，会不断的尝试自动连接。设置为 false 表示只进行一次连接尝试。
         //第三个参数是连接后进行的一系列操作的回调，例如连接和断开连接的回调，发现服务的回调，成功写入数据，成功读取数据的回调等等。
 
@@ -102,14 +102,13 @@ class MQTTService : Service(){
             gatt = device?.connectGatt(this, false, bleCallback) as BluetoothGatt
         }
     }
-    fun blueToothSendMsg(command: String){
+    fun sendBlueToothMsg(command: String){
         if (command.trim().isEmpty()) {
             ToastUtils.showShort("请输入指令")
         }
         //command += getBCCResult(command)
         //发送指令
         //BleHelper.sendCommand(gatt, command, true)
-
 
         //55000a09 01 0001 00 0023  //读取数据记录
 //            val b0100Msg="5500120901000900"  //读取数据记录
@@ -142,7 +141,7 @@ class MQTTService : Service(){
     }
 
     //连接
-    fun connect(context: Context) {
+    fun connectMqtt(context: Context) {
         thread {
             mqttClient = MqttAndroidClient(context, serverURI, clientId)
             //订阅主题的回调
@@ -281,7 +280,7 @@ class MQTTService : Service(){
                 "没有可用网络".logE("xysLog")
                 /*没有可用网络的时候，延迟3秒再尝试重连*/
                 Handler().postDelayed(
-                    Runnable { connect(appContext) },
+                    Runnable { connectMqtt(appContext) },
                     3000
                 )
                 false

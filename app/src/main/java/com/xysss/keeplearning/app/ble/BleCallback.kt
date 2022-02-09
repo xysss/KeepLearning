@@ -150,6 +150,7 @@ class BleCallback : BluetoothGattCallback() {
 //        val id = Thread.currentThread().id
 //        "蓝牙回调方法中的线程号：$id".logE("xysLog")
 //        "蓝牙回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
+        //uiCallback.mqttSendMsg(characteristic.value)
 
         "收到数据：${characteristic.value.toHexString()}".logE("xysLog")
 
@@ -385,8 +386,9 @@ class BleCallback : BluetoothGattCallback() {
                     readDescriptor(descriptor)
                     readRemoteRssi()
                 }
-                uiCallback.state("通知开启成功，准备完成!")
+                uiCallback.state("蓝牙连接完成")
                 "通知开启成功，准备完成:".logE("xysLog")
+
             } else "通知开启失败".logE("xysLog")
         }
     }
@@ -405,6 +407,7 @@ class BleCallback : BluetoothGattCallback() {
          * 当前Ble状态信息
          */
         fun state(state: String?)
+        fun mqttSendMsg(bytes:ByteArray)
     }
 
 }

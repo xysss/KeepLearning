@@ -13,23 +13,18 @@ import android.os.IBinder
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import com.blankj.utilcode.util.ServiceUtils.bindService
-import com.blankj.utilcode.util.ThreadUtils.runOnUiThread
 import com.blankj.utilcode.util.ToastUtils
 import com.gyf.immersionbar.ktx.immersionBar
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
-import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.service.MQTTService
-import com.xysss.keeplearning.app.util.BleHelper
-import com.xysss.keeplearning.app.util.BleHelper.isMainThread
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.FragmentOneBinding
 import com.xysss.keeplearning.ui.activity.*
 import com.xysss.keeplearning.viewmodel.BlueToothViewModel
-import com.xysss.keeplearning.viewmodel.TestViewModel
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.*
 
@@ -41,8 +36,7 @@ import com.xysss.mvvmhelper.ext.*
 class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
     private var downloadApkPath = ""
-    private val publishTopic = "HT308PRD/VP200/C2S/{SN}" //发送主题
-    private var mService: MQTTService? = null
+    private lateinit var mService: MQTTService
 
     //状态缓存
     private var stringBuffer = StringBuffer()
@@ -58,6 +52,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val mBinder = service as MQTTService.MyBinder
             mService = mBinder.service
+            mViewModel.putService(mService)
         }
 
         //崩溃被杀掉的时候回调
@@ -83,12 +78,10 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         }
 
         mViewModel.bleDate.observe(this){
-
 //            val id = Thread.currentThread().id
 //            "state方法中的线程号：$id".logE("xysLog")
 //            "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
 //            mViewBinding.tvState.text = "收到转码后的数据长度: ${it?.length}: $it"
-
             it.logE("xysLog")
             stringBuffer.append(it).append("\n")
             mViewBinding.tvState.text = stringBuffer.toString()
@@ -132,9 +125,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             if (result.resultCode == RESULT_OK) {
                 val device = result.data?.getParcelableExtra<BluetoothDevice>("device")
                 //val data = result.data?.getStringExtra("data")
-                mService?.blueToothConnect(device,mViewModel.bleCallBack)
-                //mService?.connect(appContext)
-
+                mViewModel.connectBlueTooth(device)
             }
         }
 
@@ -152,7 +143,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             when (it.id) {
                 R.id.btnSendCommand -> {
                     val command = mViewBinding.etCommand.text.toString().trim()
-                    mService?.blueToothSendMsg(command)
+                    mViewModel.sendBlueToothMsg(command)
                 }
                 R.id.button1 -> {
                     mViewBinding.etCommand.setText(send00Msg)
@@ -176,12 +167,12 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 R.id.button8 -> {
                 }
                 R.id.button9 -> {
-                    mService?.publish(publishTopic, "TestMqtt")
                 }
                 R.id.button10 -> {
                     val intentBle = Intent(appContext, LinkBleBlueTooth::class.java)
                     requestDataLauncher.launch(intentBle)
                 }
+
 
 
 

@@ -12,8 +12,10 @@ import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.Android10DownloadFactory
 import com.xysss.keeplearning.app.util.UriUtils
+import com.xysss.keeplearning.data.response.DateRecord
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.base.appContext
+import com.xysss.mvvmhelper.ext.logE
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -56,7 +58,6 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
         mService.sendBlueToothMsg(msg)
     }
     override fun state(state: String?) {
-        _bleDate.postValue(state)
         if (state.equals("蓝牙连接完成")){
             viewModelScope.launch {
                 while(true) {
@@ -65,10 +66,19 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
                 }
             }
         }
+        state.logE("xysLog")
+    }
+
+    override fun realData(data: String?) {
+        _bleDate.postValue(data)
     }
 
     override fun mqttSendMsg(bytes: ByteArray) {
         //mService.publish(publishTopic, bytes.toString())
+    }
+
+    override fun historyData(dateRecord: ArrayList<DateRecord>) {
+        TODO("Not yet implemented")
     }
 
     /**

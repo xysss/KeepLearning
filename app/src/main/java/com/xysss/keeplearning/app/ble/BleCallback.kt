@@ -255,7 +255,7 @@ class BleCallback : BluetoothGattCallback() {
                             concentrationNum, concentrationState.toString(),
                             materialLibraryIndex.toString(), concentrationUnit,cfNum.toString(),name
                         )
-                        uiCallback.state(materialInfo.toString())
+                        uiCallback.realData(materialInfo.toString())
                     }
                 }
                 //历史记录
@@ -307,7 +307,6 @@ class BleCallback : BluetoothGattCallback() {
                             for (dataRecord in dateRecordArrayList)
                                 uiCallback.state(dataRecord.toString())
                         }
-
 
                         //报警解析
                         else if ((it[7] == FRAME01)) {
@@ -406,8 +405,10 @@ class BleCallback : BluetoothGattCallback() {
         /**
          * 当前Ble状态信息
          */
-        fun state(state: String?)
+        fun state(state:String?)
+        fun realData(data: String?)
         fun mqttSendMsg(bytes:ByteArray)
+        fun historyData(dateRecord: ArrayList<DateRecord>)
     }
 
 }

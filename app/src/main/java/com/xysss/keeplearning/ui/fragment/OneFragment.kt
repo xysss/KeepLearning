@@ -82,7 +82,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 //            "state方法中的线程号：$id".logE("xysLog")
 //            "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
 //            mViewBinding.tvState.text = "收到转码后的数据长度: ${it?.length}: $it"
-            it.logE("xysLog")
             stringBuffer.append(it).append("\n")
             mViewBinding.tvState.text = stringBuffer.toString()
             mViewBinding.scroll.apply { viewTreeObserver.addOnGlobalLayoutListener { post { fullScroll(

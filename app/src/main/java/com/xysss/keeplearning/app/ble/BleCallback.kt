@@ -4,6 +4,7 @@ import android.bluetooth.*
 import android.os.Build
 import com.swallowsonny.convertextlibrary.*
 import com.xysss.keeplearning.app.ext.mmkv
+import com.xysss.keeplearning.app.room.Record
 import com.xysss.keeplearning.app.util.BleConstant
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils
@@ -20,11 +21,9 @@ import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.data.response.AlarmRecord
 import com.xysss.keeplearning.data.response.DeviceInfo
 import com.xysss.keeplearning.data.response.MaterialInfo
-import com.xysss.keeplearning.data.response.DateRecord
 import com.xysss.mvvmhelper.ext.logE
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.sign
 
 
 /**
@@ -267,7 +266,7 @@ class BleCallback : BluetoothGattCallback() {
                         val dataNum = it.readByteArrayBE(12, 4).readInt32LE()
                         //数据记录
                         if (it[7] == FRAME00) {
-                            val dateRecordArrayList=ArrayList<DateRecord>(dataNum)
+                            val dateRecordArrayList=ArrayList<Record>(dataNum)
                             for (i in 0..dataNum){
                                 val firstIndex=16+i*48
                                 if (firstIndex+44<it.size&&dataNum>0){
@@ -296,16 +295,17 @@ class BleCallback : BluetoothGattCallback() {
                                     var name="异丁烯"
                                     if(mVocIndex==defaultIndex) name=defaultName?:"异丁烯" else {
 
+                                        // TODO: 2022/2/10 去请求新的名称
+                                        name="未知物质"
                                     }
-                                    val dateRecord=DateRecord(mdateTimeStr,mReserve,mPpmStr,mCF,mVocIndex,mAlarm,mHi,
+                                    val dateRecord=Record(mdateTimeStr,mReserve,mPpmStr,mCF,mVocIndex,mAlarm,mHi,
                                         mLo,mTwa,mStel,mUserId,mPlaceId,name)
-                                    dateRecordArrayList.add(dateRecord)
 
+                                    dateRecordArrayList.add(dateRecord)
                                 }
                             }
 
-                            for (dataRecord in dateRecordArrayList)
-                                uiCallback.state(dataRecord.toString())
+                            uiCallback.historyData(dateRecordArrayList)
                         }
 
                         //报警解析
@@ -408,7 +408,7 @@ class BleCallback : BluetoothGattCallback() {
         fun state(state:String?)
         fun realData(data: String?)
         fun mqttSendMsg(bytes:ByteArray)
-        fun historyData(dateRecord: ArrayList<DateRecord>)
+        fun historyData(dateRecordArrayList: ArrayList<Record>)
     }
 
 }

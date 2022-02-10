@@ -9,10 +9,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.ble.BleCallback
+import com.xysss.keeplearning.app.room.AppDatabase
+import com.xysss.keeplearning.app.room.Record
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.Android10DownloadFactory
 import com.xysss.keeplearning.app.util.UriUtils
-import com.xysss.keeplearning.data.response.DateRecord
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
@@ -38,6 +39,8 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
     private val send0101Msg="550012090100090101000000050000000023"  //读取报警记录
     private val send21Msg="55000D09210004000000000023"  //读取物质信息
 
+    private val dataRecordDao = AppDatabase.getDatabase().dataRecordDao()
+
     //Ble回调
     val bleCallBack = BleCallback()
 
@@ -59,12 +62,12 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
     }
     override fun state(state: String?) {
         if (state.equals("蓝牙连接完成")){
-            viewModelScope.launch {
-                while(true) {
-                    delay(1000)
-                    sendBlueToothMsg(send10Msg)
-                }
-            }
+//            viewModelScope.launch {
+//                while(true) {
+//                    delay(1000)
+//                    sendBlueToothMsg(send10Msg)
+//                }
+//            }
         }
         state.logE("xysLog")
     }
@@ -77,9 +80,14 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
         //mService.publish(publishTopic, bytes.toString())
     }
 
-    override fun historyData(dateRecord: ArrayList<DateRecord>) {
-        TODO("Not yet implemented")
+    override fun historyData(dateRecordArrayList: ArrayList<Record>) {
+        for (Record in dateRecordArrayList)
+            dataRecordDao.insertRecord(Record)
     }
+
+
+
+
 
     /**
      * 下载

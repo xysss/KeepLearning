@@ -1,0 +1,25 @@
+package com.xysss.keeplearning.data.response
+
+import android.annotation.SuppressLint
+import android.os.Parcelable
+import com.xysss.mvvmhelper.entity.BasePage
+import kotlinx.android.parcel.Parcelize
+
+/**
+ * 作者 : xys
+ * 时间 : 2022-01-24 16:18
+ * 描述 : 描述
+ */
+
+
+data class DataRecordResponse<T>(
+    var datas: ArrayList<T>,
+    var curPage: Int,
+    var offset: Int,
+    var over: Boolean,
+) : BasePage<T>() {
+    override fun getPageData() = datas
+    override fun isRefresh() = offset == 0
+    override fun isEmpty() = datas.isEmpty()
+    override fun hasMore() = !over
+}

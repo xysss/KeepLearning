@@ -17,7 +17,7 @@ class RoomSampleViewModel : BaseViewModel() {
 
     val userList: LiveData<List<User>> get() = _userList
 
-    private val userDao = AppDatabase.getDatabase(appContext).userDao()
+    private val userDao = AppDatabase.getDatabase().userDao()
     private val user1 = User("Tom", "Brady", 40)
     private val user2 = User("Tom", "Hanks", 63)
 

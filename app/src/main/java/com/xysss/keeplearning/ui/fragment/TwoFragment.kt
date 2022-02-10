@@ -29,8 +29,8 @@ class TwoFragment : BaseFragment<RequestProjectViewModel, FragmentTwoBinding>() 
         //初始化 magic_indicator
         mViewBinding.magicIndicator.bindViewPager2(mViewBinding.viewPager, mDataList)
         //发起请求
-        onLoadRetry()
-        createObserver()
+//        onLoadRetry()
+//        createObserver()
     }
 
     private fun createObserver() {

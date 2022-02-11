@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.swallowsonny.convertextlibrary.toHexString
 import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.room.AppDatabase
@@ -26,7 +27,7 @@ import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.param.RxHttp
 import java.io.File
 
-class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
+class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.MqttMsgCall {
     val bleDate: LiveData<String?> get() = _bleDate
 
     private val publishTopic = "HT308PRD/VP200/C2S/20210708/" //发送主题
@@ -41,7 +42,7 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
 
     private val dataRecordDao = AppDatabase.getDatabase().dataRecordDao()
 
-    //Ble回调
+    //回调
     val bleCallBack = BleCallback()
 
     fun setCallBack(){
@@ -55,6 +56,7 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
     }
     fun putService(service:MQTTService){
         mService=service
+        mService.setMqttListener(this)
     }
 
     fun sendBlueToothMsg(msg:String){
@@ -72,12 +74,16 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
         state.logE("xysLog")
     }
 
+    override fun mqttMsg(state: String?) {
+        _bleDate.postValue(state)
+    }
+
     override fun realData(data: String?) {
         _bleDate.postValue(data)
     }
 
     override fun mqttSendMsg(bytes: ByteArray) {
-        mService.publish(publishTopic, bytes.toString())
+        mService.publish(publishTopic, bytes)
     }
 
     override fun historyData(dateRecordArrayList: ArrayList<Record>) {

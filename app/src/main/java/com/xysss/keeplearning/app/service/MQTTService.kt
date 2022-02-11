@@ -14,6 +14,7 @@ import android.os.Handler
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.blankj.utilcode.util.ToastUtils
+import com.swallowsonny.convertextlibrary.toHexString
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.util.BleHelper
@@ -39,11 +40,10 @@ class MQTTService : Service(){
     private lateinit var mqttClient: MqttAndroidClient
     private val mBinder = MyBinder()
 
+    private lateinit var mqttMsgCall: MqttMsgCall
+
     //Gatt
     private lateinit var gatt: BluetoothGatt
-
-    //状态缓存
-    private var stringBuffer = StringBuffer()
 
     private val send00Msg="55000a09000001000023"  //读取设备信息
     private val send10Msg="55000a09100001000023"  //读取实时数据
@@ -51,6 +51,9 @@ class MQTTService : Service(){
     private val send0101Msg="550012090100090101000000050000000023"  //读取报警记录
     private val send21Msg="55000D09210400000000000023"  //读取物质信息
 
+    fun setMqttListener(mqttCall: MqttMsgCall){
+        mqttMsgCall=mqttCall
+    }
     companion object {
         const val TAG = "AndroidMqttClient"
         /**
@@ -105,6 +108,7 @@ class MQTTService : Service(){
             gatt = device?.connectGatt(this, false, bleCallback) as BluetoothGatt
         }
     }
+
     fun sendBlueToothMsg(command: String){
         if (command.trim().isEmpty()) {
             ToastUtils.showShort("请输入指令")
@@ -229,15 +233,16 @@ class MQTTService : Service(){
     }
 
     //发布消息
-    fun publish(topic: String, msg: String, qos: Int = 1, retained: Boolean = false) {
+    fun publish(topic: String, msg: ByteArray, qos: Int = 1, retained: Boolean = false) {
         try {
             val message = MqttMessage()
-            message.payload = msg.toByteArray()
+            message.payload = msg
             message.qos = qos
             message.isRetained = retained
             mqttClient.publish(topic, message, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    "$msg published to $topic".logE(TAG)
+                    "${msg.toHexString()} to published to $topic".logE(TAG)
+                    mqttMsgCall.mqttMsg(msg.toHexString())
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -316,5 +321,12 @@ class MQTTService : Service(){
         gatt.disconnect()
         gatt.close()
         super.unbindService(conn)
+    }
+
+    interface MqttMsgCall {
+        /**
+         * 当前Ble状态信息
+         */
+        fun mqttMsg(state:String?)
     }
 }

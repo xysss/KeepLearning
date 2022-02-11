@@ -22,17 +22,20 @@ import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import kotlin.concurrent.thread
 
 
 class MQTTService : Service(){
 
-    private val userName = "admin" //用户名
-    private val password = "password" //密码
-    private val receiveTopic = "HT308PRD/VP200/S2C/{SN}" //接收主题
-    private val qos = 1
-    private val serverURI = "tcp://broker.emqx.io:1883"
-    private val clientId = "blueTooth_client"
+    private val userName = "LTAIN7ty7dgzvLtS" //用户名
+    private val password = "PvErZ94s5FMlnc67jqAIK29QJsg=" //密码
+    private val receiveTopic = "HT308PRD/VP200/S2C/20210708/" //接收主题
+    //private val sendTopic = "HT308PRD/VP200/C2S/20210708/" //发送主题
+    private val qos = 0
+    //private val serverURI = "tcp://iot.eclipse.org:1883"
+    private val serverURI = "tcp://post-cn-mp90edmzr0e.mqtt.aliyuncs.com:1883"
+    private val clientId = "GID_308PRD@@@20210708_4G"
     private lateinit var mqttClient: MqttAndroidClient
     private val mBinder = MyBinder()
 
@@ -143,7 +146,8 @@ class MQTTService : Service(){
     //连接
     fun connectMqtt(context: Context) {
         thread {
-            mqttClient = MqttAndroidClient(context, serverURI, clientId)
+            val mqttPersist = MemoryPersistence()
+            mqttClient = MqttAndroidClient(context, serverURI, clientId, mqttPersist)
             //订阅主题的回调
             mqttClient.setCallback(object : MqttCallback {
                 //messageArrived：收到 broker 新消息
@@ -163,17 +167,16 @@ class MQTTService : Service(){
 
                 }
             })
-
             //MqttConnectOptions 用于配置连接设置，包含用户名密码，超时配置等，具体可以查看其方法。
             val options = MqttConnectOptions()
             options.isCleanSession = true //设置是否清除缓存
             options.connectionTimeout = 10 //设置超时时间，单位：秒
-            options.keepAliveInterval = 20 //设置心跳包发送间隔，单位：秒
+            options.keepAliveInterval = 60 //设置心跳包发送间隔，单位：秒
             options.userName = userName //设置用户名
             options.password = password.toCharArray() //设置密码
             try {
                 mqttClient.connect(options, null, object : IMqttActionListener {
-                    override fun onSuccess(asyncActionToken: IMqttToken?) {
+                    override fun onSuccess(asyncActionTokexn: IMqttToken?) {
                         "MQTT Connection success".logE(TAG)
                         //去订阅主题
                         subscribe(receiveTopic, qos)

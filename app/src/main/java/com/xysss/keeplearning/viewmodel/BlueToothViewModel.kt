@@ -29,7 +29,7 @@ import java.io.File
 class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
     val bleDate: LiveData<String?> get() = _bleDate
 
-    private val publishTopic = "HT308PRD/VP200/C2S/{SN}" //发送主题
+    private val publishTopic = "HT308PRD/VP200/C2S/20210708/" //发送主题
     private val _bleDate=MutableLiveData<String?>()
     @SuppressLint("StaticFieldLeak")
     private lateinit var mService: MQTTService
@@ -50,8 +50,8 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
     }
 
     fun connectBlueTooth(device: BluetoothDevice?){
+        mService.connectMqtt(appContext)
         mService.connectBlueTooth(device,bleCallBack)
-        //mService.connectMqtt(appContext)
     }
     fun putService(service:MQTTService){
         mService=service
@@ -77,17 +77,13 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
     }
 
     override fun mqttSendMsg(bytes: ByteArray) {
-        //mService.publish(publishTopic, bytes.toString())
+        mService.publish(publishTopic, bytes.toString())
     }
 
     override fun historyData(dateRecordArrayList: ArrayList<Record>) {
         for (Record in dateRecordArrayList)
             dataRecordDao.insertRecord(Record)
     }
-
-
-
-
 
     /**
      * 下载
@@ -172,7 +168,6 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback{
                         uploadSuccess.invoke(it)
                     }
             }
-
         }
     }
 

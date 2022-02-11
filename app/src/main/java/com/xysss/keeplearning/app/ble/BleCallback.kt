@@ -149,7 +149,7 @@ class BleCallback : BluetoothGattCallback() {
 //        val id = Thread.currentThread().id
 //        "蓝牙回调方法中的线程号：$id".logE("xysLog")
 //        "蓝牙回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
-        //uiCallback.mqttSendMsg(characteristic.value)
+        uiCallback.mqttSendMsg(characteristic.value)
 
         "收到数据：${characteristic.value.toHexString()}".logE("xysLog")
 
@@ -304,7 +304,6 @@ class BleCallback : BluetoothGattCallback() {
                                     dateRecordArrayList.add(dateRecord)
                                 }
                             }
-
                             uiCallback.historyData(dateRecordArrayList)
                         }
 

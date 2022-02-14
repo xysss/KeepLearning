@@ -8,13 +8,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.swallowsonny.convertextlibrary.toHexString
+import com.swallowsonny.convertextlibrary.writeInt32LE
 import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.ble.BleCallback
+import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.room.AppDatabase
 import com.xysss.keeplearning.app.room.Record
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.Android10DownloadFactory
 import com.xysss.keeplearning.app.util.UriUtils
+import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
@@ -41,6 +44,14 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     private val send21Msg="55000D09210004000000000023"  //读取物质信息
 
     private val dataRecordDao = AppDatabase.getDatabase().dataRecordDao()
+
+    private val b0100Msg="5500120901000900"  //读取数据记录
+    private val startIndexByteArray0100=ByteArray(4)
+    private val readNumByteArray0100=ByteArray(4)
+    private var startIndex=1L
+    private var readNum=10L
+    private var recordSumNum= 0
+
 
     //回调
     val bleCallBack = BleCallback()
@@ -71,11 +82,31 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
 //                }
 //            }
         }
+        if (state.equals("HistoryOver")){
+            recordSumNum= mmkv.getInt(ValueKey.recordSumNum,0)
+            if (startIndex<recordSumNum-readNum){
+                Thread.sleep(500)
+                val sendBytes=startIndexByteArray0100.writeInt32LE(startIndex) + readNumByteArray0100.writeInt32LE(readNum)
+                val command=b0100Msg+sendBytes.toHexString(false)+"0023".trim()
+                sendBlueToothMsg(command)
+                startIndex += readNum
+            }
+            else{
+                if (startIndex<recordSumNum){
+                    readNum=recordSumNum-startIndex
+                    Thread.sleep(500)
+                    val sendBytes=startIndexByteArray0100.writeInt32LE(startIndex) + readNumByteArray0100.writeInt32LE(readNum)
+                    val command=b0100Msg+sendBytes.toHexString(false)+"0023".trim()
+                    sendBlueToothMsg(command)
+                }
+                startIndex = recordSumNum.toLong()
+            }
+        }
         state.logE("xysLog")
     }
 
-    override fun mqttMsg(state: String?) {
-        _bleDate.postValue(state)
+    override fun mqttUIShow(state: String?) {
+        //_bleDate.postValue(state)
     }
 
     override fun realData(data: String?) {
@@ -83,6 +114,7 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     }
 
     override fun mqttSendMsg(bytes: ByteArray) {
+
         mService.publish(publishTopic, bytes)
     }
 

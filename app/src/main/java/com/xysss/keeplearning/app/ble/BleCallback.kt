@@ -149,9 +149,9 @@ class BleCallback : BluetoothGattCallback() {
 //        val id = Thread.currentThread().id
 //        "蓝牙回调方法中的线程号：$id".logE("xysLog")
 //        "蓝牙回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
-        uiCallback.mqttSendMsg(characteristic.value)
+        //uiCallback.mqttSendMsg(characteristic.value)
 
-        "收到数据：${characteristic.value.toHexString()}".logE("xysLog")
+        "收到数据：${characteristic.value.toHexString().length}长度: ${characteristic.value.toHexString()}".logE("xysLog")
 
         var i = 0
         while (i < characteristic.value.size) {
@@ -201,7 +201,7 @@ class BleCallback : BluetoothGattCallback() {
 
     private fun dealMessage(mBytes: ByteArray?) {
         mBytes?.let {
-            uiCallback.state("收到解析后的收据长度：${mBytes.size} : ${mBytes.toHexString()}")
+            uiCallback.state("收到解析后的收据长度：${mBytes.size}")
             when (it[4]) {
                 //设备信息
                 Msg80 -> {
@@ -210,6 +210,10 @@ class BleCallback : BluetoothGattCallback() {
                         val hardWareSecondVersion: Int = it[8].toInt()
                         val softWareMainVersion: Int = it[9].toInt()
                         val softWareSecondVersion: Int = it[10].toInt()
+
+                        val recordNum = it.readByteArrayBE(13, 4).readInt32LE()
+                        val alarmNum = it.readByteArrayBE(17, 4).readInt32LE()
+                        mmkv.putInt(ValueKey.recordSumNum,recordNum)
                         //设备序列号
                         var i = 49
                         while (i < it.size)
@@ -218,8 +222,8 @@ class BleCallback : BluetoothGattCallback() {
                         //val deviceId = tempBytes.toAsciiString()
                         val deviceId= String(tempBytes)
                         val deviceInfo = DeviceInfo(
-                            "$hardWareMainVersion:$hardWareSecondVersion",
-                            "$softWareMainVersion:$softWareSecondVersion", deviceId
+                            "$hardWareMainVersion:$hardWareSecondVersion", "$softWareMainVersion:$softWareSecondVersion",
+                            recordNum,alarmNum ,deviceId
                         )
                         uiCallback.state(deviceInfo.toString())
                     }
@@ -255,6 +259,7 @@ class BleCallback : BluetoothGattCallback() {
                             materialLibraryIndex.toString(), concentrationUnit,cfNum.toString(),name
                         )
                         uiCallback.realData(materialInfo.toString())
+                        uiCallback.state(materialInfo.toString())
                     }
                 }
                 //历史记录
@@ -266,6 +271,7 @@ class BleCallback : BluetoothGattCallback() {
                         val dataNum = it.readByteArrayBE(12, 4).readInt32LE()
                         //数据记录
                         if (it[7] == FRAME00) {
+                            uiCallback.state("HistoryOver")
                             val dateRecordArrayList=ArrayList<Record>(dataNum)
                             for (i in 0..dataNum){
                                 val firstIndex=16+i*48
@@ -289,7 +295,6 @@ class BleCallback : BluetoothGattCallback() {
                                     val mUserId=it.readByteArrayBE(firstIndex+40,4).readInt32LE()
                                     val mPlaceId=it.readByteArrayBE(firstIndex+44,4).readInt32LE()
 
-
                                     val defaultIndex=mmkv.getInt(ValueKey.dataIndex,0)
                                     val defaultName= mmkv.getString(ValueKey.dataName,"异丁烯")
                                     var name="异丁烯"
@@ -298,10 +303,11 @@ class BleCallback : BluetoothGattCallback() {
                                         // TODO: 2022/2/10 去请求新的名称
                                         name="未知物质"
                                     }
-                                    val dateRecord=Record(mdateTimeStr,mReserve,mPpmStr,mCF,mVocIndex,mAlarm,mHi,
-                                        mLo,mTwa,mStel,mUserId,mPlaceId,name)
+                                    val dateRecord=Record(mdateTimeStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex.toString(), mAlarm.toString(),
+                                        mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString(),mPlaceId.toString(),name)
 
                                     dateRecordArrayList.add(dateRecord)
+
                                 }
                             }
                             uiCallback.historyData(dateRecordArrayList)
@@ -358,10 +364,6 @@ class BleCallback : BluetoothGattCallback() {
         characteristic: BluetoothGattCharacteristic,
         status: Int
     ) {
-        ("发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："}" +
-                "${characteristic.value.toHexString()} code: $status").logE(
-            "xysLog"
-        )
         uiCallback.state("发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："}" +
                     "${characteristic.value.toHexString()} code: $status"
         )

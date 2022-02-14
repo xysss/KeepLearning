@@ -51,10 +51,12 @@ class ThreeFragment : BaseFragment<HistoryViewModel, FragmentThreeBinding>() {
         //发起请求
         //onLoadRetry()
 
-        mViewModel.record.observe(this){
+        mViewModel.recordListData.observe(this){
             it.logE("xysLog")
             //请求到列表数据
-            //testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
+            if (it.datas.size==0)
+                it.over=true
+            testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
         }
 
     }
@@ -62,12 +64,12 @@ class ThreeFragment : BaseFragment<HistoryViewModel, FragmentThreeBinding>() {
     /**
      * 请求成功
      */
-    override fun onRequestSuccess() {
-        mViewModel.listData.observe(this){
-            //请求到列表数据
-            testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
-        }
-    }
+//    override fun onRequestSuccess() {
+//        mViewModel.recordListData.observe(this){
+//            //请求到列表数据
+//            testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
+//        }
+//    }
 
     /**
      * 请求失败

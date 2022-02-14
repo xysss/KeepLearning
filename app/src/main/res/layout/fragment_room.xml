@@ -15,41 +15,6 @@
             android:layout_gravity="center_horizontal"
             android:textSize="12sp" />
         <Button
-            android:id="@+id/getUserBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Get User" />
-
-        <Button
-            android:id="@+id/addDataBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Add Data" />
-
-        <Button
-            android:id="@+id/updateDataBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Update Data" />
-
-        <Button
-            android:id="@+id/deleteDataBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Delete Data" />
-
-        <Button
-            android:id="@+id/queryDataBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Query Data" />
-
-        <Button
             android:id="@+id/doWorkBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

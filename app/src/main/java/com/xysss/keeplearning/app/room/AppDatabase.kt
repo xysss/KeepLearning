@@ -10,11 +10,8 @@ import com.xysss.mvvmhelper.base.appContext
  * Time:2021/10/1115:22
  */
 
-@Database(version = 1, entities = [User::class,Record::class],exportSchema = false)
+@Database(version = 1, entities = [Record::class],exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
-
-    abstract fun userDao(): UserDao
-
     abstract fun dataRecordDao(): RecordDao
 
     companion object {

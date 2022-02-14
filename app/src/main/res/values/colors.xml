@@ -18,6 +18,8 @@
     <color name="colorPrimary_20">#5CBE73</color>
     <color name="colorPrimary_30">#E0EEEE</color>
     <color name="colorBlack333">#333</color>
+    <color name="colorBlack666">#666</color>
+    <color name="backgrounGrey">#CCCCCC</color>
     <color name="textHint">#999999</color>
     <color name="windowBackground">#F5F5F5</color>
 

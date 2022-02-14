@@ -1,48 +1,20 @@
 package com.xysss.keeplearning.ui.activity
 
 import android.os.Bundle
-import androidx.lifecycle.Observer
 import androidx.work.*
 import com.xysss.keeplearning.app.base.BaseActivity
-import com.xysss.keeplearning.app.room.AppDatabase
-import com.xysss.keeplearning.app.room.User
 import com.xysss.keeplearning.app.workmanager.SimpleWorker
 import com.xysss.keeplearning.databinding.FragmentRoomBinding
-import com.xysss.keeplearning.viewmodel.RoomSampleViewModel
+import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.net.interception.logging.util.LogUtils.Companion.debugInfo
 import java.util.concurrent.TimeUnit
-import kotlin.concurrent.thread
 
 /**
  * Author:bysd-2
  * Time:2021/10/1114:13
  */
-class RoomSampleActivity : BaseActivity<RoomSampleViewModel, FragmentRoomBinding>() {
+class RoomSampleActivity : BaseActivity<BaseViewModel, FragmentRoomBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
-
-        mViewModel.userList.observe(this){
-            mViewBinding.infoText.text = ""
-            mViewBinding.infoText.text = it.toString()
-            debugInfo(it.toString())
-        }
-
-        mViewBinding.addDataBtn.setOnClickListener {
-            mViewModel.insertUser()
-        }
-        mViewBinding.updateDataBtn.setOnClickListener {
-            mViewModel.updateUser()
-        }
-
-        mViewBinding.getUserBtn.setOnClickListener {
-            mViewModel.loadUsers()
-        }
-
-        mViewBinding.deleteDataBtn.setOnClickListener {
-            mViewModel.deleteUserByLastName()
-        }
-        mViewBinding.queryDataBtn.setOnClickListener {
-            mViewModel.loadAllUsers()
-        }
 
         mViewBinding.doWorkBtn.setOnClickListener {
             //周期性任务 间隔不能短于15分钟

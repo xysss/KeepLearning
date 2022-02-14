@@ -14,12 +14,11 @@ import kotlinx.android.parcel.Parcelize
 
 data class DataRecordResponse<T>(
     var datas: ArrayList<T>,
-    var curPage: Int,
-    var offset: Int,
+    var offset: Boolean,
     var over: Boolean,
 ) : BasePage<T>() {
     override fun getPageData() = datas
-    override fun isRefresh() = offset == 0
+    override fun isRefresh() = offset
     override fun isEmpty() = datas.isEmpty()
     override fun hasMore() = !over
 }

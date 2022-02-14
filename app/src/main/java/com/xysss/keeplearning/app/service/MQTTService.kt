@@ -15,6 +15,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.blankj.utilcode.util.ToastUtils
 import com.swallowsonny.convertextlibrary.toHexString
+import com.swallowsonny.convertextlibrary.writeInt32LE
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.util.BleHelper
@@ -117,17 +118,6 @@ class MQTTService : Service(){
         //发送指令
         //BleHelper.sendCommand(gatt, command, true)
 
-        //55000a09 01 0001 00 0023  //读取数据记录
-//            val b0100Msg="5500120901000900"  //读取数据记录
-//            val startIndexByteArray0100=ByteArray(4)
-//            val readNumByteArray0100=ByteArray(4)
-//            val startIndex=1L
-//            val readNum=5L
-//            val sendByteArry= reversSendCode(startIndexByteArray0100.writeInt32LE(startIndex) + readNumByteArray0100.writeInt32LE(readNum))
-//            val command=b0100Msg+sendByteArry?.toHexString(false)+"0023".trim()
-//            "sendMsg:$command".logE("xysLog")
-        //command="123456789012345678901234567890"
-
         val stringBuffer = StringBuffer()
         if (command.length>40){
             for (i in command.indices){
@@ -143,7 +133,7 @@ class MQTTService : Service(){
             "stringBuffer:$stringBuffer".logE("xysLog")
         }else{
             BleHelper.sendCommand(gatt, command, true)
-            command.logE("xysLog")
+            //command.logE("xysLog")
         }
     }
 
@@ -242,7 +232,7 @@ class MQTTService : Service(){
             mqttClient.publish(topic, message, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     "${msg.toHexString()} to published to $topic".logE(TAG)
-                    mqttMsgCall.mqttMsg(msg.toHexString())
+                    mqttMsgCall.mqttUIShow(msg.toHexString())
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -324,9 +314,6 @@ class MQTTService : Service(){
     }
 
     interface MqttMsgCall {
-        /**
-         * 当前Ble状态信息
-         */
-        fun mqttMsg(state:String?)
+        fun mqttUIShow(state:String?)
     }
 }

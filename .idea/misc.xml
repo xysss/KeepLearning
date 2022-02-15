@@ -52,15 +52,23 @@
         <entry key="app/src/main/res/layout/activity_demo.xml" value="0.19375" />
         <entry key="app/src/main/res/layout/activity_link_bluetooth.xml" value="0.16822916666666668" />
         <entry key="app/src/main/res/layout/activity_list.xml" value="0.26197916666666665" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.25052083333333336" />
         <entry key="app/src/main/res/layout/activity_navigation.xml" value="0.17291666666666666" />
+        <entry key="app/src/main/res/layout/activity_test.xml" value="0.26614583333333336" />
+        <entry key="app/src/main/res/layout/fragment_history_alarm.xml" value="0.1527384624700375" />
+        <entry key="app/src/main/res/layout/fragment_history_record.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_one.xml" value="0.28072916666666664" />
         <entry key="app/src/main/res/layout/fragment_room.xml" value="0.21666666666666667" />
         <entry key="app/src/main/res/layout/fragment_three.xml" value="0.26197916666666665" />
-        <entry key="app/src/main/res/layout/fragment_two.xml" value="0.26197916666666665" />
+        <entry key="app/src/main/res/layout/fragment_two.xml" value="0.23792505739486977" />
         <entry key="app/src/main/res/layout/history_item_test.xml" value="0.26145833333333335" />
+        <entry key="app/src/main/res/layout/include_recyclerview.xml" value="0.26614583333333336" />
+        <entry key="app/src/main/res/layout/include_viewpager.xml" value="0.26614583333333336" />
         <entry key="app/src/main/res/layout/item_test.xml" value="0.26145833333333335" />
         <entry key="app/src/main/res/layout/main_navigation.xml" value="0.18697916666666667" />
+        <entry key="app/src/main/res/layout/toolbar_layout_custom.xml" value="0.25052083333333336" />
         <entry key="app/src/main/res/menu/main_menu.xml" value="0.28072916666666664" />
+        <entry key="app/src/main/res/menu/todo_menu.xml" value="0.3640625" />
         <entry key="mvvmhelper/src/main/res/layout/activity_base.xml" value="0.1" />
       </map>
     </option>

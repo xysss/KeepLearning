@@ -72,7 +72,7 @@ abstract class BaseVbFragment<VM : BaseViewModel, VB : ViewBinding>  : Fragment(
 
     }
 
-    fun initViewDataBind(inflater: LayoutInflater, container: ViewGroup?): View? {
+    fun initViewDataBind(inflater: LayoutInflater, container: ViewGroup?): View {
         _binding = inflateBinding(inflater, container, false)
         dataBindView=mViewBinding.root
         return mViewBinding.root

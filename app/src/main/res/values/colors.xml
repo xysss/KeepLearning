@@ -21,6 +21,7 @@
     <color name="colorBlack666">#666</color>
     <color name="backgrounGrey">#CCCCCC</color>
     <color name="textHint">#999999</color>
+    <color name="colorGray">#333</color>
     <color name="windowBackground">#F5F5F5</color>
 
     <color name="purple_200">#FFBB86FC</color>

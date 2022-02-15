@@ -303,8 +303,9 @@ class BleCallback : BluetoothGattCallback() {
                                         // TODO: 2022/2/10 去请求新的名称
                                         name="未知物质"
                                     }
-                                    val dateRecord=Record(mdateTimeStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex.toString(), mAlarm.toString(),
-                                        mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString(),mPlaceId.toString(),name)
+                                    val dateRecord=Record(mdateTimeStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex.toString(),
+                                        mAlarm.toString(), mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString()
+                                        ,mPlaceId.toString(),name)
 
                                     dateRecordArrayList.add(dateRecord)
 

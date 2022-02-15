@@ -1,20 +1,15 @@
 package com.xysss.keeplearning.ui.fragment
 
 import android.os.Bundle
-import com.gyf.immersionbar.ktx.immersionBar
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.base.BaseFragment
-import com.xysss.keeplearning.app.ext.initBack
 import com.xysss.keeplearning.databinding.FragmentThreeBinding
-import com.xysss.keeplearning.ui.adapter.HistoryAdapter
-import com.xysss.keeplearning.ui.adapter.TestAdapter
+import com.xysss.keeplearning.ui.adapter.HistoryRecordAdapter
 import com.xysss.keeplearning.viewmodel.HistoryViewModel
-import com.xysss.keeplearning.viewmodel.TestViewModel
 import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadStatusEntity
 import com.xysss.mvvmhelper.util.decoration.DividerOrientation
-import jni.JniKit
 
 /**
  * Author:bysd-2
@@ -23,7 +18,7 @@ import jni.JniKit
 
 class ThreeFragment : BaseFragment<HistoryViewModel, FragmentThreeBinding>() {
 
-    private  val testAdapter: HistoryAdapter by lazy { HistoryAdapter(arrayListOf()) }
+    private  val testAdapter: HistoryRecordAdapter by lazy { HistoryRecordAdapter(arrayListOf()) }
 
     override fun initView(savedInstanceState: Bundle?) {
 

@@ -1,6 +1,7 @@
 package com.xysss.keeplearning.app.ext
 
 import com.tencent.mmkv.MMKV
+import com.xysss.keeplearning.app.room.AppDatabase
 import com.xysss.keeplearning.data.annotation.ValueKey
 
 /**
@@ -12,6 +13,10 @@ import com.xysss.keeplearning.data.annotation.ValueKey
 /**
  * 获取MMKV
  */
+
+val dataRecordDao = AppDatabase.getDatabase().dataRecordDao()
+val dataAlarmDao = AppDatabase.getDatabase().dataAlarmDao()
+
 val mmkv: MMKV by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
     MMKV.mmkvWithID(ValueKey.MMKV_APP_KEY)
 }

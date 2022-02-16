@@ -24,6 +24,6 @@ interface RecordDao {
     @Delete
     fun deleteRecord(record: Record)
 
-    @Query("delete from Record where voc_index = :voc_index")
+    @Query("delete from Record where id = :voc_index")
     fun deleteRecordByLastName(voc_index: String): Int
 }

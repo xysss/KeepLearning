@@ -48,7 +48,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
     private val send00Msg="55000a09000001000023"  //读取设备信息
     private val send10Msg="55000a09100001000023"  //读取实时数据
     private val send0100Msg="550012090100090001000000050000000023"  //读取数据记录
-    private val send0101Msg="550012090100090101000000050000000023"  //读取报警记录
+    private val send0101Msg="5500120901000901010000000A0000000023"  //读取报警记录
     private val send21Msg="55000D09210004000000000023"  //读取物质信息
 
     private val connection = object : ServiceConnection {
@@ -145,55 +145,21 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         ) {
             when (it.id) {
                 R.id.btnSendCommand -> {
-                    val command = mViewBinding.etCommand.text.toString().trim()
-                    mViewModel.sendBlueToothMsg(command)
                 }
                 R.id.button1 -> {
-                    mViewBinding.etCommand.setText(send00Msg)
+                    mViewModel.sendBlueToothMsg(send00Msg)
                 }
                 R.id.button2 -> {
-                    mViewBinding.etCommand.setText(send10Msg)
+                    mViewModel.sendBlueToothMsg(send10Msg)
                 }
                 R.id.button3 -> {
-
-                    val b0100Msg="5500120901000900"  //读取数据记录
-                    val startIndexByteArray0100=ByteArray(4)
-                    val readNumByteArray0100=ByteArray(4)
-                    val startIndex=1L
-                    val readNum=10L
-
-                    val sendBytes=startIndexByteArray0100.writeInt32LE(startIndex) + readNumByteArray0100.writeInt32LE(readNum)
-                    val command=b0100Msg+sendBytes.toHexString(false)+"0023".trim()
-                    mViewBinding.etCommand.setText(command)
-
-
-//                    val recordSumNum= mmkv.getInt(ValueKey.recordSumNum,0)
-//
-//                    val b0100Msg="5500120901000900"  //读取数据记录
-//                    val startIndexByteArray0100=ByteArray(4)
-//                    val readNumByteArray0100=ByteArray(4)
-//                    var startIndex=1L
-//                    val readNum=20L
-//
-//                    while (startIndex<=recordSumNum){
-//                        if (recordSumNum-startIndex>readNum){
-//                            val sendBytes=startIndexByteArray0100.writeInt32LE(startIndex) + readNumByteArray0100.writeInt32LE(readNum)
-//                            val command=b0100Msg+sendBytes.toHexString(false)+"0023".trim()
-//                            mViewModel.sendBlueToothMsg(command)
-//                            startIndex += readNum
-//                            Thread.sleep(1000)
-//                        }
-//                        else{
-//                            startIndex += recordSumNum-startIndex
-//                        }
-//                    }
-
+                    mViewModel.sendRecordMsg()
                 }
                 R.id.button4 -> {
-                    mViewBinding.etCommand.setText(send0101Msg)
+                    mViewModel.sendAlarmMsg()
                 }
                 R.id.button5 -> {
-                    mViewBinding.etCommand.setText(send21Msg)
+                    mViewModel.sendBlueToothMsg(send21Msg)
                 }
                 R.id.button6 -> {
                 }

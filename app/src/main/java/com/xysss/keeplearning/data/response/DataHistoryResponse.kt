@@ -12,7 +12,7 @@ import kotlinx.android.parcel.Parcelize
  */
 
 
-data class DataRecordResponse<T>(
+data class DataHistoryResponse<T>(
     var datas: ArrayList<T>,
     var offset: Boolean,
     var over: Boolean,

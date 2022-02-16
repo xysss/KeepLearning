@@ -12,4 +12,6 @@ object ValueKey {
     const val dataIndex = "app_historyRecordIndex"
     const val dataName = "app_historyRecordName"
     const val recordSumNum = "app_recordSumNum"
+    const val alarmSumNum = "app_alarmSumNum"
+
 }

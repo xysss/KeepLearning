@@ -13,7 +13,7 @@ import com.xysss.keeplearning.app.room.Record
  */
 
 
-class HistoryRecordAdapter(data: ArrayList<Any>) : BaseQuickAdapter<Any, BaseViewHolder>(R.layout.history_item_test,data),
+class HistoryRecordAdapter(data: ArrayList<Any>) : BaseQuickAdapter<Any, BaseViewHolder>(R.layout.history_item_record,data),
     LoadMoreModule {
 
     override fun convert(holder: BaseViewHolder, item: Any) {

@@ -1,8 +1,9 @@
 package com.xysss.keeplearning.data.repository
 
-import com.xysss.keeplearning.app.room.AppDatabase
+import com.xysss.keeplearning.app.ext.dataAlarmDao
+import com.xysss.keeplearning.app.ext.dataRecordDao
+import com.xysss.keeplearning.app.room.Alarm
 import com.xysss.keeplearning.app.room.Record
-import com.xysss.keeplearning.data.response.DataRecordResponse
 
 /**
  * Author:bysd-2
@@ -10,10 +11,11 @@ import com.xysss.keeplearning.data.response.DataRecordResponse
  */
 object Repository {
 
-    private val dataRecordDao = AppDatabase.getDatabase().dataRecordDao()
-
-    fun getRecordList(size:Int,index: Int): ArrayList<Any>{
-        return dataRecordDao.loadLimitRecord(size, index)  as ArrayList<Any>
+    fun getRecordList(size:Int,index: Int): List<Record>{
+        return dataRecordDao.loadLimitRecord(size, index)
+    }
+    fun getAlarmList(size:Int,index: Int): List<Alarm>{
+        return dataAlarmDao.loadLimitAlarm(size, index)
     }
 
 //    fun getUser(userId: String): LiveData<User> {

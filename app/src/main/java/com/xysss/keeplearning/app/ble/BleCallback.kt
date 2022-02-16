@@ -4,6 +4,7 @@ import android.bluetooth.*
 import android.os.Build
 import com.swallowsonny.convertextlibrary.*
 import com.xysss.keeplearning.app.ext.mmkv
+import com.xysss.keeplearning.app.room.Alarm
 import com.xysss.keeplearning.app.room.Record
 import com.xysss.keeplearning.app.util.BleConstant
 import com.xysss.keeplearning.app.util.BleHelper
@@ -18,7 +19,6 @@ import com.xysss.keeplearning.app.util.ByteUtils.Msg90
 import com.xysss.keeplearning.app.util.ByteUtils.MsgA1
 import com.xysss.keeplearning.app.util.getString
 import com.xysss.keeplearning.data.annotation.ValueKey
-import com.xysss.keeplearning.data.response.AlarmRecord
 import com.xysss.keeplearning.data.response.DeviceInfo
 import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.mvvmhelper.ext.logE
@@ -35,6 +35,8 @@ class BleCallback : BluetoothGattCallback() {
     private val tempBytesList = ArrayList<Byte>()
     private lateinit var uiCallback: UiCallback
     private lateinit var afterBytes: ByteArray
+    private var recordArrayList=ArrayList<Record>()
+    private var alarmArrayList=ArrayList<Alarm>()
 
     fun setUiCallback(uiCallback: UiCallback) {
         this.uiCallback = uiCallback
@@ -48,6 +50,12 @@ class BleCallback : BluetoothGattCallback() {
             "onConnectionStateChange: $status".logE("xysLog")
             Thread.sleep(600)
             gatt.discoverServices()
+        }
+        if (status == BluetoothGatt.STATE_DISCONNECTED){
+            "STATE_DISCONNECTED: $status".logE("xysLog")
+        }
+        else{
+            "onConnectionStateChange: $status".logE("xysLog")
         }
 //        uiCallback.state(
 //            when (newState) {
@@ -214,6 +222,7 @@ class BleCallback : BluetoothGattCallback() {
                         val recordNum = it.readByteArrayBE(13, 4).readInt32LE()
                         val alarmNum = it.readByteArrayBE(17, 4).readInt32LE()
                         mmkv.putInt(ValueKey.recordSumNum,recordNum)
+                        mmkv.putInt(ValueKey.alarmSumNum,alarmNum)
                         //设备序列号
                         var i = 49
                         while (i < it.size)
@@ -271,13 +280,13 @@ class BleCallback : BluetoothGattCallback() {
                         val dataNum = it.readByteArrayBE(12, 4).readInt32LE()
                         //数据记录
                         if (it[7] == FRAME00) {
-                            uiCallback.state("HistoryOver")
-                            val dateRecordArrayList=ArrayList<Record>(dataNum)
+                            //uiCallback.state(ByteUtils.RecordRecFlag)
+                            recordArrayList=ArrayList(dataNum)
                             for (i in 0..dataNum){
                                 val firstIndex=16+i*48
                                 if (firstIndex+44<it.size&&dataNum>0){
                                     val mTimestamp=it.readByteArrayBE(firstIndex,4).readUInt32LE()
-                                    val mdateTimeStr=ByteUtils.getDateTime(mTimestamp.toString())
+                                    val mDateStr=ByteUtils.getDateTime(mTimestamp.toString())
 
                                     val mReserve=it.readByteArrayBE(firstIndex+4,4).readInt32LE()
 
@@ -303,36 +312,35 @@ class BleCallback : BluetoothGattCallback() {
                                         // TODO: 2022/2/10 去请求新的名称
                                         name="未知物质"
                                     }
-                                    val dateRecord=Record(mdateTimeStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex.toString(),
+                                    val dateRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex.toString(),
                                         mAlarm.toString(), mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString()
                                         ,mPlaceId.toString(),name)
-
-                                    dateRecordArrayList.add(dateRecord)
-
+                                    recordArrayList.add(dateRecord)
                                 }
                             }
-                            uiCallback.historyData(dateRecordArrayList)
                         }
 
                         //报警解析
                         else if ((it[7] == FRAME01)) {
+                            //uiCallback.state(ByteUtils.AlarmRecOverFlag)
                             //报警记录协议条数不对
-                            val alarmRecordArrayList=ArrayList<AlarmRecord>(dataNum)
+                            alarmArrayList=ArrayList(dataNum)
                             for (i in 0..dataNum){
                                 val firstIndex=16+i*16
                                 if (firstIndex+12<it.size&&dataNum>0){
                                     val mTimestamp=it.readByteArrayBE(firstIndex,4).readUInt32LE()
                                     val dateTimeStr=ByteUtils.getDateTime(mTimestamp.toString())
+
                                     val mAlarm=it.readByteArrayBE(firstIndex+4,4).readInt32LE()
                                     val mType=it.readByteArrayBE(firstIndex+8,4).readInt32LE()
                                     val mValue=it.readByteArrayBE(firstIndex+12,4).readInt32LE()
-                                    val alarmRecord=AlarmRecord(dateTimeStr,mAlarm,mType,mValue)
-                                    alarmRecordArrayList.add(alarmRecord)
+                                    val alarmRecord=Alarm(dateTimeStr,mAlarm.toString(),mType.toString(),mValue.toString())
+                                    alarmArrayList.add(alarmRecord)
                                 }
                             }
-                             for (alarmRecord in alarmRecordArrayList)
-                                uiCallback.state(alarmRecord.toString())
                         }
+
+                        uiCallback.historyData(recordArrayList,alarmArrayList)
                     }
                 }
                 //查询物质信息
@@ -410,7 +418,7 @@ class BleCallback : BluetoothGattCallback() {
         fun state(state:String?)
         fun realData(data: String?)
         fun mqttSendMsg(bytes:ByteArray)
-        fun historyData(dateRecordArrayList: ArrayList<Record>)
+        fun historyData(recordArrayList: ArrayList<Record>,alarmArrayList: ArrayList<Alarm>)
     }
 
 }

@@ -5,12 +5,11 @@ import androidx.room.PrimaryKey
 
 /**
  * 作者 : xys
- * 时间 : 2022-02-10 10:21
+ * 时间 : 2022-02-16 10:41
  * 描述 : 描述
  */
-
 @Entity
-data class Record(
+data class Matter(
     val timestamp: String,
     val reserv: String,
     val ppm: String,

@@ -43,10 +43,25 @@ class HistoryRecordFragment :BaseFragment<HistoryRecordViewModel,FragmentHistory
         mViewModel.recordListData.observe(this){
             it.logE("xysLog")
             //请求到列表数据
-            if (it.datas.size==0)
-                it.over=true
-            testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
+            if (it.datas.size==0){
+                if (it.isRefresh()){
+                    showEmptyUi()
+                }else{
+                    it.over=true
+                    showSuccessUi()
+                    testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
+                }
+            } else{
+                showSuccessUi()
+                testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
+            }
         }
+        mViewModel.getRecordList(true)
+    }
+
+    override fun onLoadRetry() {
+        showLoadingUi()
+        mViewModel.getRecordList(true)
     }
 
 }

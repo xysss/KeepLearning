@@ -24,10 +24,10 @@ class HistoryAlarmFragment :BaseFragment<HistoryAlarmViewModel,FragmentHistoryAl
 
         mViewBinding.listSmartRefresh.refresh {
             //下拉刷新
-            mViewModel.getRecordList(true)
+            mViewModel.getAlarmList(true)
         }.loadMore {
             //上拉加载
-            mViewModel.getRecordList(false)
+            mViewModel.getAlarmList(false)
         }
         //初始化recyclerview
         mViewBinding.listRecyclerView.run {
@@ -44,10 +44,26 @@ class HistoryAlarmFragment :BaseFragment<HistoryAlarmViewModel,FragmentHistoryAl
         mViewModel.alarmListData.observe(this){
             it.logE("xysLog")
             //请求到列表数据
-            if (it.datas.size==0)
-                it.over=true
-            testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
+            if (it.datas.size==0){
+                if (it.isRefresh()){
+                    showEmptyUi()
+                }else{
+                    it.over=true
+                    showSuccessUi()
+                    testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
+                }
+            }else{
+                showSuccessUi()
+                testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
+            }
         }
+        mViewModel.getAlarmList(true)
+    }
+
+
+    override fun onLoadRetry() {
+        showLoadingUi()
+        mViewModel.getAlarmList(true)
     }
 
 }

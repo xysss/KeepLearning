@@ -17,10 +17,10 @@ import java.util.ArrayList
  */
 class HistoryAlarmViewModel :BaseViewModel(){
     val alarmListData: LiveData<DataHistoryResponse<Any>> get() = _alarmListData
-    private var pageIndex = 1
+    private var pageIndex = 0
     private val readNum=20
     private var _alarmListData = MutableLiveData<DataHistoryResponse<Any>>()
-    fun getRecordList(isRefresh: Boolean, loadingXml: Boolean = false) {
+    fun getAlarmList(isRefresh: Boolean, loadingXml: Boolean = false) {
         if (isRefresh) {
             //是刷新 玩Android的这个接口pageIndex 是0 开始 （真操蛋啊...）
             pageIndex = 0

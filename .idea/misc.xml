@@ -72,6 +72,8 @@
         <entry key="app/src/main/res/menu/main_menu.xml" value="0.28072916666666664" />
         <entry key="app/src/main/res/menu/todo_menu.xml" value="0.3640625" />
         <entry key="mvvmhelper/src/main/res/layout/activity_base.xml" value="0.1" />
+        <entry key="mvvmhelper/src/main/res/layout/layout_empty.xml" value="0.2" />
+        <entry key="mvvmhelper/src/main/res/layout/layout_loading.xml" value="0.2078125" />
       </map>
     </option>
   </component>

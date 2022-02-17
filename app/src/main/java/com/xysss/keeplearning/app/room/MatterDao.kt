@@ -14,7 +14,7 @@ interface MatterDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMatter(matter: Matter): Long
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMatterList(matter: List<Matter>): List<Long>
 
     @Update

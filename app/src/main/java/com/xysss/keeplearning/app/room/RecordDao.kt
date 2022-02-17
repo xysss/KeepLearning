@@ -10,10 +10,10 @@ import com.xysss.keeplearning.data.response.JoinResult
  */
 @Dao
 interface RecordDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRecord(record: Record): Long
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRecordList(record: List<Record>): List<Long>
 
     @Update
@@ -26,7 +26,7 @@ interface RecordDao {
     fun loadLimitRecord(size:Int,index: Int): List<Record>
 
     //使用内连接查询
-    @Query("select id,timestamp,cf,alarm,userId,placeId,matterName from Record left join Matter on Record.voc_index=Matter.voc_index order by id limit :size offset :index")
+    @Query("select id,timestamp,cf,alarm,userId,placeId,matterName,recordName from Record left join Matter on Record.voc_index_record=Matter.voc_index_matter order by id limit :size offset :index")
     fun leftJoinLoadLimitRecord(size:Int,index: Int): List<JoinResult>
 
     @Delete

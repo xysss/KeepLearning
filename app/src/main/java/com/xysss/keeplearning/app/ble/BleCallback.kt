@@ -299,8 +299,8 @@ class BleCallback : BluetoothGattCallback() {
                                     val mPpmStr=ByteUtils.getNoMoreThanTwoDigits(mPpm)
 
                                     val mCF=it.readByteArrayBE(firstIndex+12,4).readFloatLE()
-//                                    val mVocIndex=it.readByteArrayBE(firstIndex+16,4).readInt32LE()
-                                    val mVocIndex=1
+                                    val mVocIndex=it.readByteArrayBE(firstIndex+16,4).readInt32LE()
+                                    //val mVocIndex=2
 
                                     val mAlarm=it.readByteArrayBE(firstIndex+20,4).readInt32LE()
                                     val mHi=it.readByteArrayBE(firstIndex+24,4).readFloatLE()
@@ -312,7 +312,7 @@ class BleCallback : BluetoothGattCallback() {
                                     var name="default"
                                      if(mVocIndex==defaultIndex) name=defaultName else {
                                         name="未知物质"
-                                        //uiCallback.reqMatter(mVocIndex)
+                                        uiCallback.reqMatter(mVocIndex)
                                     }
                                     val dateRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex,
                                         mAlarm.toString(), mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString()
@@ -320,6 +320,7 @@ class BleCallback : BluetoothGattCallback() {
                                     recordArrayList.add(dateRecord)
                                 }
                             }
+                            uiCallback.recordData(recordArrayList)
                         }
 
                         //报警解析
@@ -340,9 +341,8 @@ class BleCallback : BluetoothGattCallback() {
                                     alarmArrayList.add(alarmRecord)
                                 }
                             }
+                            uiCallback.alarmData(alarmArrayList)
                         }
-
-                        uiCallback.historyData(recordArrayList,alarmArrayList)
                     }
                 }
                 //查询物质信息
@@ -420,7 +420,8 @@ class BleCallback : BluetoothGattCallback() {
         fun state(state:String?)
         fun realData(materialInfo:MaterialInfo)
         fun mqttSendMsg(bytes:ByteArray)
-        fun historyData(recordArrayList: ArrayList<Record>,alarmArrayList: ArrayList<Alarm>)
+        fun recordData(recordArrayList: ArrayList<Record>)
+        fun alarmData(alarmArrayList: ArrayList<Alarm>)
     }
 
 }

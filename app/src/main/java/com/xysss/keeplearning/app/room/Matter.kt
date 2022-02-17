@@ -17,10 +17,10 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],
             childColumns = ["mId"],
             onDelete = CASCADE)],
-    //indices = [Index(value= ["voc_index"],unique = true)]
+    //indices = [Index(value= ["voc_index_matter"],unique = true)]
     )
 data class Matter(
-    val voc_index: Int,
+    val voc_index_matter: Int,
     val matterName: String,
     val mcfNum: String,
 ) {

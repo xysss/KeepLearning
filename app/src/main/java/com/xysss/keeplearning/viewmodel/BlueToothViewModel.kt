@@ -127,16 +127,16 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     }
 
     override fun realData(materialInfo: MaterialInfo) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val matterList= ArrayList<Matter>()
-            val matter1=Matter(0,"异丁烯","0")
-            val matter2=Matter(1,"甲丁烯","1")
-            val matter3=Matter(2,"乙丁烯","2")
-            matterList.add(matter1)
-            matterList.add(matter2)
-            matterList.add(matter3)
-            Repository.insertMatterList(matterList)
-        }
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val matterList= ArrayList<Matter>()
+//            val matter1=Matter(1,"异丁烯","0")
+//            val matter2=Matter(2,"甲丁烯","1")
+//            val matter3=Matter(3,"乙丁烯","2")
+//            matterList.add(matter1)
+//            matterList.add(matter2)
+//            matterList.add(matter3)
+//            Repository.insertMatterList(matterList)
+//        }
         _bleDate.postValue(materialInfo.toString())
     }
 
@@ -144,7 +144,7 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
         mService.publish(publishTopic, bytes)
     }
 
-    override fun historyData(recordArrayList: ArrayList<Record>,alarmArrayList: ArrayList<Alarm>) {
+    override fun recordData(recordArrayList: ArrayList<Record>) {
         if (recordArrayList.size!=0){
             Repository.insertRecordList(recordArrayList)
             recordArrayList.logE("xysLog")
@@ -166,6 +166,9 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
                 recordIndex = recordSum.toLong()
             }
         }
+    }
+
+    override fun alarmData(alarmArrayList: ArrayList<Alarm>) {
         if (alarmArrayList.size!=0){
             Repository.insertAlarmList(alarmArrayList)
             alarmArrayList.logE("xysLog")

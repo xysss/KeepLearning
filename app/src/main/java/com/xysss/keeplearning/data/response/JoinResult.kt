@@ -16,5 +16,6 @@ class JoinResult(
     val alarm: String,  //报警状态
     val userId: String,  //用户ID
     val placeId: String,  //地点ID
-    val matterName: String
+    val matterName: String?,
+    val recordName: String?
 )

@@ -41,6 +41,7 @@ class HistoryAlarmFragment :BaseFragment<HistoryAlarmViewModel,FragmentHistoryAl
             adapter = testAdapter
             mViewBinding.listRecyclerView.initFloatBtn(mViewBinding.floatbtn)
         }
+
         mViewModel.alarmListData.observe(this){
             it.logE("xysLog")
             //请求到列表数据
@@ -57,6 +58,7 @@ class HistoryAlarmFragment :BaseFragment<HistoryAlarmViewModel,FragmentHistoryAl
                 testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
             }
         }
+
         mViewModel.getAlarmList(true)
     }
 

@@ -16,6 +16,7 @@ import com.xysss.keeplearning.data.annotation.ValueKey
 
 val dataRecordDao = AppDatabase.getDatabase().dataRecordDao()
 val dataAlarmDao = AppDatabase.getDatabase().dataAlarmDao()
+val dataMatterDao = AppDatabase.getDatabase().dataMatterDao()
 
 val mmkv: MMKV by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
     MMKV.mmkvWithID(ValueKey.MMKV_APP_KEY)

@@ -1,6 +1,7 @@
 package com.xysss.keeplearning.app.room
 
 import androidx.room.*
+import com.xysss.keeplearning.data.response.JoinResult
 
 /**
  * 作者 : xys
@@ -12,6 +13,9 @@ interface RecordDao {
     @Insert
     fun insertRecord(record: Record): Long
 
+    @Insert
+    fun insertRecordList(record: List<Record>): List<Long>
+
     @Update
     fun updateRecord(newRecord: Record)
 
@@ -20,6 +24,10 @@ interface RecordDao {
 
     @Query("select * from Record order by id limit :size offset :index")
     fun loadLimitRecord(size:Int,index: Int): List<Record>
+
+    //使用内连接查询
+    @Query("select id,timestamp,cf,alarm,userId,placeId,matterName from Record left join Matter on Record.voc_index=Matter.voc_index order by id limit :size offset :index")
+    fun leftJoinLoadLimitRecord(size:Int,index: Int): List<JoinResult>
 
     @Delete
     fun deleteRecord(record: Record)

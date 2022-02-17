@@ -22,7 +22,6 @@ class HistoryAlarmViewModel :BaseViewModel(){
     private var _alarmListData = MutableLiveData<DataHistoryResponse<Any>>()
     fun getAlarmList(isRefresh: Boolean, loadingXml: Boolean = false) {
         if (isRefresh) {
-            //是刷新 玩Android的这个接口pageIndex 是0 开始 （真操蛋啊...）
             pageIndex = 0
         }
         viewModelScope.launch(Dispatchers.IO) {

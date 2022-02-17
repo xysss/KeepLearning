@@ -1,6 +1,8 @@
 package com.xysss.keeplearning.app.room
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
@@ -9,20 +11,29 @@ import androidx.room.PrimaryKey
  * 描述 : 描述
  */
 
+//@Entity(
+//    foreignKeys = [
+//        ForeignKey(entity = Matter::class,
+//            parentColumns = ["mId"],
+//            childColumns = ["id"],
+//            onDelete = ForeignKey.CASCADE
+//        )],
+//    //indices = [Index(value= ["voc_index"],unique = true)]
+//)
 @Entity
 data class Record(
     val timestamp: String,
     val reserv: String,
     val ppm: String,
     val cf: String,
-    val voc_index: String,  //物质库条目索引
+    val voc_index: Int,  //物质库条目索引
     val alarm: String,  //报警状态
     val thresh_hi: String,  //报警阈值
     val thresh_lo: String,
     val thresh_twa: String,
     val thresh_stel: String,
-    val user_id: String,  //用户ID
-    val place_id: String,  //地点ID
+    val userId: String,  //用户ID
+    val placeId: String,  //地点ID
     val name: String
 ) {
     @PrimaryKey(autoGenerate = true)

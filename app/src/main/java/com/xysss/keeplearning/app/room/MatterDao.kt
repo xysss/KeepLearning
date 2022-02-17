@@ -10,8 +10,12 @@ import androidx.room.*
 
 @Dao
 interface MatterDao {
-    @Insert
+    //OnConflictStrategy.REPLACE表示插入的时候有该数据的情况下会直接替换
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMatter(matter: Matter): Long
+
+    @Insert
+    fun insertMatterList(matter: List<Matter>): List<Long>
 
     @Update
     fun updateMatter(newMatter: Matter)
@@ -19,12 +23,12 @@ interface MatterDao {
     @Query("select * from Matter")
     fun loadAllMatter(): List<Matter>
 
-    @Query("select * from Matter order by id limit :size offset :index")
+    @Query("select * from Matter order by mId limit :size offset :index")
     fun loadLimitMatter(size:Int,index: Int): List<Matter>
 
     @Delete
     fun deleteMatter(matter: Matter)
 
-    @Query("delete from Matter where id = :voc_index")
+    @Query("delete from Matter where mId = :voc_index")
     fun deleteMatterByLastName(voc_index: String): Int
 }

@@ -26,7 +26,8 @@ class HistoryRecordViewModel :BaseViewModel(){
             pageIndex = 0
         }
         viewModelScope.launch(Dispatchers.IO) {
-            val dataRsp= DataHistoryResponse(Repository.getRecordList(readNum,pageIndex*readNum) as ArrayList<Any>,isRefresh,false)
+            val dataRsp= DataHistoryResponse(Repository.getJoinResultList(readNum,pageIndex*readNum) as ArrayList<Any>,isRefresh,false)
+            //val dataRsp= DataHistoryResponse(Repository.getRecordList(readNum,pageIndex*readNum) as ArrayList<Any>,isRefresh,false)
             _recordListData.postValue(dataRsp)
             //请求成功 页码+1
             pageIndex++

@@ -14,7 +14,7 @@ import kotlinx.android.parcel.Parcelize
 data class MaterialInfo(
     val concentrationNum:String,
     val concentrationState:String,
-    val materialLibraryIndex:String,
+    val materialLibraryIndex:Int,
     val concentrationUnit:String,
     val cfNum:String,
     val materialName:String) : Parcelable

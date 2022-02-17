@@ -40,6 +40,7 @@ class HistoryRecordFragment :BaseFragment<HistoryRecordViewModel,FragmentHistory
             adapter = testAdapter
             mViewBinding.listRecyclerView.initFloatBtn(mViewBinding.floatbtn)
         }
+
         mViewModel.recordListData.observe(this){
             it.logE("xysLog")
             //请求到列表数据
@@ -56,6 +57,7 @@ class HistoryRecordFragment :BaseFragment<HistoryRecordViewModel,FragmentHistory
                 testAdapter.loadListSuccess(it,mViewBinding.listSmartRefresh)
             }
         }
+
         mViewModel.getRecordList(true)
     }
 

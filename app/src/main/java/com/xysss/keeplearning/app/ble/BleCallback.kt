@@ -5,6 +5,7 @@ import android.os.Build
 import com.swallowsonny.convertextlibrary.*
 import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.room.Alarm
+import com.xysss.keeplearning.app.room.Matter
 import com.xysss.keeplearning.app.room.Record
 import com.xysss.keeplearning.app.util.BleConstant
 import com.xysss.keeplearning.app.util.BleHelper
@@ -37,6 +38,8 @@ class BleCallback : BluetoothGattCallback() {
     private lateinit var afterBytes: ByteArray
     private var recordArrayList=ArrayList<Record>()
     private var alarmArrayList=ArrayList<Alarm>()
+    private var defaultIndex=1
+    private var defaultName="异丁烯"
 
     fun setUiCallback(uiCallback: UiCallback) {
         this.uiCallback = uiCallback
@@ -90,6 +93,8 @@ class BleCallback : BluetoothGattCallback() {
             "开启通知属性异常".logE("xysLog")
         } else {
             "发现了服务 code: $status".logE("xysLog")
+            defaultIndex=mmkv.getInt(ValueKey.dataIndex,0)
+            defaultName= mmkv.getString(ValueKey.dataName,"异丁烯").toString()
         }
 
         if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -265,9 +270,9 @@ class BleCallback : BluetoothGattCallback() {
                         val name= String(tempBytes)
                         val materialInfo = MaterialInfo(
                             concentrationNum, concentrationState.toString(),
-                            materialLibraryIndex.toString(), concentrationUnit,cfNum.toString(),name
+                            materialLibraryIndex, concentrationUnit,cfNum.toString(),name
                         )
-                        uiCallback.realData(materialInfo.toString())
+                        uiCallback.realData(materialInfo)
                         uiCallback.state(materialInfo.toString())
                     }
                 }
@@ -294,7 +299,8 @@ class BleCallback : BluetoothGattCallback() {
                                     val mPpmStr=ByteUtils.getNoMoreThanTwoDigits(mPpm)
 
                                     val mCF=it.readByteArrayBE(firstIndex+12,4).readFloatLE()
-                                    val mVocIndex=it.readByteArrayBE(firstIndex+16,4).readInt32LE()
+//                                    val mVocIndex=it.readByteArrayBE(firstIndex+16,4).readInt32LE()
+                                    val mVocIndex=1
 
                                     val mAlarm=it.readByteArrayBE(firstIndex+20,4).readInt32LE()
                                     val mHi=it.readByteArrayBE(firstIndex+24,4).readFloatLE()
@@ -303,16 +309,12 @@ class BleCallback : BluetoothGattCallback() {
                                     val mStel=it.readByteArrayBE(firstIndex+36,4).readFloatLE()
                                     val mUserId=it.readByteArrayBE(firstIndex+40,4).readInt32LE()
                                     val mPlaceId=it.readByteArrayBE(firstIndex+44,4).readInt32LE()
-
-                                    val defaultIndex=mmkv.getInt(ValueKey.dataIndex,0)
-                                    val defaultName= mmkv.getString(ValueKey.dataName,"异丁烯")
-                                    var name="异丁烯"
-                                    if(mVocIndex==defaultIndex) name=defaultName?:"异丁烯" else {
-
-                                        // TODO: 2022/2/10 去请求新的名称
+                                    var name="default"
+                                     if(mVocIndex==defaultIndex) name=defaultName else {
                                         name="未知物质"
+                                        //uiCallback.reqMatter(mVocIndex)
                                     }
-                                    val dateRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex.toString(),
+                                    val dateRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex,
                                         mAlarm.toString(), mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString()
                                         ,mPlaceId.toString(),name)
                                     recordArrayList.add(dateRecord)
@@ -347,17 +349,18 @@ class BleCallback : BluetoothGattCallback() {
                 MsgA1->{
                     if (it.size == 57) {
                         //物质索引号
-                        val mIndex=it.readByteArrayBE(7,4).readInt32LE()
+                        defaultIndex=it.readByteArrayBE(7,4).readInt32LE()
+                        //cf值
+                        val mcfNum=it.readByteArrayBE(11,4).readInt32LE()
                         var i = 35
                         while (i < it.size)
                             if (it[i] == FRAME00) break else i++
                         val tempBytes: ByteArray = it.readByteArrayBE(35, i - 35)
-                        val name = String(tempBytes)
-
-                        mmkv.putInt(ValueKey.dataIndex,mIndex)
-                        mmkv.putString(ValueKey.dataName,name)
-
-                        uiCallback.state("查询物质信息: $mIndex: $name")
+                        defaultName = String(tempBytes)
+                        val matter=Matter(defaultIndex,defaultName,mcfNum.toString())
+                        mmkv.putInt(ValueKey.dataIndex,defaultIndex)
+                        mmkv.putString(ValueKey.dataName,defaultName)
+                        uiCallback.saveMatter(matter)
                     }
                 }
             }
@@ -412,11 +415,10 @@ class BleCallback : BluetoothGattCallback() {
      * UI回调
      */
     interface UiCallback {
-        /**
-         * 当前Ble状态信息
-         */
+        fun reqMatter(index:Int)
+        fun saveMatter(matter: Matter)
         fun state(state:String?)
-        fun realData(data: String?)
+        fun realData(materialInfo:MaterialInfo)
         fun mqttSendMsg(bytes:ByteArray)
         fun historyData(recordArrayList: ArrayList<Record>,alarmArrayList: ArrayList<Alarm>)
     }

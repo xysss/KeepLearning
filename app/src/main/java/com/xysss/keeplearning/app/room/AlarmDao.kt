@@ -12,6 +12,9 @@ interface AlarmDao {
     @Insert
     fun insertAlarm(alarm: Alarm): Long
 
+    @Insert
+    fun insertAlarmList(alarm: List<Alarm>): List<Long>
+
     @Update
     fun updateAlarm(newAlarm: Alarm)
 

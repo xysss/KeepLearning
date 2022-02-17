@@ -10,11 +10,11 @@ import androidx.room.*
 
 @Dao
 interface MatterDao {
-    //OnConflictStrategy.REPLACE表示插入的时候有该数据的情况下会直接替换
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    //OnConflictStrategy.REPLACE表示插入的时候有该数据的情况下会跳过
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertMatter(matter: Matter): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertMatterList(matter: List<Matter>): List<Long>
 
     @Update

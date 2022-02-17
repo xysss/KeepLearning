@@ -10,10 +10,10 @@ import com.xysss.keeplearning.data.response.JoinResult
  */
 @Dao
 interface RecordDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertRecord(record: Record): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertRecordList(record: List<Record>): List<Long>
 
     @Update

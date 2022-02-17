@@ -26,6 +26,9 @@ object Repository {
     fun insertRecordList(recordList:ArrayList<Record>):List<Long>{
         return dataRecordDao.insertRecordList(recordList)
     }
+    fun insertAlarm(alarm:Alarm):Long{
+        return dataAlarmDao.insertAlarm(alarm)
+    }
     fun insertAlarmList(alarmList:ArrayList<Alarm>):List<Long>{
         return dataAlarmDao.insertAlarmList(alarmList)
     }

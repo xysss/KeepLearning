@@ -9,10 +9,10 @@ import androidx.room.*
  */
 @Dao
 interface AlarmDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAlarm(alarm: Alarm): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAlarmList(alarm: List<Alarm>): List<Long>
 
     @Update

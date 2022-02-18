@@ -47,8 +47,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
     private val send00Msg="55000a09000001000023"  //读取设备信息
     private val send10Msg="55000a09100001000023"  //读取实时数据
-    private val send0100Msg="550012090100090001000000050000000023"  //读取数据记录
-    private val send0101Msg="5500120901000901010000000A0000000023"  //读取报警记录
     private val send21Msg="55000D09210004000000000023"  //读取物质信息
 
     private val connection = object : ServiceConnection {
@@ -75,9 +73,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
         mViewModel.setCallBack()
 
-        if (mmkv.getInt(ValueKey.dataIndex,0)==0){
-            if (!mmkv.getString(ValueKey.dataName,"0").equals("异丁烯")){
-                mmkv.putString(ValueKey.dataName,"异丁烯")
+        if (mmkv.getInt(ValueKey.matterIndex,0)==0){
+            if (!mmkv.getString(ValueKey.matterName,"0").equals("异丁烯")){
+                mmkv.putString(ValueKey.matterName,"异丁烯")
             }
         }
 
@@ -168,6 +166,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 R.id.button8 -> {
                 }
                 R.id.button9 -> {
+                    if (!mmkv.getString(ValueKey.deviceId,"0").equals("0")){
+                        mViewModel.setMqttConnect()
+                    }
                 }
                 R.id.button10 -> {
                     val intentBle = Intent(appContext, LinkBleBlueTooth::class.java)

@@ -13,17 +13,17 @@ import kotlinx.android.parcel.Parcelize
 @SuppressLint("ParcelCreator")
 @Parcelize
 data class DeviceInfo(
-    val hardWareVersion:String,
-    val softWareVersion:String,
-//    val batteryInfo:Int,
-//    val liberaMemoro:Int,
-    val dataNumber:Int,
-    val warnDataNumber:Int,
-//    val theRunningTime:Int,
-//    val theWarnNumber: Int,
-//    val runningAllTime:Int,
-//    val concentrationMax:Int,
-//    val concentrationMin:Int,
-//    val twaNumber:Int,
-//    val stelNumber:Int,
-    var deviceId: String) : Parcelable
+    val deviceHardwareVersion:String?,
+    val deviceSoftwareVersion:String?,
+    val deviceBattery:Int,
+    val deviceFreeMemory:Int,
+    val deviceRecordSum:Int,
+    val deviceAlarmSum:Int,
+    val deviceCurrentRunningTime:Int,
+    val deviceCurrentAlarmNumber: Int,
+    val deviceCumulativeRunningTime:Int,
+    val deviceDensityMax:Float,
+    val deviceDensityMin:Float,
+    val deviceTwaNumber:Float,
+    val deviceStelNumber:Float,
+    var deviceId: String?) : Parcelable

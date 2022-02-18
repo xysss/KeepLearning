@@ -28,9 +28,9 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
                 R.id.navigationReport -> {
                     mViewBinding.mainViewPager.setCurrentItem(2, false)
                 }
-                R.id.navigationUser -> {
-                    mViewBinding.mainViewPager.setCurrentItem(3, false)
-                }
+//                R.id.navigationUser -> {
+//                    mViewBinding.mainViewPager.setCurrentItem(3, false)
+//                }
             }
             true
         }

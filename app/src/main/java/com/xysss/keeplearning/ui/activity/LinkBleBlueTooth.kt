@@ -341,5 +341,7 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
         }
     }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+    }
 }

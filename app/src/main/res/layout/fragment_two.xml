@@ -3,15 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <com.xysss.keeplearning.app.widget.CustomToolBar
-        android:id="@+id/customToolbar"
+        android:id="@+id/customTwoToolbar"
         android:layout_width="match_parent"
         android:background="@color/colorPrimary"
-        android:layout_height="?attr/actionBarSize"
-        />
+        android:layout_height="?actionBarSize" />
 
     <FrameLayout
         android:id="@+id/viewpager_linear"
@@ -20,19 +18,11 @@
         android:background="@color/colorPrimary"
         android:padding="2dp">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/include_viewpager_toolbar"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_width="match_parent"
-            android:theme="@style/AppTheme.AppBarOverlay"
-            app:contentInsetStart="0dp"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
         <net.lucode.hackware.magicindicator.MagicIndicator
             android:id="@+id/magic_indicator"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:layout_gravity="center"
+            android:layout_gravity="center_horizontal"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp" />
     </FrameLayout>

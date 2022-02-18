@@ -92,13 +92,11 @@ class BleCallback : BluetoothGattCallback() {
             gatt.disconnect()
             "开启通知属性异常".logE("xysLog")
         } else {
-            "发现了服务 code: $status".logE("xysLog")
-            defaultIndex=mmkv.getInt(ValueKey.dataIndex,0)
-            defaultName= mmkv.getString(ValueKey.dataName,"异丁烯").toString()
+            //"发现了服务 code: $status".logE("xysLog")
         }
 
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            "onServicesDiscovered--ACTION_GATT_SERVICES_DISCOVERED".logE("xysLog")
+            //"onServicesDiscovered--ACTION_GATT_SERVICES_DISCOVERED".logE("xysLog")
         }
     }
 
@@ -162,8 +160,10 @@ class BleCallback : BluetoothGattCallback() {
 //        val id = Thread.currentThread().id
 //        "蓝牙回调方法中的线程号：$id".logE("xysLog")
 //        "蓝牙回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
-        //uiCallback.mqttSendMsg(characteristic.value)
-
+        Thread{
+            if (mmkv.getBoolean(ValueKey.isConnectMqtt,false))
+                uiCallback.mqttSendMsg(characteristic.value)
+        }
         "收到数据：${characteristic.value.toHexString().length}长度: ${characteristic.value.toHexString()}".logE("xysLog")
 
         var i = 0
@@ -197,7 +197,7 @@ class BleCallback : BluetoothGattCallback() {
             bytes[0] = tempBytesList[1]
             bytes[1] = tempBytesList[2]
             val length = bytes.readInt16BE()
-            //"length: $length".logE("xysLog")
+            "转码后协议length: $length".logE("xysLog")
             if (tempBytesList[0] == FRAME55 && length == tempBytesList.size) {
                 //校验数据长度
                 tempBytesList.let {
@@ -207,39 +207,42 @@ class BleCallback : BluetoothGattCallback() {
                     }
                 }
                 dealMessage(afterBytes)
+                "转码后实际length: ${tempBytesList.size}".logE("xysLog")
                 tempBytesList.clear()
+            }else{
+                "转码后实际length: ${tempBytesList.size}".logE("xysLog")
             }
         }
     }
 
     private fun dealMessage(mBytes: ByteArray?) {
         mBytes?.let {
-            uiCallback.state("收到解析后的收据长度：${mBytes.size}")
             when (it[4]) {
                 //设备信息
                 Msg80 -> {
                     if (it.size == 71) {
-                        val hardWareMainVersion: Int = it[7].toInt()
-                        val hardWareSecondVersion: Int = it[8].toInt()
-                        val softWareMainVersion: Int = it[9].toInt()
-                        val softWareSecondVersion: Int = it[10].toInt()
-
-                        val recordNum = it.readByteArrayBE(13, 4).readInt32LE()
-                        val alarmNum = it.readByteArrayBE(17, 4).readInt32LE()
-                        mmkv.putInt(ValueKey.recordSumNum,recordNum)
-                        mmkv.putInt(ValueKey.alarmSumNum,alarmNum)
                         //设备序列号
                         var i = 49
                         while (i < it.size)
                             if (it[i] == FRAME00) break else i++
                         val tempBytes: ByteArray = it.readByteArrayBE(49, i - 49)
-                        //val deviceId = tempBytes.toAsciiString()
-                        val deviceId= String(tempBytes)
-                        val deviceInfo = DeviceInfo(
-                            "$hardWareMainVersion:$hardWareSecondVersion", "$softWareMainVersion:$softWareSecondVersion",
-                            recordNum,alarmNum ,deviceId
-                        )
-                        uiCallback.state(deviceInfo.toString())
+
+                        mmkv.putString(ValueKey.deviceHardwareVersion,it[7].toInt().toString()+":"+it[8].toInt().toString())
+                        mmkv.putString(ValueKey.deviceSoftwareVersion,it[9].toInt().toString()+":"+it[10].toInt().toString())
+                        mmkv.putInt(ValueKey.deviceBattery,it[11].toInt())
+                        mmkv.putInt(ValueKey.deviceFreeMemory,it[12].toInt())
+                        mmkv.putInt(ValueKey.deviceRecordSum,it.readByteArrayBE(13, 4).readInt32LE())
+                        mmkv.putInt(ValueKey.deviceAlarmSum,it.readByteArrayBE(17, 4).readInt32LE())
+                        mmkv.putInt(ValueKey.deviceCurrentRunningTime,it.readByteArrayBE(21, 4).readInt32LE())
+                        mmkv.putInt(ValueKey.deviceCurrentAlarmNumber,it.readByteArrayBE(25, 4).readInt32LE())
+                        mmkv.putInt(ValueKey.deviceCumulativeRunningTime,it.readByteArrayBE(29, 4).readInt32LE())
+                        mmkv.putFloat(ValueKey.deviceDensityMax,it.readByteArrayBE(33, 4).readFloatLE())
+                        mmkv.putFloat(ValueKey.deviceDensityMin,it.readByteArrayBE(37, 4).readFloatLE())
+                        mmkv.putFloat(ValueKey.deviceTwaNumber,it.readByteArrayBE(41, 4).readFloatLE())
+                        mmkv.putFloat(ValueKey.deviceSteLNumber,it.readByteArrayBE(45, 4).readFloatLE())
+                        mmkv.putString(ValueKey.deviceId,String(tempBytes))
+
+                        uiCallback.state("DeviceInfoRsp")
                     }
                 }
                 //实时数据
@@ -273,7 +276,7 @@ class BleCallback : BluetoothGattCallback() {
                             materialLibraryIndex, concentrationUnit,cfNum.toString(),name
                         )
                         uiCallback.realData(materialInfo)
-                        uiCallback.state(materialInfo.toString())
+                        materialInfo.toString().logE("xysLog")
                     }
                 }
                 //历史记录
@@ -326,7 +329,7 @@ class BleCallback : BluetoothGattCallback() {
                         //报警解析
                         else if ((it[7] == FRAME01)) {
                             //uiCallback.state(ByteUtils.AlarmRecOverFlag)
-                            //报警记录协议条数不对
+                            //报警记录协议条数
                             alarmArrayList=ArrayList(dataNum)
                             for (i in 0..dataNum){
                                 val firstIndex=16+i*16
@@ -346,7 +349,7 @@ class BleCallback : BluetoothGattCallback() {
                         }
                     }
                 }
-                //查询物质信息
+                //物质信息
                 MsgA1->{
                     if (it.size == 57) {
                         //物质索引号
@@ -359,11 +362,14 @@ class BleCallback : BluetoothGattCallback() {
                         val tempBytes: ByteArray = it.readByteArrayBE(35, i - 35)
                         defaultName = String(tempBytes)
                         val matter=Matter(defaultIndex,defaultName,mcfNum.toString())
-                        mmkv.putInt(ValueKey.dataIndex,defaultIndex)
-                        mmkv.putString(ValueKey.dataName,defaultName)
+                        mmkv.putInt(ValueKey.matterIndex,defaultIndex)
+                        mmkv.putString(ValueKey.matterName,defaultName)
                         uiCallback.saveMatter(matter)
+                    }else{
+                        "查询物质信息协议长度不为57，实际长度：${it.size}".logE("xysLog")
                     }
                 }
+                else -> it[4].toInt().logE("xysLog")
             }
         }
     }
@@ -399,8 +405,11 @@ class BleCallback : BluetoothGattCallback() {
                     readDescriptor(descriptor)
                     readRemoteRssi()
                 }
-                uiCallback.state("蓝牙连接完成")
-                "通知开启成功，准备完成:".logE("xysLog")
+
+                defaultIndex=mmkv.getInt(ValueKey.matterIndex,0)
+                defaultName= mmkv.getString(ValueKey.matterName,"异丁烯").toString()
+                "BluetoothConnected:通知开启成功，准备完成:".logE("xysLog")
+                uiCallback.state("BluetoothConnected")
 
             } else "通知开启失败".logE("xysLog")
         }
@@ -409,8 +418,9 @@ class BleCallback : BluetoothGattCallback() {
     /**
      * 读取远程设备的信号强度回调
      */
-    override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) =
-        "onReadRemoteRssi: rssi: $rssi".logE("xysLog")
+    override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
+    }
+    //= "onReadRemoteRssi: rssi: $rssi".logE("xysLog")
 
     /**
      * UI回调

@@ -43,11 +43,8 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     private val _bleDate=MutableLiveData<String?>()
     @SuppressLint("StaticFieldLeak")
     private lateinit var mService: MQTTService
-    private val send00Msg="55000a09000001000023"  //读取设备信息
-    private val send10Msg="55000a09100001000023"  //读取实时数据
-    private val send0100Msg="550012090100090001000000050000000023"  //读取数据记录
-    private val send0101Msg="550012090100090101000000050000000023"  //读取报警记录
-    private val send21Msg="55000D09210004 00000000 0023"  //读取物质信息
+    private val reqDeviceMsg="55000a09000001000023"  //读取设备信息
+    private val reqRealDataMsg="55000a09100001000023"  //读取实时数据
 
     private val recordHeadMsg="5500120901000900"  //读取数据记录
     private val alarmHeadMsg="5500120901000901"  //读取报警记录
@@ -55,6 +52,7 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
 
     private val startIndexByteArray0100=ByteArray(4)
     private val readNumByteArray0100=ByteArray(4)
+    private val matterIndexMsg=ByteArray(4)
 
     private var recordIndex=1L
     private var recordReadNum=10L
@@ -71,14 +69,18 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
         //注册回调
         bleCallBack.setUiCallback(this)
     }
+    fun setMqttConnect(){
+        mService.connectMqtt(appContext)
+        mService.setMqttListener(this)
+        // TODO: 2022/2/18  开始循环去发送实时命令
+        mService.sendBlueToothMsg(reqRealDataMsg)
+    }
 
     fun connectBlueTooth(device: BluetoothDevice?){
-        mService.connectMqtt(appContext)
         mService.connectBlueTooth(device,bleCallBack)
     }
     fun putService(service:MQTTService){
         mService=service
-        mService.setMqttListener(this)
     }
     fun sendBlueToothMsg(msg:String){
         mService.sendBlueToothMsg(msg)
@@ -101,7 +103,7 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     }
 
     override fun reqMatter(index: Int) {
-        val sendBytes=startIndexByteArray0100.writeInt32LE(index.toLong())
+        val sendBytes=matterIndexMsg.writeInt32LE(index.toLong())
         val command=matterHeadMsg+sendBytes.toHexString(false)+"0023".trim()
         sendBlueToothMsg(command)
     }
@@ -112,7 +114,10 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     }
 
     override fun state(state: String?) {
-        if (state.equals("蓝牙连接完成")){
+        if (state.equals("BluetoothConnected")){
+            sendBlueToothMsg(reqDeviceMsg)  //请求设备信息
+        }
+        if (state.equals("DeviceInfoRsp")){
 //            viewModelScope.launch {
 //                while(true) {
 //                    delay(1000)
@@ -124,7 +129,9 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     }
 
     override fun mqttUIShow(state: String?) {
-        //_bleDate.postValue(state)
+        if (state.equals("MqttConnectSuccess")){
+            sendBlueToothMsg(reqRealDataMsg)
+        }
     }
 
     override fun realData(materialInfo: MaterialInfo) {
@@ -146,22 +153,25 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     }
 
     override fun recordData(recordArrayList: ArrayList<Record>) {
+        "Record00000".logE("xysLog")
         if (recordArrayList.size!=0){
             for (record in recordArrayList){
                 if (Repository.forgetRecordIsExist(record.timestamp)==0){
                     Repository.insertRecord(record)
                 }
             }
+            "Record00000".logE("xysLog")
 
             //Repository.insertRecordList(recordArrayList)
-            recordArrayList.logE("xysLog")
-            recordSum= mmkv.getInt(ValueKey.recordSumNum,0)
+            //recordArrayList.logE("xysLog")
+            recordSum= mmkv.getInt(ValueKey.deviceRecordSum,0)
             if (recordIndex<recordSum-recordReadNum){
                 "recordIndex: $recordIndex".logE("xysLog")
                 val sendBytes=startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
                 val command=recordHeadMsg+sendBytes.toHexString(false)+"0023".trim()
                 sendBlueToothMsg(command)
                 recordIndex += recordReadNum
+                "Record11111".logE("xysLog")
             }
             else{
                 if (recordIndex<recordSum){
@@ -169,7 +179,9 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
                     val sendBytes=startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
                     val command=recordHeadMsg+sendBytes.toHexString(false)+"0023".trim()
                     sendBlueToothMsg(command)
+                    "Record22222".logE("xysLog")
                 }
+                "Record33333".logE("xysLog")
                 recordIndex = recordSum.toLong()
             }
         }
@@ -185,14 +197,16 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
             }
 
             //Repository.insertAlarmList(alarmArrayList)
-            alarmArrayList.logE("xysLog")
-            alarmSum= mmkv.getInt(ValueKey.alarmSumNum,0)
+            //alarmArrayList.logE("xysLog")
+            alarmSum= mmkv.getInt(ValueKey.deviceAlarmSum,0)
+            "Alarm00000".logE("xysLog")
             if (alarmIndex<alarmSum-alarmReadNum){
                 "alarmIndex: $alarmIndex:$alarmReadNum:$alarmSum".logE("xysLog")
                 val sendBytes=startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)
                 val command=alarmHeadMsg+sendBytes.toHexString(false)+"0023".trim()
                 sendBlueToothMsg(command)
                 alarmIndex += alarmReadNum
+                "Alarm11111".logE("xysLog")
             }
             else{
                 if (alarmIndex<alarmSum){
@@ -201,11 +215,24 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
                     val command=alarmHeadMsg+sendBytes.toHexString(false)+"0023".trim()
                     sendBlueToothMsg(command)
                     "alarmIndex: $alarmIndex:$alarmReadNum:$alarmSum".logE("xysLog")
+                    "Alarm22222".logE("xysLog")
                 }
                 alarmIndex = alarmSum.toLong()
+                "Alarm33333".logE("xysLog")
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * 下载

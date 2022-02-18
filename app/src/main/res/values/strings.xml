@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">快乐源泉</string>
-    <string name="bottom_title_read">阅卷</string>
-    <string name="bottom_title_paper">组卷</string>
-    <string name="bottom_title_report">学业报告</string>
+    <string name="bottom_title_read">首页</string>
+    <string name="bottom_title_paper">历史</string>
+    <string name="bottom_title_report">设备信息</string>
     <string name="bottom_title_user">个人中心</string>
 
 

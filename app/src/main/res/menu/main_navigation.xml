@@ -13,8 +13,8 @@
         android:id="@+id/navigationReport"
         android:icon="@mipmap/ic_launcher_code"
         android:title="@string/bottom_title_report" />
-    <item
-        android:id="@+id/navigationUser"
-        android:icon="@mipmap/ic_launcher_code"
-        android:title="@string/bottom_title_user" />
+<!--    <item-->
+<!--        android:id="@+id/navigationUser"-->
+<!--        android:icon="@mipmap/ic_launcher_code"-->
+<!--        android:title="@string/bottom_title_user" />-->
 </menu>

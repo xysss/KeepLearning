@@ -2,15 +2,13 @@ package com.xysss.keeplearning.ui.fragment
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import com.gyf.immersionbar.ktx.immersionBar
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.app.ext.bindViewPager2
 import com.xysss.keeplearning.app.ext.init
 import com.xysss.keeplearning.databinding.FragmentTwoBinding
 import com.xysss.keeplearning.viewmodel.HistoryTreeViewModel
-import com.xysss.keeplearning.viewmodel.RequestProjectViewModel
-import com.xysss.mvvmhelper.ext.logD
-import com.xysss.mvvmhelper.ext.logE
 
 /**
  * Author:bysd-2
@@ -31,7 +29,7 @@ class TwoFragment : BaseFragment<HistoryTreeViewModel, FragmentTwoBinding>() {
 
     override fun initView(savedInstanceState: Bundle?) {
 
-        mViewBinding.customToolbar.setCenterTitle(R.string.bottom_title_read)
+        mViewBinding.customTwoToolbar.setCenterTitle(R.string.bottom_title_paper)
 
         //初始化viewpager2
         //mViewBinding.viewPager.init(this, fragments)
@@ -42,12 +40,19 @@ class TwoFragment : BaseFragment<HistoryTreeViewModel, FragmentTwoBinding>() {
         //初始化 magic_indicator
         mViewBinding.magicIndicator.bindViewPager2(mViewBinding.viewPager, mStringList = titleData){
             if (it != 0) {
-                mViewBinding.includeViewpagerToolbar.menu.clear()
+                //mViewBinding.includeViewpagerToolbar.menu.clear()
             } else {
 //                mViewBinding.includeViewpagerToolbar.menu.hasVisibleItems().let { flag ->
 //                    if (!flag) mViewBinding.includeViewpagerToolbar.inflateMenu(R.menu.todo_menu)
 //                }
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        immersionBar {
+            titleBar(mViewBinding.customTwoToolbar)
         }
     }
 

@@ -18,7 +18,9 @@ import com.swallowsonny.convertextlibrary.toHexString
 import com.swallowsonny.convertextlibrary.writeInt32LE
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.ble.BleCallback
+import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.util.BleHelper
+import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.ui.activity.MainActivity
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
@@ -45,12 +47,6 @@ class MQTTService : Service(){
 
     //Gatt
     private lateinit var gatt: BluetoothGatt
-
-    private val send00Msg="55000a09000001000023"  //读取设备信息
-    private val send10Msg="55000a09100001000023"  //读取实时数据
-    private val send0100Msg="550012090100090001000000050000000023"  //读取数据记录
-    private val send0101Msg="550012090100090101000000050000000023"  //读取报警记录
-    private val send21Msg="55000D09210400000000000023"  //读取物质信息
 
     fun setMqttListener(mqttCall: MqttMsgCall){
         mqttMsgCall=mqttCall
@@ -174,10 +170,14 @@ class MQTTService : Service(){
                         "MQTT Connection success".logE(TAG)
                         //去订阅主题
                         subscribe(receiveTopic, qos)
+
+                        mmkv.putBoolean(ValueKey.isConnectMqtt,true)
+                        mqttMsgCall.mqttUIShow("MqttConnectSuccess")
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                         "MQTT Connection failure".logE(TAG)
+                        mmkv.putBoolean(ValueKey.isConnectMqtt,false)
                         // 连接失败，重连
                         //connect(appContext)
                     }
@@ -232,7 +232,6 @@ class MQTTService : Service(){
             mqttClient.publish(topic, message, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     "${msg.toHexString()} to published to $topic".logE(TAG)
-                    mqttMsgCall.mqttUIShow(msg.toHexString())
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -310,6 +309,7 @@ class MQTTService : Service(){
         mpttDisconnect()
         gatt.disconnect()
         gatt.close()
+        mmkv.putBoolean(ValueKey.isConnectMqtt,false)
         super.unbindService(conn)
     }
 

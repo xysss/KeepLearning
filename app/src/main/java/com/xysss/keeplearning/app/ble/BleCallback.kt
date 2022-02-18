@@ -309,8 +309,8 @@ class BleCallback : BluetoothGattCallback() {
                                     val mStel=it.readByteArrayBE(firstIndex+36,4).readFloatLE()
                                     val mUserId=it.readByteArrayBE(firstIndex+40,4).readInt32LE()
                                     val mPlaceId=it.readByteArrayBE(firstIndex+44,4).readInt32LE()
-                                    var name="default"
-                                     if(mVocIndex==defaultIndex) name=defaultName else {
+                                    var name: String
+                                    if(mVocIndex==defaultIndex) name=defaultName else {
                                         name="未知物质"
                                         uiCallback.reqMatter(mVocIndex)
                                     }
@@ -337,6 +337,7 @@ class BleCallback : BluetoothGattCallback() {
                                     val mAlarm=it.readByteArrayBE(firstIndex+4,4).readInt32LE()
                                     val mType=it.readByteArrayBE(firstIndex+8,4).readInt32LE()
                                     val mValue=it.readByteArrayBE(firstIndex+12,4).readInt32LE()
+                                    //val alarmRecord=Alarm("123","alarm","mType","mValue")
                                     val alarmRecord=Alarm(dateTimeStr,mAlarm.toString(),mType.toString(),mValue.toString())
                                     alarmArrayList.add(alarmRecord)
                                 }

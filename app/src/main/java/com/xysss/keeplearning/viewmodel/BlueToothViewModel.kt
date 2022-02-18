@@ -107,7 +107,8 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     }
 
     override fun saveMatter(matter: Matter) {
-        Repository.insertMatter(matter)
+        if (Repository.forgetMatterIsExist(matter.voc_index_matter)==0)
+            Repository.insertMatter(matter)
     }
 
     override fun state(state: String?) {
@@ -146,7 +147,13 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
 
     override fun recordData(recordArrayList: ArrayList<Record>) {
         if (recordArrayList.size!=0){
-            Repository.insertRecordList(recordArrayList)
+            for (record in recordArrayList){
+                if (Repository.forgetRecordIsExist(record.timestamp)==0){
+                    Repository.insertRecord(record)
+                }
+            }
+
+            //Repository.insertRecordList(recordArrayList)
             recordArrayList.logE("xysLog")
             recordSum= mmkv.getInt(ValueKey.recordSumNum,0)
             if (recordIndex<recordSum-recordReadNum){
@@ -170,7 +177,14 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
 
     override fun alarmData(alarmArrayList: ArrayList<Alarm>) {
         if (alarmArrayList.size!=0){
-            Repository.insertAlarmList(alarmArrayList)
+            for (alarm in alarmArrayList){
+                //不存在
+                if (Repository.forgetAlarmIsExist(alarm.timestamp)==0){
+                    Repository.insertAlarm(alarm)
+                }
+            }
+
+            //Repository.insertAlarmList(alarmArrayList)
             alarmArrayList.logE("xysLog")
             alarmSum= mmkv.getInt(ValueKey.alarmSumNum,0)
             if (alarmIndex<alarmSum-alarmReadNum){

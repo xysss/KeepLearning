@@ -29,4 +29,8 @@ interface AlarmDao {
 
     @Query("delete from Alarm where id = :voc_index")
     fun deleteAlarmByLastName(voc_index: String): Int
+
+    //查询表中某单词是否存在  存在返回值为1，不存在返回值为0.
+    @Query("select 1 from Alarm where timestamp =:time  limit 1")
+    fun forgetAlarmIsExist(time:String):Int
 }

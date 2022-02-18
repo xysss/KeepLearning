@@ -14,29 +14,45 @@ import com.xysss.keeplearning.app.room.Record
  */
 object Repository {
 
-    fun getRecordList(size:Int,index: Int): List<Record>{
-        return dataRecordDao.loadLimitRecord(size, index)
-    }
-    fun getAlarmList(size:Int,index: Int): List<Alarm>{
-        return dataAlarmDao.loadLimitAlarm(size, index)
-    }
-    fun getJoinResultList(size:Int,index: Int): List<JoinResult>{
-        return dataRecordDao.leftJoinLoadLimitRecord(size, index)
+    fun insertRecord(record:Record):Long{
+        return dataRecordDao.insertRecord(record)
     }
     fun insertRecordList(recordList:ArrayList<Record>):List<Long>{
         return dataRecordDao.insertRecordList(recordList)
     }
+    fun getRecordList(size:Int,index: Int): List<Record>{
+        return dataRecordDao.loadLimitRecord(size, index)
+    }
+    fun getJoinResultList(size:Int,index: Int): List<JoinResult>{
+        return dataRecordDao.leftJoinLoadLimitRecord(size, index)
+    }
+    fun forgetRecordIsExist(time :String):Int{
+        return dataRecordDao.forgetRecordIsExist(time)
+    }
+
+
     fun insertAlarm(alarm:Alarm):Long{
         return dataAlarmDao.insertAlarm(alarm)
     }
     fun insertAlarmList(alarmList:ArrayList<Alarm>):List<Long>{
         return dataAlarmDao.insertAlarmList(alarmList)
     }
+    fun getAlarmList(size:Int,index: Int): List<Alarm>{
+        return dataAlarmDao.loadLimitAlarm(size, index)
+    }
+    fun forgetAlarmIsExist(time :String):Int{
+        return dataAlarmDao.forgetAlarmIsExist(time)
+    }
+
+
+    fun insertMatter(matter:Matter):Long{
+        return dataMatterDao.insertMatter(matter)
+    }
     fun insertMatterList(matterList: ArrayList<Matter>):List<Long>{
         return dataMatterDao.insertMatterList(matterList)
     }
-    fun insertMatter(matter:Matter):Long{
-        return dataMatterDao.insertMatter(matter)
+    fun forgetMatterIsExist(index:Int):Int{
+        return dataMatterDao.forgetMatterIsExist(index)
     }
 
 //    fun getUser(userId: String): LiveData<User> {

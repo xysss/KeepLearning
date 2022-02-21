@@ -24,6 +24,7 @@ import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -113,15 +114,14 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
         if (state.equals("BluetoothConnected")){
             sendBlueToothMsg(reqDeviceMsg)  //请求设备信息
         }
-        if (state.equals("DeviceInfoRsp")){
+//        if (state.equals("DeviceInfoRsp")){
 //            viewModelScope.launch {
 //                while(true) {
 //                    delay(1000)
-//                    sendBlueToothMsg(send10Msg)
+//                    sendBlueToothMsg(reqRealDataMsg)
 //                }
 //            }
-        }
-        state.logE("xysLog")
+//        }
     }
 
     override fun mqttUIShow(state: String?) {

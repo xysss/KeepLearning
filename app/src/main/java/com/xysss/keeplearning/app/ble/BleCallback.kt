@@ -52,13 +52,13 @@ class BleCallback : BluetoothGattCallback() {
      */
     override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
         if (status == BluetoothGatt.GATT_SUCCESS) {
-            "onConnectionStateChange: $status".logE("xysLog")
+            //"onConnectionStateChange: $status".logE("xysLog")
             Thread.sleep(500)
             gatt.discoverServices()
         }
-        else{
-            "onConnectionStateChange: $status".logE("xysLog")
-        }
+//        else{
+//            "onConnectionStateChange: $status".logE("xysLog")
+//        }
 //        uiCallback.state(
 //            when (newState) {
 //                BluetoothProfile.STATE_CONNECTED -> {
@@ -241,7 +241,7 @@ class BleCallback : BluetoothGattCallback() {
                         mmkv.putFloat(ValueKey.deviceSteLNumber,it.readByteArrayBE(45, 4).readFloatLE())
                         mmkv.putString(ValueKey.deviceId,String(tempBytes))
 
-                        uiCallback.state("DeviceInfoRsp")
+                        //uiCallback.state("DeviceInfoRsp")
                     }
                 }
                 //实时数据
@@ -382,9 +382,7 @@ class BleCallback : BluetoothGattCallback() {
         characteristic: BluetoothGattCharacteristic,
         status: Int
     ) {
-        uiCallback.state("发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："}" +
-                    "${characteristic.value.toHexString()} code: $status"
-        )
+        "发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："} ${characteristic.value.toHexString()} code: $status".logE("xysLog")
     }
 
     /**

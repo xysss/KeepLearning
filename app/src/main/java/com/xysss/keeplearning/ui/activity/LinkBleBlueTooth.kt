@@ -23,7 +23,9 @@ import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ble.BleDevice
 import com.xysss.keeplearning.app.ble.BleDeviceAdapter
+import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.util.*
+import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.ActivityLinkBluetoothBinding
 import com.xysss.keeplearning.databinding.DialogScanFilterBinding
 import com.xysss.keeplearning.databinding.DialogUuidEditBinding
@@ -89,9 +91,9 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
                     val bundle = Bundle()
                     bundle.putParcelable("device", device)
                     //toStartActivity(DataExchangeActivity::class.java,bundle)
-                    val intent=Intent()
+                    val intent = Intent()
                     intent.putExtras(bundle)
-                    setResult(RESULT_OK,intent)
+                    setResult(RESULT_OK, intent)
                     finish()
                 }
             }
@@ -110,10 +112,10 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
      * 检查UUID
      */
     private fun checkUuid(): Boolean {
-        val serviceUuid = getString(BleConstant.SERVICE_UUID)
-        val descriptorUuid = getString(BleConstant.DESCRIPTOR_UUID)
-        val writeUuid = getString(BleConstant.CHARACTERISTIC_WRITE_UUID)
-        val indicateUuid = getString(BleConstant.CHARACTERISTIC_INDICATE_UUID)
+        val serviceUuid = mmkv.getString(ValueKey.SERVICE_UUID, "")
+        val descriptorUuid = mmkv.getString(ValueKey.DESCRIPTOR_UUID, "")
+        val writeUuid = mmkv.getString(ValueKey.CHARACTERISTIC_WRITE_UUID, "")
+        val indicateUuid = mmkv.getString(ValueKey.CHARACTERISTIC_INDICATE_UUID, "")
         if (serviceUuid.isNullOrEmpty()) {
             ToastUtils.showShort("请输入Service UUID")
             return false
@@ -178,9 +180,9 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
             setContentView(
                 DialogScanFilterBinding.bind(
                     View.inflate(context, R.layout.dialog_scan_filter, null)).apply {
-                    switchDeviceName.setOnCheckedChangeListener { _, isChecked -> isChecked.putBoolean(
-                        BleConstant.NULL_NAME
-                    ) }
+                    switchDeviceName.setOnCheckedChangeListener { _, isChecked ->
+                        mmkv.putBoolean(ValueKey.NULL_NAME, isChecked)
+                    }
                     sbRssi.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                             tvRssi.text = "-$progress dBm"
@@ -188,14 +190,14 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
 
                         override fun onStartTrackingTouch(seekBar: SeekBar) {}
                         override fun onStopTrackingTouch(seekBar: SeekBar) {
-                            seekBar.progress.putInt(BleConstant.RSSI)
+                            mmkv.putInt(ValueKey.RSSI, seekBar.progress)
                         }
                     })
                     tvClose.setOnClickListener { dismiss() }
                     //显示效果
-                    switchDeviceName.isChecked = getBoolean(BleConstant.NULL_NAME)
+                    switchDeviceName.isChecked = mmkv.getBoolean(ValueKey.NULL_NAME, false)
                     //对同一个值进行配置，显示在Seekbar和TextView上
-                    getInt(BleConstant.RSSI, 100).apply { sbRssi.progress = this; tvRssi.text = "-$this dBm" }
+                    mmkv.getInt(ValueKey.RSSI, 100).apply { sbRssi.progress = this; tvRssi.text = "-$this dBm" }
                 }.root)
             window?.findViewById<View>(R.id.design_bottom_sheet)?.setBackgroundColor(Color.TRANSPARENT)
         }.show()
@@ -205,31 +207,48 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
      */
     private fun showUuidEditDialog() =
         BottomSheetDialog(this, R.style.BottomSheetDialogStyle).apply {
-            setContentView(DialogUuidEditBinding.bind(View.inflate(context, R.layout.dialog_uuid_edit, null)).apply {
-                tvSave.setOnClickListener {
-                    val sUUID="0003cdd0-0000-1000-8000-00805f9b0131"
-                    val wUUID="0003cdd2-0000-1000-8000-00805f9b0131"
-                    val rUUID="0003cdd1-0000-1000-8000-00805f9b0131"
-                    val dUUID="00002902-0000-1000-8000-00805f9b34fb"
+            setContentView(
+                DialogUuidEditBinding.bind(
+                    View.inflate(
+                        context,
+                        R.layout.dialog_uuid_edit,
+                        null
+                    )
+                ).apply {
 
-                    etServiceUuid.setText(sUUID)
-                    etDescriptorUuid.setText(dUUID)
-                    etCharacteristicWriteUuid.setText(wUUID)
-                    etCharacteristicIndicateUuid.setText(rUUID)
+                    //显示之前设置过的uuid
+                    etServiceUuid.setText(mmkv.getString(ValueKey.SERVICE_UUID, ""))
+                    etDescriptorUuid.setText(mmkv.getString(ValueKey.DESCRIPTOR_UUID, ""))
+                    etCharacteristicWriteUuid.setText(mmkv.getString(ValueKey.CHARACTERISTIC_WRITE_UUID, ""))
+                    etCharacteristicIndicateUuid.setText(mmkv.getString(ValueKey.CHARACTERISTIC_INDICATE_UUID, ""))
 
-                    etServiceUuid.text.toString().apply { if (isNotEmpty()) putString(BleConstant.SERVICE_UUID) }
-                    etDescriptorUuid.text.toString().apply { if (isNotEmpty()) putString(BleConstant.DESCRIPTOR_UUID) }
-                    etCharacteristicWriteUuid.text.toString().apply { if (isNotEmpty()) putString(BleConstant.CHARACTERISTIC_WRITE_UUID) }
-                    etCharacteristicIndicateUuid.text.toString().apply { if (isNotEmpty()) putString(BleConstant.CHARACTERISTIC_INDICATE_UUID) }
-                    dismiss()
-                }
-                tvClose.setOnClickListener { dismiss() }
-                //显示之前设置过的uuid
-                etServiceUuid.setText(getString(BleConstant.SERVICE_UUID))
-                etDescriptorUuid.setText(getString(BleConstant.DESCRIPTOR_UUID))
-                etCharacteristicWriteUuid.setText(getString(BleConstant.CHARACTERISTIC_WRITE_UUID))
-                etCharacteristicIndicateUuid.setText(getString(BleConstant.CHARACTERISTIC_INDICATE_UUID))
-            }.root)
+                    tvSave.setOnClickListener {
+                        val sUUID = "0003cdd0-0000-1000-8000-00805f9b0131"
+                        val wUUID = "0003cdd2-0000-1000-8000-00805f9b0131"
+                        val rUUID = "0003cdd1-0000-1000-8000-00805f9b0131"
+                        val dUUID = "00002902-0000-1000-8000-00805f9b34fb"
+
+                        etServiceUuid.text.toString().let {
+                            if (it.isEmpty()) mmkv.putString(ValueKey.SERVICE_UUID, sUUID)
+                            else mmkv.putString(ValueKey.SERVICE_UUID, it)
+                        }
+                        etDescriptorUuid.text.toString().let {
+                            if (it.isEmpty()) mmkv.putString(ValueKey.DESCRIPTOR_UUID, dUUID)
+                            else mmkv.putString(ValueKey.DESCRIPTOR_UUID, it)
+                        }
+                        etCharacteristicWriteUuid.text.toString().let {
+                            if (it.isEmpty()) mmkv.putString(ValueKey.CHARACTERISTIC_WRITE_UUID, wUUID)
+                            else mmkv.putString(ValueKey.CHARACTERISTIC_WRITE_UUID, it)
+                        }
+                        etCharacteristicIndicateUuid.text.toString().let {
+                            if (it.isEmpty()) mmkv.putString(ValueKey.CHARACTERISTIC_INDICATE_UUID, rUUID)
+                            else mmkv.putString(ValueKey.CHARACTERISTIC_INDICATE_UUID, it)
+                        }
+                        dismiss()
+                    }
+                    tvClose.setOnClickListener { dismiss() }
+                }.root
+            )
             window?.findViewById<View>(R.id.design_bottom_sheet)?.setBackgroundColor(Color.TRANSPARENT)
         }.show()
 
@@ -240,11 +259,11 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
     @SuppressLint("NotifyDataSetChanged")
     private fun addDeviceList(bleDevice: BleDevice) {
         //过滤设备名为null的设备
-        if (getBoolean(BleConstant.NULL_NAME) && bleDevice.device.name == null) {
+        if (mmkv.getBoolean(ValueKey.NULL_NAME, false) && bleDevice.device.name == null) {
             return
         }
 
-        rssi = -getInt(BleConstant.RSSI, 100)
+        rssi = -mmkv.getInt(ValueKey.RSSI, 100)
         filterDeviceList()
         if (bleDevice.rssi < rssi) {
             return
@@ -271,7 +290,7 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
             val mIterator = mList.iterator()
             while (mIterator.hasNext()) {
                 val next = mIterator.next()
-                if ((getBoolean(BleConstant.NULL_NAME) && next.device.name == null) || next.rssi < rssi) {
+                if ((mmkv.getBoolean(ValueKey.NULL_NAME, false) && next.device.name == null) || next.rssi < rssi) {
                     addressList.remove(next.device.address)
                     mIterator.remove()
                 }
@@ -294,8 +313,7 @@ class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBlueto
         PermissionX.init(this).permissions(
             Manifest.permission.ACCESS_FINE_LOCATION,
 //            Manifest.permission_group.PHONE
-            )
-            .request { allGranted, _, _ -> if (allGranted) openBluetooth() else ToastUtils.showShort("权限被拒绝") }
+        ).request { allGranted, _, _ -> if (allGranted) openBluetooth() else ToastUtils.showShort("权限被拒绝") }
     /**
      * 打开蓝牙
      */

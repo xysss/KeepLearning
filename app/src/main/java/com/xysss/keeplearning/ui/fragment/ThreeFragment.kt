@@ -24,8 +24,8 @@ class ThreeFragment : BaseFragment<TestViewModel, FragmentThreeBinding>() {
         mViewBinding.customToolbar.setBackgroundResource(R.color.colorPrimary_20)
 
         val deviceInfo= DeviceInfo(
-        mmkv.getString(ValueKey.deviceHardwareVersion,"0"),
-        mmkv.getString(ValueKey.deviceSoftwareVersion,"0"),
+        mmkv.getString(ValueKey.deviceHardwareVersion,""),
+        mmkv.getString(ValueKey.deviceSoftwareVersion,""),
         mmkv.getInt(ValueKey.deviceBattery,0),
         mmkv.getInt(ValueKey.deviceFreeMemory,0),
         mmkv.getInt(ValueKey.deviceRecordSum,0),
@@ -37,7 +37,7 @@ class ThreeFragment : BaseFragment<TestViewModel, FragmentThreeBinding>() {
         mmkv.getFloat(ValueKey.deviceDensityMin,0f),
         mmkv.getFloat(ValueKey.deviceTwaNumber,0f),
         mmkv.getFloat(ValueKey.deviceSteLNumber,0f),
-        mmkv.getString(ValueKey.deviceId,"0")
+        mmkv.getString(ValueKey.deviceId,"")
         )
 
         deviceInfo.logE("xysLog")

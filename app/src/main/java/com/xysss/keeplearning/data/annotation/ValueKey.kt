@@ -32,4 +32,12 @@ object ValueKey {
     const val deviceSteLNumber = "deviceSteLNumber"
     const val deviceId = "deviceId"
 
+    //蓝牙
+    const val SERVICE_UUID = "service_uuid"  //服务 UUID
+    const val DESCRIPTOR_UUID = "descriptor_uuid"  //描述 UUID
+    const val CHARACTERISTIC_WRITE_UUID = "characteristic_write_uuid"  //特征（特性）写入 UUID
+    const val CHARACTERISTIC_INDICATE_UUID = "characteristic_indicate_uuid"  //特征（特性）表示 UUID
+    const val NULL_NAME = "nullName"  //是否过滤设备名称为Null的设备
+    const val RSSI = "rssi"  //过滤信号强度值
+
 }

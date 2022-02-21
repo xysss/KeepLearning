@@ -3,11 +3,11 @@ package com.xysss.keeplearning.app.ble
 import android.bluetooth.*
 import android.os.Build
 import com.swallowsonny.convertextlibrary.*
+import com.xysss.keeplearning.app.ext.job
 import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.room.Alarm
 import com.xysss.keeplearning.app.room.Matter
 import com.xysss.keeplearning.app.room.Record
-import com.xysss.keeplearning.app.util.BleConstant
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils
 import com.xysss.keeplearning.app.util.ByteUtils.FRAME00
@@ -18,11 +18,13 @@ import com.xysss.keeplearning.app.util.ByteUtils.Msg80
 import com.xysss.keeplearning.app.util.ByteUtils.Msg81
 import com.xysss.keeplearning.app.util.ByteUtils.Msg90
 import com.xysss.keeplearning.app.util.ByteUtils.MsgA1
-import com.xysss.keeplearning.app.util.getString
 import com.xysss.keeplearning.data.annotation.ValueKey
-import com.xysss.keeplearning.data.response.DeviceInfo
 import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.mvvmhelper.ext.logE
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -51,11 +53,8 @@ class BleCallback : BluetoothGattCallback() {
     override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
         if (status == BluetoothGatt.GATT_SUCCESS) {
             "onConnectionStateChange: $status".logE("xysLog")
-            Thread.sleep(600)
+            Thread.sleep(500)
             gatt.discoverServices()
-        }
-        if (status == BluetoothGatt.STATE_DISCONNECTED){
-            "STATE_DISCONNECTED: $status".logE("xysLog")
         }
         else{
             "onConnectionStateChange: $status".logE("xysLog")
@@ -396,7 +395,7 @@ class BleCallback : BluetoothGattCallback() {
         descriptor: BluetoothGattDescriptor,
         status: Int
     ) {
-        if (getString(BleConstant.DESCRIPTOR_UUID) == descriptor.uuid.toString()
+        if (mmkv.getString(ValueKey.DESCRIPTOR_UUID,"0") == descriptor.uuid.toString()
                 .lowercase(Locale.getDefault())
         ) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -409,7 +408,12 @@ class BleCallback : BluetoothGattCallback() {
                 defaultIndex=mmkv.getInt(ValueKey.matterIndex,0)
                 defaultName= mmkv.getString(ValueKey.matterName,"异丁烯").toString()
                 "BluetoothConnected:通知开启成功，准备完成:".logE("xysLog")
-                uiCallback.state("BluetoothConnected")
+
+                val scope = CoroutineScope(job)
+                scope.launch(Dispatchers.IO) {
+                    delay(500)
+                    uiCallback.state("BluetoothConnected")
+                }
 
             } else "通知开启失败".logE("xysLog")
         }

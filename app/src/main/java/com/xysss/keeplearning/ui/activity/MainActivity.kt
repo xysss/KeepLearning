@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.blankj.utilcode.util.ToastUtils
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
+import com.xysss.keeplearning.app.ext.job
 import com.xysss.keeplearning.databinding.ActivityMainBinding
 import com.xysss.keeplearning.ui.adapter.MainAdapter
 import com.xysss.keeplearning.viewmodel.TestViewModel
@@ -50,4 +51,8 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
 
     override fun showToolBar() = false
 
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
+    }
 }

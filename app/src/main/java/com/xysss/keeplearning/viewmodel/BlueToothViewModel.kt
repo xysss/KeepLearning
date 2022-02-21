@@ -11,8 +11,6 @@ import com.swallowsonny.convertextlibrary.toHexString
 import com.swallowsonny.convertextlibrary.writeInt32LE
 import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.ble.BleCallback
-import com.xysss.keeplearning.app.ext.dataAlarmDao
-import com.xysss.keeplearning.app.ext.dataMatterDao
 import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.room.Alarm
 import com.xysss.keeplearning.app.room.Matter
@@ -22,12 +20,10 @@ import com.xysss.keeplearning.app.util.Android10DownloadFactory
 import com.xysss.keeplearning.app.util.UriUtils
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.data.repository.Repository
-import com.xysss.keeplearning.data.response.DataHistoryResponse
 import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch

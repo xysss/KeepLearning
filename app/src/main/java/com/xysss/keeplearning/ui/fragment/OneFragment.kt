@@ -15,22 +15,22 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.blankj.utilcode.util.ServiceUtils.bindService
 import com.blankj.utilcode.util.ToastUtils
 import com.gyf.immersionbar.ktx.immersionBar
-import com.swallowsonny.convertextlibrary.toHexString
-import com.swallowsonny.convertextlibrary.writeInt32BE
-import com.swallowsonny.convertextlibrary.writeInt32LE
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.service.MQTTService
+import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.FragmentOneBinding
 import com.xysss.keeplearning.ui.activity.*
 import com.xysss.keeplearning.viewmodel.BlueToothViewModel
 import com.xysss.mvvmhelper.base.appContext
-import com.xysss.mvvmhelper.ext.*
-import kotlin.concurrent.thread
+import com.xysss.mvvmhelper.ext.msg
+import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
+import com.xysss.mvvmhelper.ext.showDialogMessage
+import com.xysss.mvvmhelper.ext.toStartActivity
 
 /**
  * Author:bysd-2
@@ -78,6 +78,10 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 mmkv.putString(ValueKey.matterName,"异丁烯")
             }
         }
+
+        val intentBle = Intent(appContext, LinkBleBlueTooth::class.java)
+        requestDataLauncher.launch(intentBle)
+
     }
 
     override fun onResume() {
@@ -148,10 +152,10 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 R.id.btnSendCommand -> {
                 }
                 R.id.button1 -> {
-                    mViewModel.sendBlueToothMsg(send00Msg)
+                    BleHelper.sendBlueToothMsg(send00Msg)
                 }
                 R.id.button2 -> {
-                    mViewModel.sendBlueToothMsg(send10Msg)
+                    BleHelper.sendBlueToothMsg(send10Msg)
                 }
                 R.id.button3 -> {
                     mViewModel.sendRecordMsg()
@@ -160,7 +164,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                     mViewModel.sendAlarmMsg()
                 }
                 R.id.button5 -> {
-                    mViewModel.sendBlueToothMsg(send21Msg)
+                    BleHelper.sendBlueToothMsg(send21Msg)
                 }
                 R.id.button6 -> {
                 }

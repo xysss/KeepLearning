@@ -56,6 +56,17 @@ class BleCallback : BluetoothGattCallback() {
             Thread.sleep(500)
             gatt.discoverServices()
         }
+        when (newState) {
+            BluetoothProfile.STATE_CONNECTED -> {
+                //获取MtuSize
+                //gatt.requestMtu(512)
+                "蓝牙已经连接".logE("xysLog")
+            }
+            BluetoothProfile.STATE_DISCONNECTED ->{
+                "蓝牙断开连接".logE("xysLog")
+            }
+            else -> "onConnectionStateChange: $status"
+        }
 //        else{
 //            "onConnectionStateChange: $status".logE("xysLog")
 //        }
@@ -91,7 +102,7 @@ class BleCallback : BluetoothGattCallback() {
             gatt.disconnect()
             "开启通知属性异常".logE("xysLog")
         } else {
-            //"发现了服务 code: $status".logE("xysLog")
+            "发现了服务 code: $status".logE("xysLog")
         }
 
         if (status == BluetoothGatt.GATT_SUCCESS) {

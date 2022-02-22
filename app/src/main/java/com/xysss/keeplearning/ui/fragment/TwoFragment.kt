@@ -16,21 +16,15 @@ import com.xysss.keeplearning.viewmodel.HistoryTreeViewModel
  */
 
 class TwoFragment : BaseFragment<HistoryTreeViewModel, FragmentTwoBinding>() {
-
     var titleData= arrayListOf("数据记录","报警记录")
-
     //fragment集合
     private var fragments: ArrayList<Fragment> = arrayListOf()
-
     init {
         fragments.add(HistoryRecordFragment())
         fragments.add(HistoryAlarmFragment())
     }
-
     override fun initView(savedInstanceState: Bundle?) {
-
         mViewBinding.customTwoToolbar.setCenterTitle(R.string.bottom_title_paper)
-
         //初始化viewpager2
         //mViewBinding.viewPager.init(this, fragments)
         //初始化 magic_indicator
@@ -38,16 +32,17 @@ class TwoFragment : BaseFragment<HistoryTreeViewModel, FragmentTwoBinding>() {
         //初始化viewpager2
         mViewBinding.viewPager.init(this, fragments).offscreenPageLimit = fragments.size
         //初始化 magic_indicator
-        mViewBinding.magicIndicator.bindViewPager2(mViewBinding.viewPager, mStringList = titleData){
-            if (it != 0) {
-                //mViewBinding.includeViewpagerToolbar.menu.clear()
-            } else {
-//                mViewBinding.includeViewpagerToolbar.menu.hasVisibleItems().let { flag ->
+        mViewBinding.magicIndicator.bindViewPager2(mViewBinding.viewPager, mStringList = titleData)
+    }
+//       {
+//            if (it != 0) {
+//                //mViewBinding.includeViewpagerToolbar.menu.clear()
+//            } else {
+//               mViewBinding.includeViewpagerToolbar.menu.hasVisibleItems().let { flag ->
 //                    if (!flag) mViewBinding.includeViewpagerToolbar.inflateMenu(R.menu.todo_menu)
 //                }
-            }
-        }
-    }
+//            }
+//        }
 
     override fun onResume() {
         super.onResume()

@@ -93,46 +93,6 @@ class MQTTService : Service(){
         return mBinder
     }
 
-    fun connectBlueTooth(device:BluetoothDevice?,bleCallback:BleCallback){
-        //gatt连接 第二个参数表示是否需要自动连接。如果设置为 true, 表示如果设备断开了，会不断的尝试自动连接。设置为 false 表示只进行一次连接尝试。
-        //第三个参数是连接后进行的一系列操作的回调，例如连接和断开连接的回调，发现服务的回调，成功写入数据，成功读取数据的回调等等。
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            //gatt = device?.connectGatt(this, false, bleCallback, BluetoothDevice.TRANSPORT_LE) ?: null
-            gatt = device?.connectGatt(this, false, bleCallback, BluetoothDevice.TRANSPORT_LE) as BluetoothGatt
-        } else {
-            //gatt = device.connectGatt(this, false, bleCallback)
-            gatt = device?.connectGatt(this, false, bleCallback) as BluetoothGatt
-        }
-    }
-
-    fun sendBlueToothMsg(command: String){
-        if (command.trim().isEmpty()) {
-            ToastUtils.showShort("请输入指令")
-        }
-        //command += getBCCResult(command)
-        //发送指令
-        //BleHelper.sendCommand(gatt, command, true)
-
-        val stringBuffer = StringBuffer()
-        if (command.length>40){
-            for (i in command.indices){
-                stringBuffer.append(command[i])
-                if (stringBuffer.length==40){
-                    BleHelper.sendCommand(gatt, stringBuffer.toString(), true)
-                    "stringBuffer:$stringBuffer".logE("xysLog")
-                    stringBuffer.delete( 0, stringBuffer.length)
-                    Thread.sleep(200)
-                }
-            }
-            BleHelper.sendCommand(gatt, stringBuffer.toString(), true)
-            "stringBuffer:$stringBuffer".logE("xysLog")
-        }else{
-            BleHelper.sendCommand(gatt, command, true)
-            //command.logE("xysLog")
-        }
-    }
-
     //连接
     fun connectMqtt(context: Context) {
         thread {

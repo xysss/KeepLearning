@@ -78,7 +78,17 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 mmkv.putString(ValueKey.matterName,"异丁烯")
             }
         }
+    }
 
+    override fun onResume() {
+        super.onResume()
+        immersionBar {
+            titleBar(mViewBinding.customToolbar)
+        }
+    }
+
+    override fun initObserver() {
+        super.initObserver()
         mViewModel.bleDate.observe(this){
 //            val id = Thread.currentThread().id
 //            "state方法中的线程号：$id".logE("xysLog")
@@ -88,13 +98,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             mViewBinding.tvState.text = stringBuffer.toString()
             mViewBinding.scroll.apply { viewTreeObserver.addOnGlobalLayoutListener { post { fullScroll(
                 View.FOCUS_DOWN) } } }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        immersionBar {
-            titleBar(mViewBinding.customToolbar)
         }
     }
 

@@ -24,12 +24,38 @@ object ByteUtils {
     const val FRAME00: Byte = 0x00
     const val FRAME01:Byte=0x01
 
-    val Msg80: Byte = 0x80.toByte()
-    val Msg90: Byte = 0x90.toByte()
-    val Msg81: Byte = 0x81.toByte()
-    val MsgA1: Byte = 0xA1.toByte()
+    const val Msg80: Byte = 0x80.toByte()
+    const val Msg90: Byte = 0x90.toByte()
+    const val Msg81: Byte = 0x81.toByte()
+    const val MsgA1: Byte = 0xA1.toByte()
     lateinit var afterBytes: ByteArray
-    val dealBytesList = ArrayList<Byte>()
+    private val dealBytesList = ArrayList<Byte>()
+
+    fun cal(second: Int): String {
+        var h = 0
+        var d = 0
+        var s = 0
+        val temp = second % 3600
+        if (second > 3600) {
+            h = second / 3600
+            if (temp != 0) {
+                if (temp > 60) {
+                    d = temp / 60
+                    if (temp % 60 != 0) {
+                        s = temp % 60
+                    }
+                } else {
+                    s = temp
+                }
+            }
+        } else {
+            d = second / 60
+            if (second % 60 != 0) {
+                s = second % 60
+            }
+        }
+        return h.toString() + "时" + d + "分" + s + "秒"
+    }
 
 
     /**
@@ -39,9 +65,9 @@ object ByteUtils {
      * @return byte[]
      */
     fun hexStringToBytes(hexString: String): ByteArray {
-        val hexString = hexString.uppercase(Locale.getDefault())
-        val length = hexString.length / 2
-        val hexChars = hexString.toCharArray()
+        val mHexString = hexString.uppercase(Locale.getDefault())
+        val length = mHexString.length / 2
+        val hexChars = mHexString.toCharArray()
         val byteArrayResult = ByteArray(length)
         for (i in 0 until length) {
             val pos = i * 2

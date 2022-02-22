@@ -22,8 +22,8 @@ data class DeviceInfo(
     val deviceCurrentRunningTime:Int,
     val deviceCurrentAlarmNumber: Int,
     val deviceCumulativeRunningTime:Int,
-    val deviceDensityMax:Float,
-    val deviceDensityMin:Float,
-    val deviceTwaNumber:Float,
-    val deviceStelNumber:Float,
+    val deviceDensityMax:String?,
+    val deviceDensityMin:String?,
+    val deviceTwaNumber:String?,
+    val deviceStelNumber:String?,
     var deviceId: String?) : Parcelable

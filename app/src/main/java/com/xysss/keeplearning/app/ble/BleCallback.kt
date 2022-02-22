@@ -235,10 +235,10 @@ class BleCallback : BluetoothGattCallback() {
                         mmkv.putInt(ValueKey.deviceCurrentRunningTime,it.readByteArrayBE(21, 4).readInt32LE())
                         mmkv.putInt(ValueKey.deviceCurrentAlarmNumber,it.readByteArrayBE(25, 4).readInt32LE())
                         mmkv.putInt(ValueKey.deviceCumulativeRunningTime,it.readByteArrayBE(29, 4).readInt32LE())
-                        mmkv.putFloat(ValueKey.deviceDensityMax,it.readByteArrayBE(33, 4).readFloatLE())
-                        mmkv.putFloat(ValueKey.deviceDensityMin,it.readByteArrayBE(37, 4).readFloatLE())
-                        mmkv.putFloat(ValueKey.deviceTwaNumber,it.readByteArrayBE(41, 4).readFloatLE())
-                        mmkv.putFloat(ValueKey.deviceSteLNumber,it.readByteArrayBE(45, 4).readFloatLE())
+                        mmkv.putString(ValueKey.deviceDensityMax,String.format("%.3f", it.readByteArrayBE(33, 4).readFloatLE()))
+                        mmkv.putString(ValueKey.deviceDensityMin,String.format("%.3f", it.readByteArrayBE(37, 4).readFloatLE()))
+                        mmkv.putString(ValueKey.deviceTwaNumber,String.format("%.3f", it.readByteArrayBE(41, 4).readFloatLE()))
+                        mmkv.putString(ValueKey.deviceSteLNumber,String.format("%.3f", it.readByteArrayBE(45, 4).readFloatLE()))
                         mmkv.putString(ValueKey.deviceId,String(tempBytes))
 
                         //uiCallback.state("DeviceInfoRsp")
@@ -248,8 +248,7 @@ class BleCallback : BluetoothGattCallback() {
                 Msg90 -> {
                     if (it.size == 49) {
                         //浓度值
-                        val concentrationNumTemp = it.readByteArrayBE(7, 4).readFloatLE()
-                        val concentrationNum = String.format("%.3f", concentrationNumTemp)
+                        val concentrationNum = String.format("%.3f", it.readByteArrayBE(7, 4).readFloatLE())
                         //报警状态
                         val concentrationState = it.readByteArrayBE(11, 4).readInt32LE()
                         //物质库索引

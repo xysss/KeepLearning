@@ -28,10 +28,10 @@ class SettingViewModel : BaseViewModel(){
             mmkv.getInt(ValueKey.deviceCurrentRunningTime,0),
             mmkv.getInt(ValueKey.deviceCurrentAlarmNumber,0),
             mmkv.getInt(ValueKey.deviceCumulativeRunningTime,0),
-            mmkv.getFloat(ValueKey.deviceDensityMax,0f),
-            mmkv.getFloat(ValueKey.deviceDensityMin,0f),
-            mmkv.getFloat(ValueKey.deviceTwaNumber,0f),
-            mmkv.getFloat(ValueKey.deviceSteLNumber,0f),
+            mmkv.getString(ValueKey.deviceDensityMax,""),
+            mmkv.getString(ValueKey.deviceDensityMin,""),
+            mmkv.getString(ValueKey.deviceTwaNumber,""),
+            mmkv.getString(ValueKey.deviceSteLNumber,""),
             mmkv.getString(ValueKey.deviceId,"")
         )
     }

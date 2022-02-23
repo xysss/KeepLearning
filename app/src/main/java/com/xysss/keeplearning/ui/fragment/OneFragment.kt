@@ -74,7 +74,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         mViewModel.setCallBack()
 
         if (mmkv.getInt(ValueKey.matterIndex,0)==0){
-            if (!mmkv.getString(ValueKey.matterName,"").equals("异丁烯")){
+            if (mmkv.getString(ValueKey.matterName,"")!="异丁烯"){
                 mmkv.putString(ValueKey.matterName,"异丁烯")
             }
         }
@@ -173,7 +173,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 R.id.button8 -> {
                 }
                 R.id.button9 -> {
-                    if (!mmkv.getString(ValueKey.deviceId,"").equals("")){
+                    if (mmkv.getString(ValueKey.deviceId,"")!=""){
                         mViewModel.setMqttConnect()
                     }
                 }

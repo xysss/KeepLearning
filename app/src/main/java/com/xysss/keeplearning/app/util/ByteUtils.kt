@@ -15,9 +15,6 @@ import kotlin.experimental.xor
 
 object ByteUtils {
 
-    const val RecordRecFlag="RecordOver"
-    const val AlarmRecOverFlag="AlarmOver"
-
     const val FRAME55: Byte = 0x55
     const val FRAME23: Byte = 0x23
     const val FRAMEFF: Byte = 0xFF.toByte()

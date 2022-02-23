@@ -152,15 +152,6 @@ fun gotoStore() {
 }
 
 /**
- * 字符串相等
- */
-fun isEqualStr(value: String?, defaultValue: String?) =
-    if (value.isNullOrEmpty() || defaultValue.isNullOrEmpty()) false else TextUtils.equals(
-        value,
-        defaultValue
-    )
-
-/**
  * Int类型相等
  *
  */

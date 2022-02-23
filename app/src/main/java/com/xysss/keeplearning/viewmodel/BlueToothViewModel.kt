@@ -11,7 +11,7 @@ import com.swallowsonny.convertextlibrary.toHexString
 import com.swallowsonny.convertextlibrary.writeInt32LE
 import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.ble.BleCallback
-import com.xysss.keeplearning.app.ext.mmkv
+import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.room.Alarm
 import com.xysss.keeplearning.app.room.Matter
 import com.xysss.keeplearning.app.room.Record
@@ -40,8 +40,6 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     private val _bleDate=MutableLiveData<String?>()
     @SuppressLint("StaticFieldLeak")
     private lateinit var mService: MQTTService
-    private val reqDeviceMsg="55000a09000001000023"  //读取设备信息
-    private val reqRealTimeDataMsg="55000a09100001000023"  //读取实时数据
 
     private val recordHeadMsg="5500120901000900"  //读取数据记录
     private val alarmHeadMsg="5500120901000901"  //读取报警记录
@@ -109,7 +107,7 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     }
 
     override fun state(state: String?) {
-        if (state.equals("BluetoothConnected")){
+        if (state==BluetoothConnected){
             BleHelper.sendBlueToothMsg(reqDeviceMsg)  //请求设备信息
         }
 //        if (state.equals("DeviceInfoRsp")){
@@ -123,7 +121,7 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     }
 
     override fun mqttUIShow(state: String?) {
-        if (state.equals("MqttConnectSuccess")){
+        if (state==MqttConnectSuccess){
             BleHelper.sendBlueToothMsg(reqRealTimeDataMsg)
         }
     }

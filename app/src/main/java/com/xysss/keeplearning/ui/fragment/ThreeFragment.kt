@@ -4,6 +4,8 @@ import android.os.Bundle
 import com.gyf.immersionbar.ktx.immersionBar
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
+import com.xysss.keeplearning.app.ext.reqDeviceMsg
+import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils
 import com.xysss.keeplearning.databinding.FragmentThreeBinding
 import com.xysss.keeplearning.viewmodel.SettingViewModel
@@ -23,6 +25,8 @@ class ThreeFragment : BaseFragment<SettingViewModel, FragmentThreeBinding>() {
         immersionBar {
             titleBar(mViewBinding.customToolbar)
         }
+
+        //BleHelper.sendBlueToothMsg(reqDeviceMsg)
 
     }
 

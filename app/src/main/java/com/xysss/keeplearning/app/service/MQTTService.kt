@@ -1,7 +1,6 @@
 package com.xysss.keeplearning.app.service
 
 import android.app.*
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.content.Context
 import android.content.Intent
@@ -13,12 +12,10 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.blankj.utilcode.util.ToastUtils
 import com.swallowsonny.convertextlibrary.toHexString
-import com.swallowsonny.convertextlibrary.writeInt32LE
 import com.xysss.keeplearning.R
-import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.ext.mmkv
+import com.xysss.keeplearning.app.ext.reqDeviceMsg
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.ui.activity.MainActivity
@@ -132,7 +129,8 @@ class MQTTService : Service(){
                         subscribe(receiveTopic, qos)
 
                         mmkv.putBoolean(ValueKey.isConnectMqtt,true)
-                        mqttMsgCall.mqttUIShow("MqttConnectSuccess")
+                        BleHelper.sendBlueToothMsg(reqDeviceMsg)
+                        //mqttMsgCall.mqttUIShow("MqttConnectSuccess")
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {

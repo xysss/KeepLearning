@@ -52,7 +52,7 @@ class HistoryRecordFragment :BaseFragment<HistoryRecordViewModel,FragmentHistory
     override fun initObserver() {
         super.initObserver()
         mViewModel.recordListData.observe(this){
-            it.logE("xysLog")
+            //it.logE("xysLog")
             //请求到列表数据
             if (it.datas.size==0){
                 if (it.isRefresh()){

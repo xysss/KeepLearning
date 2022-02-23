@@ -10,7 +10,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import com.blankj.utilcode.util.ServiceUtils.bindService
 import com.blankj.utilcode.util.ToastUtils
@@ -98,10 +97,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 //            "state方法中的线程号：$id".logE("xysLog")
 //            "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
 //            mViewBinding.tvState.text = "收到转码后的数据长度: ${it?.length}: $it"
-            stringBuffer.append(it).append("\n")
-            mViewBinding.tvState.text = stringBuffer.toString()
-            mViewBinding.scroll.apply { viewTreeObserver.addOnGlobalLayoutListener { post { fullScroll(
-                View.FOCUS_DOWN) } } }
+            mViewBinding.oneConcentrationNum.text=it.concentrationNum
+            mViewBinding.oneConcentrationUnit.text=it.concentrationUnit
+            mViewBinding.oneMaterialName.text=it.materialName
         }
     }
 
@@ -144,13 +142,11 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             mViewBinding.testDownload, mViewBinding.testUpload, mViewBinding.testCrash,
             mViewBinding.getPermission, mViewBinding.testRoom, mViewBinding.linkBlueTooth,
 
-            mViewBinding.button1, mViewBinding.button2, mViewBinding.button3,
-            mViewBinding.button4, mViewBinding.button5,mViewBinding.button6, mViewBinding.button7,
-            mViewBinding.button8,mViewBinding.button9, mViewBinding.button10,mViewBinding.btnSendCommand
+            mViewBinding.button2, mViewBinding.button3,mViewBinding.button9,
+            mViewBinding.button4, mViewBinding.button5, mViewBinding.button10
         ) {
             when (it.id) {
-                R.id.btnSendCommand -> {
-                }
+
                 R.id.button1 -> {
                     BleHelper.sendBlueToothMsg(send00Msg)
                 }
@@ -166,12 +162,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 R.id.button5 -> {
                     BleHelper.sendBlueToothMsg(send21Msg)
                 }
-                R.id.button6 -> {
-                }
-                R.id.button7 -> {
-                }
-                R.id.button8 -> {
-                }
+
                 R.id.button9 -> {
                     if (mmkv.getString(ValueKey.deviceId,"")!=""){
                         mViewModel.setMqttConnect()

@@ -3,8 +3,7 @@ package com.xysss.keeplearning.app.ble
 import android.bluetooth.*
 import android.os.Build
 import com.swallowsonny.convertextlibrary.*
-import com.xysss.keeplearning.app.ext.job
-import com.xysss.keeplearning.app.ext.mmkv
+import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.room.Alarm
 import com.xysss.keeplearning.app.room.Matter
 import com.xysss.keeplearning.app.room.Record
@@ -40,8 +39,6 @@ class BleCallback : BluetoothGattCallback() {
     private lateinit var afterBytes: ByteArray
     private var recordArrayList=ArrayList<Record>()
     private var alarmArrayList=ArrayList<Alarm>()
-    private var defaultIndex=1
-    private var defaultName="异丁烯"
 
     fun setUiCallback(uiCallback: UiCallback) {
         this.uiCallback = uiCallback
@@ -61,9 +58,6 @@ class BleCallback : BluetoothGattCallback() {
                 //获取MtuSize
                 //gatt.requestMtu(512)
                 "蓝牙已经连接".logE("xysLog")
-            }
-            BluetoothProfile.STATE_DISCONNECTED ->{
-                "蓝牙断开连接".logE("xysLog")
             }
             else -> "onConnectionStateChange: $status"
         }
@@ -85,6 +79,46 @@ class BleCallback : BluetoothGattCallback() {
     }
 
     /**
+     * 特性写入回调
+     * 后触发
+     */
+    override fun onCharacteristicWrite(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
+        "发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："} ${characteristic.value.toHexString()} code: $status".logE("xysLog")
+    }
+
+    /**
+     * 描述符写入回调
+     */
+    override fun onDescriptorWrite(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
+        if (mmkv.getString(ValueKey.DESCRIPTOR_UUID,"0") == descriptor.uuid.toString().lowercase(Locale.getDefault())) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                gatt.apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) readPhy()
+                    readDescriptor(descriptor)
+                    readRemoteRssi()
+                }
+
+                defaultIndex=mmkv.getInt(ValueKey.matterIndex,0)
+                defaultName= mmkv.getString(ValueKey.matterName,"异丁烯").toString()
+                "蓝牙:通知开启成功，准备完成:".logE("xysLog")
+
+                val scope = CoroutineScope(job)
+                scope.launch(Dispatchers.IO) {
+                    delay(500)
+                    uiCallback.state(bluetoothConnected)
+                }
+
+            } else "通知开启失败".logE("xysLog")
+        }
+    }
+
+    /**
+     * 读取远程设备的信号强度回调
+     */
+    override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {}
+    //= "onReadRemoteRssi: rssi: $rssi".logE("xysLog")
+
+    /**
      * 获取MtuSize回调
      */
 //    override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
@@ -103,10 +137,6 @@ class BleCallback : BluetoothGattCallback() {
             "开启通知属性异常".logE("xysLog")
         } else {
             "发现了服务 code: $status".logE("xysLog")
-        }
-
-        if (status == BluetoothGatt.GATT_SUCCESS) {
-            //"onServicesDiscovered--ACTION_GATT_SERVICES_DISCOVERED".logE("xysLog")
         }
     }
 
@@ -163,18 +193,18 @@ class BleCallback : BluetoothGattCallback() {
      * 特性改变回调
      * 先触发
      */
-    override fun onCharacteristicChanged(
-        gatt: BluetoothGatt,
-        characteristic: BluetoothGattCharacteristic
-    ) {
+    override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
 //        val id = Thread.currentThread().id
 //        "蓝牙回调方法中的线程号：$id".logE("xysLog")
 //        "蓝牙回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
-        Thread{
+
+        val scope = CoroutineScope(job)
+        scope.launch(Dispatchers.IO) {
             if (mmkv.getBoolean(ValueKey.isConnectMqtt,false))
                 uiCallback.mqttSendMsg(characteristic.value)
         }
-        "收到数据：${characteristic.value.toHexString().length}长度: ${characteristic.value.toHexString()}".logE("xysLog")
+
+        "收到数据：${characteristic.value.size}长度: ${characteristic.value.toHexString()}".logE("xysLog")
 
         var i = 0
         while (i < characteristic.value.size) {
@@ -225,6 +255,19 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
+//    @Synchronized
+//    private fun addQueue(byteArray: ByteArray) {
+//        linkedBlockingDeque.add(byteArray)
+//    }
+//
+//    private fun startDealMsg(){
+//        Thread{
+//            while (linkedBlockingDeque.poll()!= null) {
+//                dealMessage(linkedBlockingDeque.poll())
+//            }
+//        }
+//    }
+
     private fun dealMessage(mBytes: ByteArray?) {
         mBytes?.let {
             when (it[4]) {
@@ -251,7 +294,6 @@ class BleCallback : BluetoothGattCallback() {
                         mmkv.putString(ValueKey.deviceTwaNumber,String.format("%.3f", it.readByteArrayBE(41, 4).readFloatLE()))
                         mmkv.putString(ValueKey.deviceSteLNumber,String.format("%.3f", it.readByteArrayBE(45, 4).readFloatLE()))
                         mmkv.putString(ValueKey.deviceId,String(tempBytes))
-
                         //uiCallback.state("DeviceInfoRsp")
                     }
                 }
@@ -382,57 +424,6 @@ class BleCallback : BluetoothGattCallback() {
             }
         }
     }
-
-    /**
-     * 特性写入回调
-     * 后触发
-     */
-    override fun onCharacteristicWrite(
-        gatt: BluetoothGatt,
-        characteristic: BluetoothGattCharacteristic,
-        status: Int
-    ) {
-        "发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："} ${characteristic.value.toHexString()} code: $status".logE("xysLog")
-    }
-
-    /**
-     * 描述符写入回调
-     */
-    override fun onDescriptorWrite(
-        gatt: BluetoothGatt,
-        descriptor: BluetoothGattDescriptor,
-        status: Int
-    ) {
-        if (mmkv.getString(ValueKey.DESCRIPTOR_UUID,"0") == descriptor.uuid.toString()
-                .lowercase(Locale.getDefault())
-        ) {
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                gatt.apply {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) readPhy()
-                    readDescriptor(descriptor)
-                    readRemoteRssi()
-                }
-
-                defaultIndex=mmkv.getInt(ValueKey.matterIndex,0)
-                defaultName= mmkv.getString(ValueKey.matterName,"异丁烯").toString()
-                "BluetoothConnected:通知开启成功，准备完成:".logE("xysLog")
-
-                val scope = CoroutineScope(job)
-                scope.launch(Dispatchers.IO) {
-                    delay(500)
-                    uiCallback.state("BluetoothConnected")
-                }
-
-            } else "通知开启失败".logE("xysLog")
-        }
-    }
-
-    /**
-     * 读取远程设备的信号强度回调
-     */
-    override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {
-    }
-    //= "onReadRemoteRssi: rssi: $rssi".logE("xysLog")
 
     /**
      * UI回调

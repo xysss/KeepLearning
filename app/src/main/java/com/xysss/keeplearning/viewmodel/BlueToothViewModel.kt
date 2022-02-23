@@ -25,6 +25,9 @@ import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -34,10 +37,10 @@ import rxhttp.wrapper.param.RxHttp
 import java.io.File
 
 class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.MqttMsgCall {
-    val bleDate: LiveData<String?> get() = _bleDate
+    val bleDate: LiveData<MaterialInfo> get() = _bleDate
 
     private val publishTopic = "HT308PRD/VP200/C2S/20210708/" //发送主题
-    private val _bleDate=MutableLiveData<String?>()
+    private val _bleDate=MutableLiveData<MaterialInfo>()
     @SuppressLint("StaticFieldLeak")
     private lateinit var mService: MQTTService
 
@@ -107,37 +110,26 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     }
 
     override fun state(state: String?) {
-        if (state==BluetoothConnected){
+        if (state==bluetoothConnected){
             BleHelper.sendBlueToothMsg(reqDeviceMsg)  //请求设备信息
         }
-//        if (state.equals("DeviceInfoRsp")){
-//            viewModelScope.launch {
-//                while(true) {
-//                    delay(1000)
-//                    sendBlueToothMsg(reqRealDataMsg)
-//                }
-//            }
-//        }
     }
 
     override fun mqttUIShow(state: String?) {
-        if (state==MqttConnectSuccess){
-            BleHelper.sendBlueToothMsg(reqRealTimeDataMsg)
+        if (state==mqttConnectSuccess){
+            mqttConnectSuccess.logE("xysLog")
+            //BleHelper.sendBlueToothMsg(reqDeviceMsg)
         }
     }
 
     override fun realData(materialInfo: MaterialInfo) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val matterList= ArrayList<Matter>()
-//            val matter1=Matter(1,"异丁烯","0")
-//            val matter2=Matter(2,"甲丁烯","1")
-//            val matter3=Matter(3,"乙丁烯","2")
-//            matterList.add(matter1)
-//            matterList.add(matter2)
-//            matterList.add(matter3)
-//            Repository.insertMatterList(matterList)
+        _bleDate.postValue(materialInfo)
+
+//        while (!isStopSendMsg){
+//            Thread.sleep(1500)
+//            BleHelper.sendBlueToothMsg(reqRealTimeDataMsg)
 //        }
-        _bleDate.postValue(materialInfo.toString())
+
     }
 
     override fun mqttSendMsg(bytes: ByteArray) {

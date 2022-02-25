@@ -21,6 +21,9 @@ object BleHelper {
     private var gatt: BluetoothGatt?=null
     private var findDevice: BluetoothDevice? = null
 
+    lateinit var transSendCodingBytes: ByteArray
+    private val transSendCodingList = ArrayList<Byte>()
+
     /**
      * 启用指令通知
      */
@@ -48,10 +51,10 @@ object BleHelper {
         gatt?.writeCharacteristic(gatt?.getService(UUID.fromString(mmkv.getString(ValueKey.SERVICE_UUID,"")))?.
         getCharacteristic(UUID.fromString(mmkv.getString(ValueKey.CHARACTERISTIC_WRITE_UUID,"")))
             ?.apply {
-                val data=ByteUtils.hexStringToBytes(command)
+                val sendData=ByteUtils.hexStringToBytes(command)
+                val sendDataAll = sendData+Crc8.cal_crc8_t(sendData,sendData.size) + ByteUtils.FRAME_END
                 writeType = if (isResponse) BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT else BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-                //value = data
-                value = data+Crc8.cal_crc8_t(data,data.size)+ ByteUtils.FRAME_END
+                value=transSendCoding(sendDataAll)
             }) ?: ToastUtils.showShort("蓝牙断开，请重新连接")
     }
 
@@ -122,5 +125,39 @@ object BleHelper {
         val command= alarmHeadMsg +sendBytes.toHexString(false).trim()
         addSendLinkedDeque(command)
         alarmIndex += alarmReadNum
+    }
+
+    private fun transSendCoding(bytes: ByteArray): ByteArray {
+        bytes.let {
+            var i = 1
+            if (it[0] == ByteUtils.FRAME_START) {
+                transSendCodingList.clear()
+                transSendCodingList.add(it[0])
+            }
+            while (i < it.size) {
+                //校验开头
+                //开始转码
+                when {
+                    it[i] == ByteUtils.FRAME_START -> {
+                        transSendCodingList.add(ByteUtils.FRAME_FF)
+                        transSendCodingList.add(ByteUtils.FRAME_00)
+                    }
+                    it[i] == ByteUtils.FRAME_FF -> {
+                        transSendCodingList.add(ByteUtils.FRAME_FF)
+                        transSendCodingList.add(ByteUtils.FRAME_FF)
+                    }
+                    else -> transSendCodingList.add(it[i])
+                }
+                i++
+            }
+        }
+
+        transSendCodingList.let {
+            transSendCodingBytes = ByteArray(it.size)
+            for (k in transSendCodingBytes.indices) {
+                transSendCodingBytes[k] = it[k]
+            }
+        }
+        return transSendCodingBytes
     }
 }

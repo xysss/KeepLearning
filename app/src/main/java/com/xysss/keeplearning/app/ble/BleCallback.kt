@@ -26,13 +26,13 @@ import kotlin.collections.ArrayList
  * @description BleCallback
  */
 class BleCallback : BluetoothGattCallback() {
-    private val TAG = BleCallback::class.java.simpleName
-    private val completeBytesList = ArrayList<Byte>()
     private val transcodingBytesList = ArrayList<Byte>()
     private lateinit var uiCallback: UiCallback
     private lateinit var afterBytes: ByteArray
     private var recordArrayList=ArrayList<Record>()
     private var alarmArrayList=ArrayList<Alarm>()
+    private val newLengthBytes = ByteArray(2)
+    private var newLength=0
 
     fun setUiCallback(uiCallback: UiCallback) {
         this.uiCallback = uiCallback
@@ -173,87 +173,65 @@ class BleCallback : BluetoothGattCallback() {
         while (true) {
             while (recLinkedDeque.peek() != null){
                 recLinkedDeque.poll()!!.let {
-                    //先拼完整包
                     var i = 0
                     while (i < it.size) {
                         //校验开头
-                        if (it[i] == ByteUtils.FRAME_START){
-                            completeBytesList.clear()
-                            completeBytesList.add(it[i])
-                        }else{
-                            completeBytesList.add(it[i])
+                        if (it[i] == ByteUtils.FRAME_START) {
+                            transcodingBytesList.clear()
+                            transcodingBytesList.add(it[i])
+                        }
+                        //开始转码
+                        else if (i<it.size-1){
+                            if (it[i] == ByteUtils.FRAME_FF) {
+                                when{
+                                    it[i + 1] == ByteUtils.FRAME_FF -> {
+                                        transcodingBytesList.add(ByteUtils.FRAME_FF)
+                                        i++
+                                    }
+                                    it[i + 1] == ByteUtils.FRAME_00 -> {
+                                        transcodingBytesList.add(ByteUtils.FRAME_START)
+                                        i++
+                                    }
+                                    else -> {
+                                        transcodingBytesList.add(it[i])
+                                    }
+                                }
+                            } else
+                                transcodingBytesList.add(it[i])
+                        }
+                        else if (i==it.size-1)
+                            transcodingBytesList.add(it[i])
+
+                        //取协议数据长度
+                        if(transcodingBytesList.size==3){
+                            newLengthBytes[0] = transcodingBytesList[1]
+                            newLengthBytes[1] = transcodingBytesList[2]
+                            newLength = newLengthBytes.readInt16BE()
+                        }
+                        if (transcodingBytesList.size==newLength){
+
+                            transcodingBytesList.let { arrayList ->
+                                afterBytes = ByteArray(arrayList.size)
+                                for (k in afterBytes.indices) {
+                                    afterBytes[k] = arrayList[k]
+                                }
+                            }
+                            if (afterBytes[0]==ByteUtils.FRAME_START&&afterBytes[afterBytes.size-1]==ByteUtils.FRAME_END){
+                                //CRC校验
+                                if (Crc8.isFrameValid(afterBytes,afterBytes.size))
+                                    analyseMessage(afterBytes)  //分发数据
+                                else
+                                    "CRC校验错误".logE("xysLog")
+                            }else
+                                "协议开头结尾不对".logE("xysLog")
+
+                            transcodingBytesList.clear()
+
                         }
                         i++
                     }
-                    if (completeBytesList[completeBytesList.size-1] == ByteUtils.FRAME_END){
-                        transcoding()
-                    }
                 }
             }
-        }
-    }
-
-
-    private suspend fun transcoding(){
-        completeBytesList.let {
-            var i = 0
-            while (i < it.size) {
-                //校验开头
-                if (it[i] == ByteUtils.FRAME_START) {
-                    transcodingBytesList.clear()
-                    transcodingBytesList.add(it[i])
-                }
-                else if (i!=it.size-1){
-                    //转码
-                    if (it[i] == ByteUtils.FRAME_FF) {
-                        when{
-                            it[i + 1] == ByteUtils.FRAME_FF -> {
-                                transcodingBytesList.add(ByteUtils.FRAME_FF)
-                                i++
-                            }
-                            it[i + 1] == ByteUtils.FRAME_00 -> {
-                                transcodingBytesList.add(ByteUtils.FRAME_START)
-                                i++
-                            }
-                            else -> {
-                                transcodingBytesList.add(it[i])
-                            }
-                        }
-                    } else
-                        transcodingBytesList.add(it[i])
-                }
-                else
-                    transcodingBytesList.add(it[i])
-                i++
-            }
-        }
-
-        //数据完成
-        val bytes = ByteArray(2)
-        bytes[0] = transcodingBytesList[1]
-        bytes[1] = transcodingBytesList[2]
-        val length = bytes.readInt16BE()
-        //校验数据长度
-        if (length == transcodingBytesList.size) {
-            transcodingBytesList.let {
-                afterBytes = ByteArray(it.size)
-                for (k in afterBytes.indices) {
-                    afterBytes[k] = it[k]
-                }
-            }
-            //CRC校验
-            if (Crc8.isFrameValid(afterBytes,afterBytes.size)){
-                //分发数据
-                analyseMessage(afterBytes)
-            }else{
-                "CRC校验错误".logE("xysLog")
-            }
-            transcodingBytesList.clear()
-        }else{
-            "转码后协议length: $length".logE("xysLog")
-            "转码后实际length: ${transcodingBytesList.size}".logE("xysLog")
-            //transcodingBytesList.toHexString().logE("xysLog")
-            transcodingBytesList.clear()
         }
     }
 

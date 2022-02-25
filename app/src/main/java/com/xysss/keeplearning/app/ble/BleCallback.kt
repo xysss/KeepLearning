@@ -177,20 +177,15 @@ class BleCallback : BluetoothGattCallback() {
                     var i = 0
                     while (i < it.size) {
                         //校验开头
-                        if (it[i] != ByteUtils.FRAME_END) {
-                            if (it[i] == ByteUtils.FRAME_START){
-                                completeBytesList.clear()
-                                completeBytesList.add(it[i])
-                            }else{
-                                completeBytesList.add(it[i])
-                            }
+                        if (it[i] == ByteUtils.FRAME_START){
+                            completeBytesList.clear()
+                            completeBytesList.add(it[i])
+                        }else{
+                            completeBytesList.add(it[i])
                         }
-                        if (i==it.size-1)
-                            break
                         i++
                     }
-                    if (it[i] == ByteUtils.FRAME_END){
-                        completeBytesList.add(it[i])
+                    if (completeBytesList[completeBytesList.size-1] == ByteUtils.FRAME_END){
                         transcoding()
                     }
                 }

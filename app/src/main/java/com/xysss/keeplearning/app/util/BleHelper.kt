@@ -5,13 +5,13 @@ import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor
 import android.os.Build
-import android.os.Looper
 import com.blankj.utilcode.util.ToastUtils
+import com.swallowsonny.convertextlibrary.toHexString
+import com.swallowsonny.convertextlibrary.writeInt32LE
 import com.xysss.keeplearning.app.ble.BleCallback
-import com.xysss.keeplearning.app.ext.mmkv
+import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.mvvmhelper.base.appContext
-import com.xysss.mvvmhelper.ext.logE
 import java.util.*
 
 
@@ -45,16 +45,14 @@ object BleHelper {
      * @param isResponse 是否响应
      */
     private fun sendCommand(command: String, isResponse: Boolean = true){
-        if (gatt==null){
-            ToastUtils.showShort("蓝牙断开，请重新连接")
-        }else{
-            gatt!!.writeCharacteristic(gatt!!.getService(UUID.fromString(mmkv.getString(ValueKey.SERVICE_UUID,"")))
-                .getCharacteristic(UUID.fromString(mmkv.getString(ValueKey.CHARACTERISTIC_WRITE_UUID,"")))
-                .apply {
-                    writeType = if (isResponse) BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT else BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-                    value = ByteUtils.hexStringToBytes(command) })
-        }
-
+        gatt?.writeCharacteristic(gatt?.getService(UUID.fromString(mmkv.getString(ValueKey.SERVICE_UUID,"")))?.
+        getCharacteristic(UUID.fromString(mmkv.getString(ValueKey.CHARACTERISTIC_WRITE_UUID,"")))
+            ?.apply {
+                val data=ByteUtils.hexStringToBytes(command)
+                writeType = if (isResponse) BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT else BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                //value = data
+                value = data+Crc8.cal_crc8_t(data,data.size)+ ByteUtils.FRAME_END
+            }) ?: ToastUtils.showShort("蓝牙断开，请重新连接")
     }
 
 
@@ -75,8 +73,14 @@ object BleHelper {
         }
     }
 
-    fun isMainThread(): Boolean {
-        return Looper.getMainLooper().thread.id == Thread.currentThread().id
+    @Synchronized
+    fun addRecLinkedDeque(byteArray: ByteArray) {
+        recLinkedDeque.add(byteArray)
+    }
+
+    @Synchronized
+    fun addSendLinkedDeque(sendMsg:String) {
+        sendLinkedDeque.add(sendMsg)
     }
 
     fun sendBlueToothMsg(command: String){
@@ -90,7 +94,6 @@ object BleHelper {
                 if (stringBuffer.length==40){
                     sendCommand(stringBuffer.toString())
                     stringBuffer.delete( 0, stringBuffer.length)
-                    Thread.sleep(200)
                 }
             }
             sendCommand(stringBuffer.toString())
@@ -99,4 +102,25 @@ object BleHelper {
         }
     }
 
+    fun sendRecordMsg(){
+        recordIndex =1L
+        recordReadNum =10L
+        val sendBytes= startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(
+            recordReadNum
+        )
+        val command= recordHeadMsg +sendBytes.toHexString(false).trim()
+        addSendLinkedDeque(command)
+        recordIndex += recordReadNum
+    }
+
+    fun sendAlarmMsg(){
+        alarmIndex =1L
+        alarmReadNum =10L
+        val sendBytes= startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(
+            alarmReadNum
+        )
+        val command= alarmHeadMsg +sendBytes.toHexString(false).trim()
+        addSendLinkedDeque(command)
+        alarmIndex += alarmReadNum
+    }
 }

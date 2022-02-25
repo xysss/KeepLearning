@@ -44,9 +44,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
     //状态缓存
     private var stringBuffer = StringBuffer()
 
-    private val send00Msg="55000a09000001000023"  //读取设备信息
-    private val send10Msg="55000a09100001000023"  //读取实时数据
-    private val send21Msg="55000D09210004000000000023"  //读取物质信息
+    private val send00Msg="55000a0900000100"  //读取设备信息
+    private val send10Msg="55000a0910000100"  //读取实时数据
+    private val send21Msg="55000D0921000400000000"  //读取物质信息
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
@@ -78,6 +78,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             }
         }
 
+        //去连接蓝牙
         val intentBle = Intent(appContext, LinkBleBlueTooth::class.java)
         requestDataLauncher.launch(intentBle)
 
@@ -147,22 +148,18 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         ) {
             when (it.id) {
 
-                R.id.button1 -> {
-                    BleHelper.sendBlueToothMsg(send00Msg)
-                }
                 R.id.button2 -> {
-                    BleHelper.sendBlueToothMsg(send10Msg)
+                    BleHelper.addSendLinkedDeque(send10Msg)
                 }
                 R.id.button3 -> {
-                    mViewModel.sendRecordMsg()
+                    BleHelper.sendRecordMsg()
                 }
                 R.id.button4 -> {
-                    mViewModel.sendAlarmMsg()
+                    BleHelper.sendAlarmMsg()
                 }
                 R.id.button5 -> {
-                    BleHelper.sendBlueToothMsg(send21Msg)
+                    BleHelper.addSendLinkedDeque(send21Msg)
                 }
-
                 R.id.button9 -> {
                     if (mmkv.getString(ValueKey.deviceId,"")!=""){
                         mViewModel.setMqttConnect()
@@ -223,5 +220,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }

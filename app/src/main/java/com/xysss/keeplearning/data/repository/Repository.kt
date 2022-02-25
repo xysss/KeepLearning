@@ -5,17 +5,16 @@ import com.xysss.keeplearning.app.ext.dataMatterDao
 import com.xysss.keeplearning.app.ext.dataRecordDao
 import com.xysss.keeplearning.app.room.Alarm
 import com.xysss.keeplearning.app.room.Matter
-import com.xysss.keeplearning.data.response.JoinResult
 import com.xysss.keeplearning.app.room.Record
+import com.xysss.keeplearning.data.response.JoinResult
 
 /**
  * Author:bysd-2
  * Time:2021/10/1116:05
  */
 object Repository {
-
     fun insertRecord(record:Record):Long{
-        return dataRecordDao.insertRecord(record)
+       return dataRecordDao.insertRecord(record)
     }
     fun insertRecordList(recordList:ArrayList<Record>):List<Long>{
         return dataRecordDao.insertRecordList(recordList)

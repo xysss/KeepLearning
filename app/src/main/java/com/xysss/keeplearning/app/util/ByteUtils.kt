@@ -1,34 +1,27 @@
 package com.xysss.keeplearning.app.util
 
-import android.annotation.SuppressLint
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import java.math.RoundingMode
 import java.text.DecimalFormat
-import java.text.ParsePosition
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.experimental.xor
 
 
 object ByteUtils {
 
-    const val FRAME55: Byte = 0x55
-    const val FRAME23: Byte = 0x23
-    const val FRAMEFF: Byte = 0xFF.toByte()
-    const val FRAME00: Byte = 0x00
-    const val FRAME01:Byte=0x01
+    const val FRAME_START: Byte = 0x55
+    const val FRAME_END: Byte = 0x23
+    const val FRAME_FF: Byte = 0xFF.toByte()
+    const val FRAME_00: Byte = 0x00
+    const val FRAME_01:Byte=0x01
 
     const val Msg80: Byte = 0x80.toByte()
     const val Msg90: Byte = 0x90.toByte()
     const val Msg81: Byte = 0x81.toByte()
     const val MsgA1: Byte = 0xA1.toByte()
-    lateinit var afterBytes: ByteArray
-    private val dealBytesList = ArrayList<Byte>()
 
-    fun cal(second: Int): String {
+    fun secondToTimes(second: Int): String {
         var h = 0
         var d = 0
         var s = 0
@@ -92,67 +85,6 @@ object ByteUtils {
     }
 
     /**
-     * Convert byte[] to string
-     */
-    fun bytesToHexString(src: ByteArray?): String? {
-        val stringBuilder = StringBuilder("")
-        if (src == null || src.isEmpty()) {
-            return null
-        }
-        for (element in src) {
-            val v = element.toInt() and 0xFF
-            val hv = Integer.toHexString(v)
-            if (hv.length < 2) {
-                stringBuilder.append(0)
-            }
-            stringBuilder.append(hv)
-        }
-        return stringBuilder.toString()
-    }
-
-
-    fun revercRevCode(bytes: ArrayList<Byte>?): ByteArray? {
-        dealBytesList.clear()
-        bytes?.let {
-            var i = 0
-            while (i < it.size) {
-                if (it[i] == FRAMEFF) {
-                    if (it[i + 1] == FRAMEFF) {
-                        dealBytesList.add(FRAMEFF)
-                        i++
-                    } else if (it[i + 1] == FRAME00) {
-                        dealBytesList.add(FRAME55)
-                        i++
-                    } else {
-                        dealBytesList.add(it[i])
-                    }
-                } else {
-                    dealBytesList.add(it[i])
-                }
-                i++
-            }
-        }
-
-        dealBytesList.let {
-            afterBytes = ByteArray(it.size)
-            for (i in afterBytes.indices) {
-                afterBytes[i] = it[i]
-            }
-        }
-
-        if (afterBytes[afterBytes.size - 1] == FRAME23 && afterBytes[0] == FRAME55) {
-            //CRC校验
-            //val crc16Str = getCrc16Str(tempBytes)
-            dealBytesList.clear()
-            return afterBytes
-        }
-        return null
-    }
-
-
-    fun byteToHexString(src: Byte): String = Integer.toHexString((src.toInt() and 0xFF))
-
-    /**
      * 亦或校验(BCC校验)
      *
      * @param datas
@@ -166,10 +98,6 @@ object ByteUtils {
         return temp
     }
 
-    fun getBCCResult(hexString: String): String {
-        val byteToHexString = byteToHexString(getBCCResult(hexStringToBytes(hexString)))
-        return if (byteToHexString.length < 2)  "0$byteToHexString" else byteToHexString
-    }
 
     fun byteArrayToHexString(byteArray: ByteArray): String {
         val sb = StringBuilder()
@@ -215,5 +143,4 @@ object ByteUtils {
         result[if(little_endian) 1 else 0] = (crc and 0xFF).toByte()
         return result
     }
-
 }

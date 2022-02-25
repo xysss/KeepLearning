@@ -21,7 +21,7 @@ class DemoActivity : BaseActivity<DemoRequestViewModel, ActivityDemoBinding>() {
     override fun onBindViewClick() {
         setOnclickNoRepeat(mViewBinding.demoButton1) {
             when (it.id) {
-                R.id.button1 -> {
+                R.id.demo_button1 -> {
                     mViewModel.setDateShow()
                 }
             }

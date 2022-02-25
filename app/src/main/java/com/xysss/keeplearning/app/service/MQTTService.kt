@@ -14,30 +14,26 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.swallowsonny.convertextlibrary.toHexString
 import com.xysss.keeplearning.R
-import com.xysss.keeplearning.app.ext.mmkv
-import com.xysss.keeplearning.app.ext.reqDeviceMsg
+import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.util.BleHelper
-import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.ui.activity.MainActivity
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
-import kotlin.concurrent.thread
 
 
 class MQTTService : Service(){
 
     private val userName = "LTAIN7ty7dgzvLtS" //用户名
     private val password = "PvErZ94s5FMlnc67jqAIK29QJsg=" //密码
-    private val receiveTopic = "HT308PRD/VP200/S2C/20210708/" //接收主题
-    //private val sendTopic = "HT308PRD/VP200/C2S/20210708/" //发送主题
     private val qos = 0
-    //private val serverURI = "tcp://iot.eclipse.org:1883"
     private val serverURI = "tcp://post-cn-mp90edmzr0e.mqtt.aliyuncs.com:1883"
     private val clientId = "GID_308PRD@@@20210708_4G"
-    private lateinit var mqttClient: MqttAndroidClient
+    private var mqttClient: MqttAndroidClient?=null
     private val mBinder = MyBinder()
 
     private lateinit var mqttMsgCall: MqttMsgCall
@@ -92,15 +88,14 @@ class MQTTService : Service(){
 
     //连接
     fun connectMqtt(context: Context) {
-        thread {
+        scope.launch(Dispatchers.IO) {
             val mqttPersist = MemoryPersistence()
             mqttClient = MqttAndroidClient(context, serverURI, clientId, mqttPersist)
             //订阅主题的回调
-            mqttClient.setCallback(object : MqttCallback {
+            mqttClient?.setCallback(object : MqttCallback {
                 //messageArrived：收到 broker 新消息
                 override fun messageArrived(topic: String?, message: MqttMessage?) {
                     "Receive message: ${message.toString()} from topic: $topic".logE(TAG)
-
                     response("message arrived")
                 }
 
@@ -111,7 +106,6 @@ class MQTTService : Service(){
 
                 //deliveryComplete：消息到 broker 传递完成
                 override fun deliveryComplete(token: IMqttDeliveryToken?) {
-
                 }
             })
             //MqttConnectOptions 用于配置连接设置，包含用户名密码，超时配置等，具体可以查看其方法。
@@ -122,20 +116,20 @@ class MQTTService : Service(){
             options.userName = userName //设置用户名
             options.password = password.toCharArray() //设置密码
             try {
-                mqttClient.connect(options, null, object : IMqttActionListener {
+                mqttClient?.connect(options, null, object : IMqttActionListener {
                     override fun onSuccess(asyncActionTokexn: IMqttToken?) {
                         "MQTT Connection success".logE(TAG)
                         //去订阅主题
-                        subscribe(receiveTopic, qos)
+                        subscribe(recTopic, qos)
+                        isConnectMqtt=true
 
-                        mmkv.putBoolean(ValueKey.isConnectMqtt,true)
-                        BleHelper.sendBlueToothMsg(reqDeviceMsg)
+                        BleHelper.addSendLinkedDeque(reqDeviceMsg)
                         //mqttMsgCall.mqttUIShow("MqttConnectSuccess")
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                         "MQTT Connection failure".logE(TAG)
-                        mmkv.putBoolean(ValueKey.isConnectMqtt,false)
+                        isConnectMqtt=false
                         // 连接失败，重连
                         //connect(appContext)
                     }
@@ -149,7 +143,7 @@ class MQTTService : Service(){
     //订阅 topic
     fun subscribe(topic: String, qos: Int = 1) {
         try {
-            mqttClient.subscribe(topic, qos, null, object : IMqttActionListener {
+            mqttClient?.subscribe(topic, qos, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     "Subscribed to $topic".logE(TAG)
                 }
@@ -166,7 +160,7 @@ class MQTTService : Service(){
     //取消订阅 topic
     fun unsubscribe(topic: String) {
         try {
-            mqttClient.unsubscribe(topic, null, object : IMqttActionListener {
+            mqttClient?.unsubscribe(topic, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     "Unsubscribed to $topic".logE(TAG)
                 }
@@ -181,19 +175,20 @@ class MQTTService : Service(){
     }
 
     //发布消息
-    fun publish(topic: String, msg: ByteArray, qos: Int = 1, retained: Boolean = false) {
+    fun publish(msg: ByteArray, qos: Int = 1, retained: Boolean = false) {
         try {
             val message = MqttMessage()
             message.payload = msg
             message.qos = qos
             message.isRetained = retained
-            mqttClient.publish(topic, message, null, object : IMqttActionListener {
+
+            mqttClient?.publish(sendTopic, message, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    "${msg.toHexString()} to published to $topic".logE(TAG)
+                    "${msg.toHexString()} to published to $sendTopic".logE(TAG)
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                    "Failed to publish $msg to $topic".logE(TAG)
+                    "Failed to publish $msg to $sendTopic".logE(TAG)
                 }
             })
         } catch (e: MqttException) {
@@ -204,7 +199,7 @@ class MQTTService : Service(){
     //断开MQTT连接
     private fun mpttDisconnect() {
         try {
-            mqttClient.disconnect(null, object : IMqttActionListener {
+            mqttClient?.disconnect(null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     "Disconnected".logE(TAG)
                 }
@@ -248,12 +243,12 @@ class MQTTService : Service(){
      * @param message 消息
      */
     fun response(message: String) {
-        val topic = receiveTopic
+        val topic = recTopic
         val qos = 2
         val retained = false
         try {
             //参数分别为：主题、消息的字节数组、服务质量、是否在服务器保留断开连接后的最后一条消息
-            mqttClient.publish(
+            mqttClient?.publish(
                 topic, message.toByteArray(),
                 qos, retained
             )
@@ -267,7 +262,6 @@ class MQTTService : Service(){
         mpttDisconnect()
         gatt.disconnect()
         gatt.close()
-        mmkv.putBoolean(ValueKey.isConnectMqtt,false)
         super.unbindService(conn)
     }
 

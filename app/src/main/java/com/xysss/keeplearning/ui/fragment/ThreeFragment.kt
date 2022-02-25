@@ -4,12 +4,9 @@ import android.os.Bundle
 import com.gyf.immersionbar.ktx.immersionBar
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
-import com.xysss.keeplearning.app.ext.reqDeviceMsg
-import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils
 import com.xysss.keeplearning.databinding.FragmentThreeBinding
 import com.xysss.keeplearning.viewmodel.SettingViewModel
-import com.xysss.mvvmhelper.ext.logE
 
 /**
  * Author:bysd-2
@@ -40,9 +37,9 @@ class ThreeFragment : BaseFragment<SettingViewModel, FragmentThreeBinding>() {
             mViewBinding.settingTextViewValue4.text = it.deviceFreeMemory.toString()
             mViewBinding.settingTextViewValue5.text = it.deviceRecordSum.toString()
             mViewBinding.settingTextViewValue6.text = it.deviceAlarmSum.toString()
-            mViewBinding.settingTextViewValue7.text = ByteUtils.cal(it.deviceCurrentRunningTime)
+            mViewBinding.settingTextViewValue7.text = ByteUtils.secondToTimes(it.deviceCurrentRunningTime)
             mViewBinding.settingTextViewValue8.text = it.deviceCurrentAlarmNumber.toString()
-            mViewBinding.settingTextViewValue9.text = ByteUtils.cal(it.deviceCumulativeRunningTime)
+            mViewBinding.settingTextViewValue9.text = ByteUtils.secondToTimes(it.deviceCumulativeRunningTime)
             mViewBinding.settingTextViewValue10.text = it.deviceDensityMax
             mViewBinding.settingTextViewValue11.text = it.deviceDensityMin
             mViewBinding.settingTextViewValue12.text = it.deviceTwaNumber
@@ -53,8 +50,6 @@ class ThreeFragment : BaseFragment<SettingViewModel, FragmentThreeBinding>() {
 
     override fun onResume() {
         super.onResume()
-
         mViewModel.getDeviceInfo()
-
     }
 }

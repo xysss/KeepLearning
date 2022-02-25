@@ -10,8 +10,6 @@ object ValueKey {
 
     const val isFirst = "app_is_first_open"
 
-    const val isConnectMqtt = "isConnectMqtt"
-
     //默认物质信息
     const val matterIndex = "matterIndex"
     const val matterName = "matterName"
@@ -40,4 +38,7 @@ object ValueKey {
     const val NULL_NAME = "nullName"  //是否过滤设备名称为Null的设备
     const val RSSI = "rssi"  //过滤信号强度值
 
+    //MQTT
+    const val recTopicValue = "recTopicValue" //接收主题
+    const val sendTopicValue = "sendTopicValue" //发送主题
 }

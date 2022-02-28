@@ -18,6 +18,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
+import com.xysss.keeplearning.app.ext.isStopReqRealMsg
 import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.BleHelper
@@ -158,6 +159,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                     BleHelper.sendAlarmMsg()
                 }
                 R.id.button5 -> {
+
+                    isStopReqRealMsg =true
                     BleHelper.addSendLinkedDeque(send21Msg)
                 }
                 R.id.button9 -> {

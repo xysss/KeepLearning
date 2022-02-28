@@ -25,7 +25,6 @@ val dataMatterDao = AppDatabase.getDatabase().dataMatterDao()
 val job= Job()
 val scope = CoroutineScope(job)
 
-const val bluetoothConnected="BluetoothConnected"
 const val mqttConnectSuccess="MqttConnectSuccess"
 const val reqDeviceMsg="55000a0900000100"  //读取设备信息
 const val reqRealTimeDataMsg="55000a0910000100"  //读取实时数据
@@ -55,7 +54,8 @@ val startIndexByteArray0100=ByteArray(4)
 val readNumByteArray0100=ByteArray(4)
 val matterIndexMsg=ByteArray(4)
 
-val recLinkedDeque=LinkedBlockingDeque<ByteArray>(1000)
+//val recLinkedDeque=LinkedBlockingDeque<ByteArray>(1000)
+val recLinkedDeque=LinkedBlockingDeque<Byte>(100000)
 val sendLinkedDeque=LinkedBlockingDeque<String>(1000)
 
 var isStopReqRealMsg=false

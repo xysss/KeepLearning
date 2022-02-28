@@ -77,8 +77,8 @@ object BleHelper {
     }
 
     @Synchronized
-    fun addRecLinkedDeque(byteArray: ByteArray) {
-        recLinkedDeque.add(byteArray)
+    fun addRecLinkedDeque(byte: Byte) {
+        recLinkedDeque.add(byte)
     }
 
     @Synchronized

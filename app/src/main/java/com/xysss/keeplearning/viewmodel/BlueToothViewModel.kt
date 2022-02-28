@@ -39,7 +39,7 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     private lateinit var mService: MQTTService
 
     //蓝牙回调
-    val bleCallBack = BleCallback()
+    private val bleCallBack = BleCallback()
 
     fun setCallBack(){
         //注册回调
@@ -51,7 +51,6 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     }
 
     fun setMqttConnect(){
-        isStopReqRealMsg=true
         recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
         sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
 
@@ -74,12 +73,6 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
     override fun saveMatter(matter: Matter) {
         if (Repository.forgetMatterIsExist(matter.voc_index_matter)==0)  //不存在
             Repository.insertMatter(matter)
-    }
-
-    override fun state(state: String?) {
-        if (state==bluetoothConnected){
-            BleHelper.addSendLinkedDeque(reqDeviceMsg)  //请求设备信息
-        }
     }
 
     override fun mqttUIShow(state: String?) {

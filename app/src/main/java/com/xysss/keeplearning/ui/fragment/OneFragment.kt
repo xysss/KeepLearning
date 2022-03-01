@@ -74,12 +74,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
         mViewModel.setCallBack()
 
-        if (mmkv.getInt(ValueKey.matterIndex,0)==0){
-            if (mmkv.getString(ValueKey.matterName,"")!="异丁烯"){
-                mmkv.putString(ValueKey.matterName,"异丁烯")
-            }
-        }
-
         //去连接蓝牙
         val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
         requestDataLauncher.launch(intentBle)

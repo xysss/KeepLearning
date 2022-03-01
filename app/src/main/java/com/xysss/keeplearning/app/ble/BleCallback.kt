@@ -96,8 +96,6 @@ class BleCallback : BluetoothGattCallback() {
                     readRemoteRssi()
                 }
 
-                defaultIndex=mmkv.getInt(ValueKey.matterIndex,0)
-                defaultName= mmkv.getString(ValueKey.matterName,"异丁烯").toString()
                 "蓝牙:通知开启成功，准备完成:".logE("xysLog")
 
                 scope.launch(Dispatchers.IO) {
@@ -166,7 +164,7 @@ class BleCallback : BluetoothGattCallback() {
 
     private suspend fun startSendMessage(){
         while (true){
-            while (sendLinkedDeque.peek()!=null){
+            if (sendLinkedDeque.peek()!=null){
                 sendLinkedDeque.poll()?.let {
                     delay(500)
                     BleHelper.sendBlueToothMsg(it)
@@ -178,7 +176,7 @@ class BleCallback : BluetoothGattCallback() {
 
     private suspend fun startDealMessage() {
         while (true) {
-            while (recLinkedDeque.peek() != null){
+            if (recLinkedDeque.peek() != null){
                 recLinkedDeque.poll()!!.let {
                     if (it == ByteUtils.FRAME_START) {
                         transcodingBytesList.clear()
@@ -282,7 +280,7 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
-    private suspend fun dealMsg80(mBytes: ByteArray){
+    private fun dealMsg80(mBytes: ByteArray){
         mBytes.let {
             if (it.size == 71) {
                 //设备序列号
@@ -308,7 +306,7 @@ class BleCallback : BluetoothGattCallback() {
                 mmkv.putString(ValueKey.recTopicValue, recTopicDefault+String(tempBytes)+"/")
                 mmkv.putString(ValueKey.sendTopicValue, sendTopicDefault+String(tempBytes)+"/")
 
-                String(tempBytes).logE("xysLog")
+                "设备信息解析成功${String(tempBytes)}".logE("xysLog")
             }
         }
     }
@@ -386,14 +384,17 @@ class BleCallback : BluetoothGattCallback() {
                             val mStel=it.readByteArrayBE(firstIndex+36,4).readFloatLE()
                             val mUserId=it.readByteArrayBE(firstIndex+40,4).readInt32LE()
                             val mPlaceId=it.readByteArrayBE(firstIndex+44,4).readInt32LE()
-                            var name: String
-                            if(mVocIndex==defaultIndex) name=defaultName else {
-                                name="未知物质"
-                                uiCallback.reqMatter(mVocIndex)
+
+                            if (Repository.forgetMatterIsExist(mVocIndex)==0) {
+                                //uiCallback.reqMatter(mVocIndex)
+                                val sendBytes=matterIndexMsg.writeInt32LE(mVocIndex.toLong())
+                                val command=matterHeadMsg+sendBytes.toHexString(false).trim()
+                                BleHelper.addSendLinkedDeque(command)
                             }
+
                             val dateRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex,
                                 mAlarm.toString(), mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString()
-                                ,mPlaceId.toString(),name)
+                                ,mPlaceId.toString(),"未知物质")
                             recordArrayList.add(dateRecord)
                         }
                     }
@@ -425,29 +426,30 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
-    private suspend fun dealMsgA1(mBytes: ByteArray){
+    private fun dealMsgA1(mBytes: ByteArray){
         mBytes.let {
             if (it.size == 57) {
                 //物质索引号
-                defaultIndex=it.readByteArrayBE(7,4).readInt32LE()
+                val matterIndex=it.readByteArrayBE(7,4).readInt32LE()
                 //cf值
                 val mcfNum=String.format("%.3f",it.readByteArrayBE(11,4).readFloatLE())
                 var i = 35
                 while (i < it.size)
                     if (it[i] == ByteUtils.FRAME_00) break else i++
                 val tempBytes: ByteArray = it.readByteArrayBE(35, i - 35)
-                defaultName = String(tempBytes)
-                val matter=Matter(defaultIndex,defaultName,mcfNum)
-                mmkv.putInt(ValueKey.matterIndex,defaultIndex)
-                mmkv.putString(ValueKey.matterName,defaultName)
-                uiCallback.saveMatter(matter)
+                val matterName = String(tempBytes)
+                val matter=Matter(matterIndex,matterName,mcfNum)
+
+                if (Repository.forgetMatterIsExist(matter.voc_index_matter)==0)  //不存在
+                    Repository.insertMatter(matter)
+                //uiCallback.saveMatter(matter)
             }else{
                 "查询物质信息协议长度不为57，实际长度：${it.size}".logE("xysLog")
             }
         }
     }
 
-    private suspend fun dealMsgA0(mBytes: ByteArray) {
+    private fun dealMsgA0(mBytes: ByteArray) {
         mBytes.let {
             if (it.size == 17) {
                 //物质库个数
@@ -463,7 +465,7 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
-    private suspend fun recordData(recordArrayList: ArrayList<Record>) {
+    private fun recordData(recordArrayList: ArrayList<Record>) {
         if (recordArrayList.size!=0){
             for (record in recordArrayList){
                 if (Repository.forgetRecordIsExist(record.timestamp)==0){
@@ -493,7 +495,7 @@ class BleCallback : BluetoothGattCallback() {
     }
 
 
-    private suspend fun alarmData(alarmArrayList: ArrayList<Alarm>) {
+    private fun alarmData(alarmArrayList: ArrayList<Alarm>) {
         if (alarmArrayList.size!=0){
             for (alarm in alarmArrayList){
                 //不存在

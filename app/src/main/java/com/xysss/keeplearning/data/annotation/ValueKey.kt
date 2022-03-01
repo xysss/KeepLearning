@@ -10,10 +10,6 @@ object ValueKey {
 
     const val isFirst = "app_is_first_open"
 
-    //默认物质信息
-    const val matterIndex = "matterIndex"
-    const val matterName = "matterName"
-
     //设备信息
     const val deviceHardwareVersion = "deviceHardwareVersion"
     const val deviceSoftwareVersion = "deviceSoftwareVersion"

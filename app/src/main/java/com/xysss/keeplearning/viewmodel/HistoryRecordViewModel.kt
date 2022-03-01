@@ -18,7 +18,7 @@ import java.util.ArrayList
 class HistoryRecordViewModel :BaseViewModel(){
     val recordListData: LiveData<DataHistoryResponse<Any>> get() = _recordListData
     private var pageIndex = 0
-    private val readNum=20
+    private val readNum=10
     private var _recordListData = MutableLiveData<DataHistoryResponse<Any>>()
     fun getRecordList(isRefresh: Boolean, loadingXml: Boolean = false) {
         if (isRefresh) {

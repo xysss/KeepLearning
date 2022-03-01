@@ -23,7 +23,7 @@ import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ble.BleDevice
 import com.xysss.keeplearning.app.ble.BleDeviceAdapter
-import com.xysss.keeplearning.app.ext.mmkv
+import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.util.*
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.ActivityLinkBluetoothBinding
@@ -82,6 +82,12 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
      * 初始化
      */
     private fun init() {
+
+        mmkv.putString(ValueKey.SERVICE_UUID, sUUID)
+        mmkv.putString(ValueKey.DESCRIPTOR_UUID, dUUID)
+        mmkv.putString(ValueKey.CHARACTERISTIC_WRITE_UUID, wUUID)
+        mmkv.putString(ValueKey.CHARACTERISTIC_INDICATE_UUID, rUUID)
+
         bleAdapter = BleDeviceAdapter(mList).apply {
             setOnItemClickListener { _, _, position ->
                 if (checkUuid()) {
@@ -223,10 +229,7 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
                     etCharacteristicIndicateUuid.setText(mmkv.getString(ValueKey.CHARACTERISTIC_INDICATE_UUID, ""))
 
                     tvSave.setOnClickListener {
-                        val sUUID = "0003cdd0-0000-1000-8000-00805f9b0131"
-                        val wUUID = "0003cdd2-0000-1000-8000-00805f9b0131"
-                        val rUUID = "0003cdd1-0000-1000-8000-00805f9b0131"
-                        val dUUID = "00002902-0000-1000-8000-00805f9b34fb"
+
 
                         etServiceUuid.text.toString().let {
                             if (it.isEmpty()) mmkv.putString(ValueKey.SERVICE_UUID, sUUID)

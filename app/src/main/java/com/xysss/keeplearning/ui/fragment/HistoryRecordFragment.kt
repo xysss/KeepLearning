@@ -41,7 +41,7 @@ class HistoryRecordFragment :BaseFragment<HistoryRecordViewModel,FragmentHistory
             mViewBinding.listRecyclerView.initFloatBtn(mViewBinding.floatbtn)
         }
 
-        mViewModel.getRecordList(true)
+        //mViewModel.getRecordList(true)
     }
 
     override fun onLoadRetry() {

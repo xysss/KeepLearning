@@ -122,7 +122,6 @@ class MQTTService : Service(){
                         //去订阅主题
                         subscribe(recTopic, qos)
                         isConnectMqtt=true
-
                         BleHelper.addSendLinkedDeque(reqDeviceMsg)  //请求设备信息
                         //mqttMsgCall.mqttUIShow("MqttConnectSuccess")
                     }

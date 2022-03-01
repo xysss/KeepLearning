@@ -25,6 +25,6 @@ class HistoryRecordAdapter(data: ArrayList<Any>) : BaseQuickAdapter<Any, BaseVie
         holder.setText(R.id.cfNum, itemData.cf)
         holder.setText(R.id.alarm, itemData.alarm)
         holder.setText(R.id.user_id, itemData.userId)
-        holder.setText(R.id.place_id, itemData.placeId)
+        holder.setText(R.id.place_id, itemData.ppm)
     }
 }

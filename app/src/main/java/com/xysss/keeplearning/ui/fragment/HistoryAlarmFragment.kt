@@ -42,7 +42,7 @@ class HistoryAlarmFragment :BaseFragment<HistoryAlarmViewModel,FragmentHistoryAl
             mViewBinding.listRecyclerView.initFloatBtn(mViewBinding.floatbtn)
         }
 
-        mViewModel.getAlarmList(true)
+        //mViewModel.getAlarmList(true)
     }
 
     override fun initObserver() {

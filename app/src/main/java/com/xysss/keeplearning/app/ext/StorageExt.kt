@@ -39,8 +39,10 @@ const val recordHeadMsg="5500120901000900"  //读取数据记录
 const val alarmHeadMsg="5500120901000901"  //读取报警记录
 const val matterHeadMsg="55000D09210004"  //请求数据条目
 
-var defaultIndex=0
-var defaultName="异丁烯"
+const val sUUID = "0003cdd0-0000-1000-8000-00805f9b0131"
+const val wUUID = "0003cdd2-0000-1000-8000-00805f9b0131"
+const val rUUID = "0003cdd1-0000-1000-8000-00805f9b0131"
+const val dUUID = "00002902-0000-1000-8000-00805f9b34fb"
 
 var recordIndex=1L
 var recordReadNum=5L

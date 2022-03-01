@@ -131,7 +131,7 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:text="地点："
+                    android:text="数值："
                     android:layout_height="wrap_content"/>
                 <TextView
                     android:id="@+id/place_id"

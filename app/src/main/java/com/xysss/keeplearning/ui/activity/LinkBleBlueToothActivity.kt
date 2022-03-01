@@ -35,7 +35,7 @@ import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat
 import no.nordicsemi.android.support.v18.scanner.ScanCallback
 import no.nordicsemi.android.support.v18.scanner.ScanResult
 
-class LinkBleBlueTooth : BaseActivity<LinkBlueToothViewModel, ActivityLinkBluetoothBinding>() {
+class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLinkBluetoothBinding>() {
 
     //默认蓝牙适配器
     private var defaultAdapter = BluetoothAdapter.getDefaultAdapter()

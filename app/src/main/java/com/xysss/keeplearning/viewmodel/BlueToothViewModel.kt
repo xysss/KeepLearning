@@ -57,7 +57,7 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
         mService.connectMqtt(appContext)
         mService.setMqttListener(this)
         // TODO: 2022/2/18  开始循环去发送实时命令
-        BleHelper.addSendLinkedDeque(reqRealTimeDataMsg)
+        //BleHelper.addSendLinkedDeque(reqRealTimeDataMsg)
     }
 
     fun connectBlueTooth(device: BluetoothDevice?){

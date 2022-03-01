@@ -100,7 +100,7 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.LinkBleBlueTooth"
+            android:name=".ui.activity.LinkBleBlueToothActivity"
             android:label="蓝牙界面"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"

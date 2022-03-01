@@ -38,6 +38,9 @@ object ValueKey {
     const val NULL_NAME = "nullName"  //是否过滤设备名称为Null的设备
     const val RSSI = "rssi"  //过滤信号强度值
 
+    //物质库
+    const val matterSum = "matterSum"  //物质库个数
+
     //MQTT
     const val recTopicValue = "recTopicValue" //接收主题
     const val sendTopicValue = "sendTopicValue" //发送主题

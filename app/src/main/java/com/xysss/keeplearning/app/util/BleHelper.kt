@@ -107,7 +107,7 @@ object BleHelper {
 
     fun sendRecordMsg(){
         recordIndex =1L
-        recordReadNum =10L
+        recordReadNum =5L
         val sendBytes= startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(
             recordReadNum
         )

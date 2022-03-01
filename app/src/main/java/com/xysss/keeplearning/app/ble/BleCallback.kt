@@ -271,6 +271,12 @@ class BleCallback : BluetoothGattCallback() {
                         dealMsgA1(it)
                     }
                 }
+                //物质库信息
+                ByteUtils.MsgA0 -> {
+                    scope.launch(Dispatchers.IO) {
+                        dealMsgA0(it)
+                    }
+                }
                 else -> it[4].toInt().logE("xysLog")
             }
         }
@@ -332,6 +338,7 @@ class BleCallback : BluetoothGattCallback() {
                 val tempBytes: ByteArray = it.readByteArrayBE(27, i-27)
                 //val name = tempBytes.toAsciiString()
                 val name= String(tempBytes)
+                //tempBytes.toHexString().logE("xysLog")
                 val materialInfo = MaterialInfo(
                     concentrationNum, concentrationState.toString(),
                     materialLibraryIndex, concentrationUnit,cfNum.toString(),name
@@ -424,18 +431,34 @@ class BleCallback : BluetoothGattCallback() {
                 //物质索引号
                 defaultIndex=it.readByteArrayBE(7,4).readInt32LE()
                 //cf值
-                val mcfNum=it.readByteArrayBE(11,4).readInt32LE()
+                val mcfNum=String.format("%.3f",it.readByteArrayBE(11,4).readFloatLE())
                 var i = 35
                 while (i < it.size)
                     if (it[i] == ByteUtils.FRAME_00) break else i++
                 val tempBytes: ByteArray = it.readByteArrayBE(35, i - 35)
                 defaultName = String(tempBytes)
-                val matter=Matter(defaultIndex,defaultName,mcfNum.toString())
+                val matter=Matter(defaultIndex,defaultName,mcfNum)
                 mmkv.putInt(ValueKey.matterIndex,defaultIndex)
                 mmkv.putString(ValueKey.matterName,defaultName)
                 uiCallback.saveMatter(matter)
             }else{
                 "查询物质信息协议长度不为57，实际长度：${it.size}".logE("xysLog")
+            }
+        }
+    }
+
+    private suspend fun dealMsgA0(mBytes: ByteArray) {
+        mBytes.let {
+            if (it.size == 17) {
+                //物质库个数
+                val matterSum = it.readByteArrayBE(7, 4).readInt32LE()
+                "物质库个数：$matterSum".logE("xysLog")
+                mmkv.putInt(ValueKey.matterSum,matterSum)
+
+                //当前选中索引
+                val choiceIndex = it.readByteArrayBE(11, 4).readInt32LE()
+            } else {
+                "查询物质信息协议长度不为17，实际长度：${it.size}".logE("xysLog")
             }
         }
     }

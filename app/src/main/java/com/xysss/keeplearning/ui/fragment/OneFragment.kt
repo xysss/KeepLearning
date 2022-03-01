@@ -47,7 +47,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
     private val send00Msg="55000a0900000100"  //读取设备信息
     private val send10Msg="55000a0910000100"  //读取实时数据
-    private val send21Msg="55000D0921000400000000"  //读取物质信息
+    private val send20Msg="55000a0920000100"  //读取物质库信息
+    private val send21Msg="55000D0921000401000000"  //读取物质信息
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
@@ -80,7 +81,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         }
 
         //去连接蓝牙
-        val intentBle = Intent(appContext, LinkBleBlueTooth::class.java)
+        val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
         requestDataLauncher.launch(intentBle)
 
     }
@@ -144,8 +145,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             mViewBinding.testDownload, mViewBinding.testUpload, mViewBinding.testCrash,
             mViewBinding.getPermission, mViewBinding.testRoom, mViewBinding.linkBlueTooth,
 
-            mViewBinding.button2, mViewBinding.button3,mViewBinding.button9,
-            mViewBinding.button4, mViewBinding.button5, mViewBinding.button10
+            mViewBinding.button2, mViewBinding.button3, mViewBinding.button4,
+            mViewBinding.button5, mViewBinding.button6, mViewBinding.button7,
+            mViewBinding.button9,mViewBinding.button10
         ) {
             when (it.id) {
 
@@ -160,8 +162,13 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 }
                 R.id.button5 -> {
 
-                    isStopReqRealMsg =true
                     BleHelper.addSendLinkedDeque(send21Msg)
+                }
+                R.id.button6 -> {
+                    BleHelper.addSendLinkedDeque(send20Msg)
+                }
+                R.id.button7 -> {
+                    isStopReqRealMsg =true
                 }
                 R.id.button9 -> {
                     if (mmkv.getString(ValueKey.deviceId,"")!=""){
@@ -169,7 +176,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                     }
                 }
                 R.id.button10 -> {
-                    val intentBle = Intent(appContext, LinkBleBlueTooth::class.java)
+                    val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
                     requestDataLauncher.launch(intentBle)
                 }
                 R.id.testRoom -> {

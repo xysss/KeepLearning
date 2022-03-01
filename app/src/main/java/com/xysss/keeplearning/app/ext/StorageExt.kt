@@ -43,7 +43,7 @@ var defaultIndex=0
 var defaultName="异丁烯"
 
 var recordIndex=1L
-var recordReadNum=10L
+var recordReadNum=5L
 var recordSum= 0
 
 var alarmIndex=1L

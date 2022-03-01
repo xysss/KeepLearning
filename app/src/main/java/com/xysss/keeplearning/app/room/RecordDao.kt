@@ -26,7 +26,7 @@ interface RecordDao {
     fun loadLimitRecord(size:Int,index: Int): List<Record>
 
     //使用内连接查询
-    @Query("select id,timestamp,cf,alarm,userId,placeId,matterName,recordName,ppm from Record left join Matter on Record.voc_index_record=Matter.voc_index_matter order by id limit :size offset :index")
+    @Query("select id,timestamp,cf,alarm,userId,placeId,matterName,ppm from Record left join Matter on Record.voc_index_record=Matter.voc_index_matter order by id limit :size offset :index")
     fun leftJoinLoadLimitRecord(size:Int,index: Int): List<JoinResult>
 
     @Delete

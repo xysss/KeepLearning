@@ -33,6 +33,7 @@ class BleCallback : BluetoothGattCallback() {
     private var alarmArrayList=ArrayList<Alarm>()
     private val newLengthBytes = ByteArray(2)
     private var newLength=0
+    private var newIndex=0
 
     private var beforeIsFF=false
 
@@ -385,16 +386,17 @@ class BleCallback : BluetoothGattCallback() {
                             val mUserId=it.readByteArrayBE(firstIndex+40,4).readInt32LE()
                             val mPlaceId=it.readByteArrayBE(firstIndex+44,4).readInt32LE()
 
-                            if (Repository.forgetMatterIsExist(mVocIndex)==0) {
-                                //uiCallback.reqMatter(mVocIndex)
-                                val sendBytes=matterIndexMsg.writeInt32LE(mVocIndex.toLong())
-                                val command=matterHeadMsg+sendBytes.toHexString(false).trim()
-                                BleHelper.addSendLinkedDeque(command)
+                            if (newIndex!=mVocIndex){
+                                if (Repository.forgetMatterIsExist(mVocIndex)==0) {
+                                    val sendBytes=matterIndexMsg.writeInt32LE(mVocIndex.toLong())
+                                    val command=matterHeadMsg+sendBytes.toHexString(false).trim()
+                                    BleHelper.addSendLinkedDeque(command)
+                                    delay(500)
+                                }
                             }
 
-                            val dateRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex,
-                                mAlarm.toString(), mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString()
-                                ,mPlaceId.toString(),"未知物质")
+                            val dateRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex, mAlarm.toString(),
+                                mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString(),mPlaceId.toString())
                             recordArrayList.add(dateRecord)
                         }
                     }
@@ -440,9 +442,10 @@ class BleCallback : BluetoothGattCallback() {
                 val matterName = String(tempBytes)
                 val matter=Matter(matterIndex,matterName,mcfNum)
 
-                if (Repository.forgetMatterIsExist(matter.voc_index_matter)==0)  //不存在
-                    Repository.insertMatter(matter)
-                //uiCallback.saveMatter(matter)
+                if (Repository.forgetMatterIsExist(matter.voc_index_matter)==0){
+                    if (Repository.insertMatter(matter)!=0L)
+                        newIndex=matterIndex
+                }
             }else{
                 "查询物质信息协议长度不为57，实际长度：${it.size}".logE("xysLog")
             }
@@ -578,13 +581,8 @@ class BleCallback : BluetoothGattCallback() {
      * UI回调
      */
     interface UiCallback {
-        fun reqMatter(index:Int)
-        fun saveMatter(matter: Matter)
-        //fun state(state:String?)
         fun realData(materialInfo:MaterialInfo)
         fun mqttSendMsg(bytes:ByteArray)
-        //fun recordData(recordArrayList: ArrayList<Record>)
-        //fun alarmData(alarmArrayList: ArrayList<Alarm>)
     }
 
 }

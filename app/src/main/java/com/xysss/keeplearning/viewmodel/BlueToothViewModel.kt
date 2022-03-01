@@ -64,16 +64,6 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
         BleHelper.connectBlueTooth(device,bleCallBack)
     }
 
-    override fun reqMatter(index: Int) {
-        val sendBytes=matterIndexMsg.writeInt32LE(index.toLong())
-        val command=matterHeadMsg+sendBytes.toHexString(false).trim()
-        BleHelper.addSendLinkedDeque(command)
-    }
-
-    override fun saveMatter(matter: Matter) {
-        if (Repository.forgetMatterIsExist(matter.voc_index_matter)==0)  //不存在
-            Repository.insertMatter(matter)
-    }
 
     override fun mqttUIShow(state: String?) {
         if (state==mqttConnectSuccess){

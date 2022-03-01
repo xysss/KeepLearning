@@ -24,8 +24,7 @@ data class Record(
     val thresh_twa: String,
     val thresh_stel: String,
     val userId: String,  //用户ID
-    val placeId: String,  //地点ID
-    val recordName: String
+    val placeId: String  //地点ID
 ) {
     @PrimaryKey(autoGenerate = true)
     var id = 0L

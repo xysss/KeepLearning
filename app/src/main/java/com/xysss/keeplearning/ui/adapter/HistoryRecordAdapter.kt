@@ -14,12 +14,11 @@ import com.xysss.keeplearning.data.response.JoinResult
  */
 
 
-class HistoryRecordAdapter(data: ArrayList<Any>) : BaseQuickAdapter<Any, BaseViewHolder>(R.layout.history_item_record,data),
-    LoadMoreModule {
+class HistoryRecordAdapter(data: ArrayList<Any>) : BaseQuickAdapter<Any, BaseViewHolder>(R.layout.history_item_record,data), LoadMoreModule {
 
     override fun convert(holder: BaseViewHolder, item: Any) {
         val itemData=item as JoinResult
-        holder.setText(R.id.item_todo_title, itemData.matterName ?: itemData.recordName)
+        holder.setText(R.id.item_todo_title, itemData.matterName)
         holder.setText(R.id.item_todo_id,itemData.id.toString())
         holder.setText(R.id.item_todo_date, itemData.timestamp)
         holder.setText(R.id.cfNum, itemData.cf)

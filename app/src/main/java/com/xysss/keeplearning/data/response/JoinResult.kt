@@ -17,6 +17,5 @@ class JoinResult(
     val userId: String,  //用户ID
     val placeId: String,  //地点ID
     val matterName: String?,
-    val recordName: String?,
     val ppm: String?
     )

@@ -88,6 +88,9 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
         mmkv.putString(ValueKey.CHARACTERISTIC_WRITE_UUID, wUUID)
         mmkv.putString(ValueKey.CHARACTERISTIC_INDICATE_UUID, rUUID)
 
+        //默认过滤设备名为空的设备
+        mmkv.putBoolean(ValueKey.NULL_NAME, true)
+
         bleAdapter = BleDeviceAdapter(mList).apply {
             setOnItemClickListener { _, _, position ->
                 if (checkUuid()) {

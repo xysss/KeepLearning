@@ -33,8 +33,8 @@ class BleCallback : BluetoothGattCallback() {
     private var alarmArrayList=ArrayList<Alarm>()
     private val newLengthBytes = ByteArray(2)
     private var newLength=0
-    private var newIndex=0
-
+    private var newIndex=-1
+    private var mVocIndex=0
     private var beforeIsFF=false
 
     fun setUiCallback(uiCallback: UiCallback) {
@@ -307,7 +307,7 @@ class BleCallback : BluetoothGattCallback() {
                 mmkv.putString(ValueKey.recTopicValue, recTopicDefault+String(tempBytes)+"/")
                 mmkv.putString(ValueKey.sendTopicValue, sendTopicDefault+String(tempBytes)+"/")
 
-                "设备信息解析成功${String(tempBytes)}".logE("xysLog")
+                "设备信息解析成功: ${String(tempBytes)}".logE("xysLog")
             }
         }
     }
@@ -375,9 +375,7 @@ class BleCallback : BluetoothGattCallback() {
                             val mPpmStr=ByteUtils.getNoMoreThanTwoDigits(mPpm)
 
                             val mCF=it.readByteArrayBE(firstIndex+12,4).readFloatLE()
-                            val mVocIndex=it.readByteArrayBE(firstIndex+16,4).readInt32LE()
-                            //val mVocIndex=2
-
+                            mVocIndex=it.readByteArrayBE(firstIndex+16,4).readInt32LE()
                             val mAlarm=it.readByteArrayBE(firstIndex+20,4).readInt32LE()
                             val mHi=it.readByteArrayBE(firstIndex+24,4).readFloatLE()
                             val mLo=it.readByteArrayBE(firstIndex+28,4).readFloatLE()
@@ -386,21 +384,28 @@ class BleCallback : BluetoothGattCallback() {
                             val mUserId=it.readByteArrayBE(firstIndex+40,4).readInt32LE()
                             val mPlaceId=it.readByteArrayBE(firstIndex+44,4).readInt32LE()
 
+                            val dateRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex, mAlarm.toString(),
+                                mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString(),mPlaceId.toString())
+
+                            //存储数据
+                            if (Repository.forgetRecordIsExist(dateRecord.timestamp)==0){
+                                Repository.insertRecord(dateRecord)
+                            }
+                            //请求物质名称
                             if (newIndex!=mVocIndex){
                                 if (Repository.forgetMatterIsExist(mVocIndex)==0) {
                                     val sendBytes=matterIndexMsg.writeInt32LE(mVocIndex.toLong())
                                     val command=matterHeadMsg+sendBytes.toHexString(false).trim()
                                     BleHelper.addSendLinkedDeque(command)
-                                    delay(500)
+                                    newIndex=mVocIndex
+                                    //阻塞1000ms,等待结果协议接收完成,如果底层发送延时时间变动，此处时间也需要更改
+                                    delay(1000)
                                 }
                             }
-
-                            val dateRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex, mAlarm.toString(),
-                                mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString(),mPlaceId.toString())
-                            recordArrayList.add(dateRecord)
                         }
                     }
-                    recordData(recordArrayList)
+                    //请求下一包
+                    recordData()
                 }
 
                 //报警解析
@@ -443,8 +448,7 @@ class BleCallback : BluetoothGattCallback() {
                 val matter=Matter(matterIndex,matterName,mcfNum)
 
                 if (Repository.forgetMatterIsExist(matter.voc_index_matter)==0){
-                    if (Repository.insertMatter(matter)!=0L)
-                        newIndex=matterIndex
+                    Repository.insertMatter(matter)
                 }
             }else{
                 "查询物质信息协议长度不为57，实际长度：${it.size}".logE("xysLog")
@@ -468,32 +472,25 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
-    private fun recordData(recordArrayList: ArrayList<Record>) {
-        if (recordArrayList.size!=0){
-            for (record in recordArrayList){
-                if (Repository.forgetRecordIsExist(record.timestamp)==0){
-                    Repository.insertRecord(record)
-                }
-            }
-            //Repository.insertRecordList(recordArrayList)
-            //recordArrayList.logE("xysLog")
-            recordSum= mmkv.getInt(ValueKey.deviceRecordSum,0)
-            if (recordIndex<recordSum-recordReadNum){
-                "recordIndex: $recordIndex".logE("xysLog")
+    private suspend fun recordData() {
+        //Repository.insertRecordList(recordArrayList)
+        //recordArrayList.logE("xysLog")
+        recordSum= mmkv.getInt(ValueKey.deviceRecordSum,0)
+        if (recordIndex<recordSum-recordReadNum){
+            "recordIndex: $recordIndex".logE("xysLog")
+            val sendBytes=startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
+            val command=recordHeadMsg+sendBytes.toHexString(false).trim()
+            BleHelper.addSendLinkedDeque(command)
+            recordIndex += recordReadNum
+        }
+        else{
+            if (recordIndex<recordSum){
+                recordReadNum=recordSum-recordIndex
                 val sendBytes=startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
                 val command=recordHeadMsg+sendBytes.toHexString(false).trim()
                 BleHelper.addSendLinkedDeque(command)
-                recordIndex += recordReadNum
             }
-            else{
-                if (recordIndex<recordSum){
-                    recordReadNum=recordSum-recordIndex
-                    val sendBytes=startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
-                    val command=recordHeadMsg+sendBytes.toHexString(false).trim()
-                    BleHelper.addSendLinkedDeque(command)
-                }
-                recordIndex = recordSum.toLong()
-            }
+            recordIndex = recordSum.toLong()
         }
     }
 

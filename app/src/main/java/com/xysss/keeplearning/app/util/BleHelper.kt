@@ -18,7 +18,7 @@ import java.util.*
 object BleHelper {
 
     //Gatt
-    private var gatt: BluetoothGatt?=null
+    public var gatt: BluetoothGatt?=null
     private var findDevice: BluetoothDevice? = null
 
     lateinit var transSendCodingBytes: ByteArray

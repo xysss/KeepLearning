@@ -227,6 +227,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
     }
 
     override fun onDestroy() {
+        BleHelper.gatt?.close()
         super.onDestroy()
     }
 }

@@ -82,12 +82,10 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
      * 初始化
      */
     private fun init() {
-
         mmkv.putString(ValueKey.SERVICE_UUID, sUUID)
         mmkv.putString(ValueKey.DESCRIPTOR_UUID, dUUID)
         mmkv.putString(ValueKey.CHARACTERISTIC_WRITE_UUID, wUUID)
         mmkv.putString(ValueKey.CHARACTERISTIC_INDICATE_UUID, rUUID)
-
         //默认过滤设备名为空的设备
         mmkv.putBoolean(ValueKey.NULL_NAME, true)
 
@@ -268,13 +266,11 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
         if (mmkv.getBoolean(ValueKey.NULL_NAME, false) && bleDevice.device.name == null) {
             return
         }
-
         rssi = -mmkv.getInt(ValueKey.RSSI, 100)
         filterDeviceList()
         if (bleDevice.rssi < rssi) {
             return
         }
-
         //检查之前所添加的设备地址是否存在当前地址列表
         val address = bleDevice.device.address
         if (!addressList.contains(address)) {
@@ -366,6 +362,7 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
     }
 
     override fun onDestroy() {
+        stopScan()
         super.onDestroy()
     }
 }

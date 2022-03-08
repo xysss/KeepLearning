@@ -15,16 +15,13 @@ import com.xysss.keeplearning.viewmodel.SettingViewModel
 
 class ThreeFragment : BaseFragment<SettingViewModel, FragmentThreeBinding>() {
 
-
     override fun initView(savedInstanceState: Bundle?) {
         mViewBinding.customToolbar.setCenterTitle(R.string.bottom_title_report)
-        mViewBinding.customToolbar.setBackgroundResource(R.color.colorPrimary_20)
+        mViewBinding.customToolbar.setBackgroundResource(R.color.color_492)
         immersionBar {
             titleBar(mViewBinding.customToolbar)
         }
-
         //BleHelper.sendBlueToothMsg(reqDeviceMsg)
-
     }
 
     override fun initObserver() {

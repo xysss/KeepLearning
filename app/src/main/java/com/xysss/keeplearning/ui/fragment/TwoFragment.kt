@@ -25,6 +25,7 @@ class TwoFragment : BaseFragment<HistoryTreeViewModel, FragmentTwoBinding>() {
     }
     override fun initView(savedInstanceState: Bundle?) {
         mViewBinding.customTwoToolbar.setCenterTitle(R.string.bottom_title_paper)
+        mViewBinding.customTwoToolbar.setBackgroundResource(R.color.color_492)
         //初始化viewpager2
         //mViewBinding.viewPager.init(this, fragments)
         //初始化 magic_indicator

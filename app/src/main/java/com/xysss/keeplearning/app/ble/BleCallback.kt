@@ -108,7 +108,7 @@ class BleCallback : BluetoothGattCallback() {
                 }
 
                 scope.launch(Dispatchers.IO) {
-                    delay(1000)
+                    delay(500)
                     BleHelper.addSendLinkedDeque(reqDeviceMsg)  //请求设备信息
                 }
             } else "通知开启失败".logE("xysLog")
@@ -368,12 +368,9 @@ class BleCallback : BluetoothGattCallback() {
                         if (firstIndex+44<it.size&&dataNum>0){
                             val mTimestamp=it.readByteArrayBE(firstIndex,4).readUInt32LE()
                             val mDateStr=ByteUtils.getDateTime(mTimestamp.toString())
-
                             val mReserve=it.readByteArrayBE(firstIndex+4,4).readInt32LE()
-
                             val mPpm=it.readByteArrayBE(firstIndex+8,4).readFloatLE()
                             val mPpmStr=ByteUtils.getNoMoreThanTwoDigits(mPpm)
-
                             val mCF=it.readByteArrayBE(firstIndex+12,4).readFloatLE()
                             mVocIndex=it.readByteArrayBE(firstIndex+16,4).readInt32LE()
                             val mAlarm=it.readByteArrayBE(firstIndex+20,4).readInt32LE()
@@ -386,7 +383,6 @@ class BleCallback : BluetoothGattCallback() {
 
                             val dateRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex, mAlarm.toString(),
                                 mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString(),mPlaceId.toString())
-
                             //存储数据
                             if (Repository.forgetRecordIsExist(dateRecord.timestamp)==0){
                                 Repository.insertRecord(dateRecord)
@@ -446,7 +442,6 @@ class BleCallback : BluetoothGattCallback() {
                 val tempBytes: ByteArray = it.readByteArrayBE(35, i - 35)
                 val matterName = String(tempBytes)
                 val matter=Matter(matterIndex,matterName,mcfNum)
-
                 if (Repository.forgetMatterIsExist(matter.voc_index_matter)==0){
                     Repository.insertMatter(matter)
                 }
@@ -472,7 +467,7 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
-    private suspend fun recordData() {
+    private fun recordData() {
         //Repository.insertRecordList(recordArrayList)
         //recordArrayList.logE("xysLog")
         recordSum= mmkv.getInt(ValueKey.deviceRecordSum,0)

@@ -30,7 +30,7 @@
                     android:id="@+id/text1"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:text="浓度单位："
+                    android:text="@string/bottom_read_concentrationUnit"
                     android:layout_height="wrap_content" />
                 <TextView
                     android:id="@+id/one_concentrationUnit"
@@ -41,7 +41,7 @@
                     android:id="@+id/text2"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:text="浓度值："
+                    android:text="@string/bottom_read_concentrationNum"
                     android:layout_height="wrap_content" />
                 <TextView
                     android:id="@+id/one_concentrationNum"
@@ -52,7 +52,7 @@
                     android:id="@+id/text3"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:text="物质名称："
+                    android:text="@string/bottom_read_materialName"
                     android:layout_height="wrap_content" />
                 <TextView
                     android:id="@+id/one_materialName"
@@ -71,23 +71,24 @@
                     android:id="@+id/button2"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:text="开始实时数据"
+                    android:text="开始上传实时数据"
                     android:layout_height="wrap_content"/>
 
                 <Button
                     android:id="@+id/button3"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:text="数据信息"
+                    android:text="同步设备数据记录"
                     android:layout_height="wrap_content"/>
                 <Button
                     android:id="@+id/button4"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:text="报警信息"
+                    android:text="同步设备报警记录"
                     android:layout_height="wrap_content"/>
                 <Button
                     android:id="@+id/button5"
+                    android:visibility="gone"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:text="读取物质库条目"
@@ -96,27 +97,27 @@
                     android:id="@+id/button6"
                     android:layout_width="0dp"
                     android:layout_weight="1"
+                    android:visibility="gone"
                     android:text="物质库"
                     android:layout_height="wrap_content"/>
                 <Button
                     android:id="@+id/button7"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:text="停止实时数据"
+                    android:text="打印报告"
                     android:layout_height="wrap_content"/>
                 <Button
                     android:id="@+id/button9"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:text="连接mqtt"
+                    android:text="开始上传云端数据"
                     android:layout_height="wrap_content"/>
                 <Button
                     android:id="@+id/button10"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:text="连接蓝牙"
+                    android:text="点击连接蓝牙设备"
                     android:layout_height="wrap_content"/>
-
             </LinearLayout>
         </LinearLayout>
 

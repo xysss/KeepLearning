@@ -5,22 +5,26 @@
     <string name="bottom_title_report">设备信息</string>
     <string name="bottom_title_user">个人中心</string>
 
+    <string name="bottom_read_concentrationUnit">浓度单位:</string>
+    <string name="bottom_read_concentrationNum">浓度值:</string>
+    <string name="bottom_read_materialName">物质名称:</string>
+
 
     <string name="login_submit">登录</string>
     <string name="login_password">密码</string>
     <string name="login_phone">手机号</string>
     <string name="login_register">注册</string>
     <string name="login_tips">教师账号登录</string>
+
     <string name="error_tips">发生错误</string>
     <string name="error_message">发生意外错误。</string>
 
     <string name="user_name">赵钱孙</string>
     <string name="user_id">id：—　排名：—</string>
+
     <string name="me_integral">我的积分</string>
     <string name="me_integral_now">当前积分:</string>
     <string name="me_collect">我的收藏</string>
-
-
     <string name="me_article">我的文章</string>
     <string name="me_todo">TODO</string>
     <string name="me_web">开源网站</string>

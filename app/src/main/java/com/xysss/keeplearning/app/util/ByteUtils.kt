@@ -77,7 +77,7 @@ object ByteUtils {
 
     fun getDateTime(s: String): String {
         return try {
-            val sdf = SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+            val sdf = SimpleDateFormat("yyyy/MM/dd hh:mm:ss")
             val netDate = Date(s.toLong() * 1000)
             sdf.format(netDate)
         } catch (e: Exception) {

@@ -36,14 +36,9 @@ class MQTTService : Service(){
     private var mqttClient: MqttAndroidClient?=null
     private val mBinder = MyBinder()
 
-    private lateinit var mqttMsgCall: MqttMsgCall
-
     //Gatt
     private lateinit var gatt: BluetoothGatt
 
-    fun setMqttListener(mqttCall: MqttMsgCall){
-        mqttMsgCall=mqttCall
-    }
     companion object {
         const val TAG = "AndroidMqttClient"
         /**
@@ -58,7 +53,6 @@ class MQTTService : Service(){
         val service: MQTTService
             get() = this@MQTTService
     }
-
     //    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 //        connect(appContext)
 //        return super.onStartCommand(intent, flags, startId)
@@ -98,12 +92,10 @@ class MQTTService : Service(){
                     "Receive message: ${message.toString()} from topic: $topic".logE(TAG)
                     response("message arrived")
                 }
-
                 //connectionLost：与 broker 连接丢失
                 override fun connectionLost(cause: Throwable?) {
                     "Connection lost ${cause.toString()}".logE(TAG)
                 }
-
                 //deliveryComplete：消息到 broker 传递完成
                 override fun deliveryComplete(token: IMqttDeliveryToken?) {
                 }
@@ -123,9 +115,7 @@ class MQTTService : Service(){
                         subscribe(recTopic, qos)
                         isConnectMqtt=true
                         BleHelper.addSendLinkedDeque(reqDeviceMsg)  //请求设备信息
-                        //mqttMsgCall.mqttUIShow("MqttConnectSuccess")
                     }
-
                     override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                         "MQTT Connection failure".logE(TAG)
                         isConnectMqtt=false
@@ -146,7 +136,6 @@ class MQTTService : Service(){
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
                     "Subscribed to $topic".logE(TAG)
                 }
-
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                     "Failed to subscribe $topic".logE(TAG)
                 }
@@ -196,7 +185,7 @@ class MQTTService : Service(){
     }
 
     //断开MQTT连接
-    private fun mpttDisconnect() {
+    fun mpttDisconnect() {
         try {
             mqttClient?.disconnect(null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
@@ -211,7 +200,6 @@ class MQTTService : Service(){
             e.printStackTrace()
         }
     }
-
 
     /**
      * 判断网络是否连接
@@ -256,15 +244,10 @@ class MQTTService : Service(){
         }
     }
 
-
     override fun unbindService(conn: ServiceConnection) {
         mpttDisconnect()
         gatt.disconnect()
         gatt.close()
         super.unbindService(conn)
-    }
-
-    interface MqttMsgCall {
-        fun mqttUIShow(state:String?)
     }
 }

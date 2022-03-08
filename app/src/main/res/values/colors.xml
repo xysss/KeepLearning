@@ -5,6 +5,8 @@
     <color name="colorAccent">#2196F3</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorBlack">#000000</color>
+    <color name="color_492">#0C4492</color>
+    <color name="color_8FF">#F2F8FF</color>
 
     <color name="colorGreen">#62B75D</color>
     <color name="colorBottomNavDefault">#505050</color>
@@ -19,6 +21,8 @@
     <color name="colorPrimary_30">#E0EEEE</color>
     <color name="colorBlack333">#333</color>
     <color name="colorBlack666">#666</color>
+    <color name="colorBlack6C6">#C6C6C6</color>
+
     <color name="backgrounGrey">#CCCCCC</color>
     <color name="textHint">#999999</color>
     <color name="colorGray">#333</color>

@@ -27,6 +27,10 @@ object Repository {
         return dataRecordDao.loadLimitRecord(size, index)
     }
     @Synchronized
+    fun getAllRecordList(): List<Record>{
+        return dataRecordDao.loadAllRecord()
+    }
+    @Synchronized
     fun getJoinResultList(size:Int,index: Int): List<JoinResult>{
         return dataRecordDao.leftJoinLoadLimitRecord(size, index)
     }

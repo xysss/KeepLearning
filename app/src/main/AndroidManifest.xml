@@ -28,10 +28,10 @@
         tools:ignore="ProtectedPermissions" /> <!-- Arms 配置 -->
     <meta-data
         android:name="design_width_in_dp"
-        android:value="375" />
+        android:value="360" />
     <meta-data
         android:name="design_height_in_dp"
-        android:value="667" />
+        android:value="640" />
 
     <application
         android:name=".app.App"

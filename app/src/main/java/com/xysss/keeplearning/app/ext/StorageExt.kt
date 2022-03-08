@@ -25,7 +25,9 @@ val dataMatterDao = AppDatabase.getDatabase().dataMatterDao()
 val job= Job()
 val scope = CoroutineScope(job)
 
-const val mqttConnectSuccess="MqttConnectSuccess"
+const val recordFileName="recordFileName"
+const val alarmFileName="alarmFileName"
+
 const val reqDeviceMsg="55000a0900000100"  //读取设备信息
 const val reqRealTimeDataMsg="55000a0910000100"  //读取实时数据
 

@@ -8,14 +8,14 @@
     <com.xysss.keeplearning.app.widget.CustomToolBar
         android:id="@+id/customTwoToolbar"
         android:layout_width="match_parent"
-        android:background="@color/colorPrimary"
+        android:background="@color/color_492"
         android:layout_height="?actionBarSize" />
 
     <FrameLayout
         android:id="@+id/viewpager_linear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@color/color_492"
         android:padding="2dp">
 
         <net.lucode.hackware.magicindicator.MagicIndicator
@@ -28,6 +28,7 @@
     </FrameLayout>
 
     <androidx.viewpager2.widget.ViewPager2
+        android:background="@color/color_8FF"
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

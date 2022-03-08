@@ -23,6 +23,7 @@ import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -30,8 +31,9 @@ import rxhttp.toFlow
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.param.RxHttp
 import java.io.File
+import java.lang.StringBuilder
 
-class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.MqttMsgCall {
+class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback {
     val bleDate: LiveData<MaterialInfo> get() = _bleDate
 
     private val _bleDate=MutableLiveData<MaterialInfo>()
@@ -50,26 +52,31 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback, MQTTService.
         mService=service
     }
 
+    fun saveRecordFile(){
+        scope.launch(Dispatchers.IO) {
+            Repository.getAllRecordList()
+            val builder = StringBuilder()
+        }
+    }
+    fun saveAlarmFile(){
+
+    }
+
     fun setMqttConnect(){
         recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
         sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
 
-        mService.connectMqtt(appContext)
-        mService.setMqttListener(this)
-        // TODO: 2022/2/18  开始循环去发送实时命令
-        //BleHelper.addSendLinkedDeque(reqRealTimeDataMsg)
+        if (isConnectMqtt){
+            isConnectMqtt=false
+            mService.mpttDisconnect()
+        }else{
+            isConnectMqtt=true
+            mService.connectMqtt(appContext)
+        }
     }
 
     fun connectBlueTooth(device: BluetoothDevice?){
         BleHelper.connectBlueTooth(device,bleCallBack)
-    }
-
-
-    override fun mqttUIShow(state: String?) {
-        if (state==mqttConnectSuccess){
-            mqttConnectSuccess.logE("xysLog")
-            //BleHelper.sendBlueToothMsg(reqDeviceMsg)
-        }
     }
 
     override fun realData(materialInfo: MaterialInfo) {

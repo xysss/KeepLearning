@@ -8,6 +8,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.result.contract.ActivityResultContracts
@@ -68,7 +69,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
     override fun initView(savedInstanceState: Bundle?) {
         mViewBinding.customToolbar.setCenterTitle(R.string.bottom_title_read)
-        mViewBinding.customToolbar.setBackgroundResource(R.color.colorOrange)
         //bugly进入首页检查更新
         //Beta.checkUpgrade(false, true)
         //开启服务
@@ -124,12 +124,17 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         super.onDestroyView()
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private val requestDataLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 val device = result.data?.getParcelableExtra<BluetoothDevice>("device")
                 //val data = result.data?.getStringExtra("data")
                 mViewModel.connectBlueTooth(device)
+
+                mViewBinding.blueLinkTv.text="已连接设备"
+                mViewBinding.blueLinkTv.setTextColor(Color.parseColor("#4BDAFF"))
+                mViewBinding.blueLinkImg.setImageDrawable(resources.getDrawable(R.mipmap.connected_icon,null))
             }
         }
 
@@ -142,9 +147,17 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
             mViewBinding.button2, mViewBinding.button3, mViewBinding.button4,
             mViewBinding.button5, mViewBinding.button6, mViewBinding.button7,
-            mViewBinding.button9,mViewBinding.button10
+            mViewBinding.button9,mViewBinding.button10,
+
+            mViewBinding.blueLink
+
+
         ) {
             when (it.id) {
+                R.id.blueLink->{
+                    val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
+                    requestDataLauncher.launch(intentBle)
+                }
                 R.id.button2 -> {
                     if(isClickStart){
                         isStopReqRealMsg =false
@@ -179,10 +192,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                         mViewModel.setMqttConnect()
                     }
                 }
-                R.id.button10 -> {
-                    val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
-                    requestDataLauncher.launch(intentBle)
-                }
+
 
 
 

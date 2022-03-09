@@ -3,18 +3,239 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/shape_home_background"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <com.xysss.keeplearning.app.widget.CustomToolBar
+        android:id="@+id/customToolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="?actionBarSize"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />
+    <LinearLayout
+        android:id="@+id/blueLink"
+        android:layout_width="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="20dp"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/blueLinkTv"
+            android:layout_width="wrap_content"
+            android:text="未连接设备"
+            android:textSize="13sp"
+            android:layout_gravity="center"
+            android:textColor="@color/white"
+            android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/blueLinkImg"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="3dp"
+            android:layout_gravity="center"
+            android:src="@mipmap/no_connected_icon"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/test_background_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/test_background"
+        app:layout_constraintTop_toBottomOf="@+id/customToolbar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_marginTop="40dp"
+        app:layout_constraintTop_toBottomOf="@+id/customToolbar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:src="@mipmap/start_icon"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_marginTop="65dp"
+        android:textSize="20sp"
+        android:text="开始"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/customToolbar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:layout_height="wrap_content"
+        android:id="@+id/concentrationNum"
+        android:layout_width="wrap_content"
+        android:textStyle="bold"
+        android:textSize="60sp"
+        android:text="6688"
+        android:layout_marginTop="-10dp"
+        android:includeFontPadding="false"
+        android:textColor="@color/color_AFF"
+        app:layout_constraintTop_toBottomOf="@+id/test_background_img"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+    <TextView
+        android:id="@+id/concentrationUnit"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="12dp"
+        android:textSize="20sp"
+        android:text="ppm"
+        android:textColor="@color/color_AFF"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@+id/test_background_img"
+        app:layout_constraintLeft_toRightOf="@+id/concentrationNum"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/materialName"
+        android:layout_width="wrap_content"
+        android:textSize="20sp"
+        android:text="异丁烯"
+        android:layout_marginTop="-5dp"
+        android:gravity="center"
+        android:textColor="@color/color_AFF"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/concentrationNum"
+        android:layout_height="wrap_content"/>
+    <ImageView
+        android:id="@+id/to_service_back_img"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/to_service_background"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/materialName" />
+    <ImageView
+        android:id="@+id/to_service_icon_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/to_service_icon"
+        android:layout_marginTop="88dp"
+        android:layout_marginStart="75dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/materialName" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="14dp"
+        android:text="上传云端"
+        android:textSize="20sp"
+        android:textColor="@color/color_995"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/to_service_icon_img" />
+    <ImageView
+        android:id="@+id/syn_record_background_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:src="@mipmap/syn_record_background"
+        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
+        app:layout_constraintTop_toBottomOf="@+id/materialName" />
+
+    <ImageView
+        android:id="@+id/syn_record_icon_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/syn_record_icon"
+        android:layout_marginTop="35dp"
+        android:layout_marginStart="77dp"
+        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
+        app:layout_constraintTop_toBottomOf="@+id/materialName" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:textColor="@color/color_9FB"
+        android:text="同步数据信息"
+        android:textSize="20sp"
+        android:layout_marginTop="14dp"
+        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
+        app:layout_constraintTop_toBottomOf="@+id/syn_record_icon_img" />
+    <ImageView
+        android:id="@+id/syn_alarm_background_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/syn_alarm_background"
+        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
+        app:layout_constraintTop_toBottomOf="@+id/syn_record_background_img" />
+    <ImageView
+        android:id="@+id/syn_alarm_icon_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/syn_alarm_icon"
+        android:layout_marginTop="22dp"
+        android:layout_marginStart="77dp"
+        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
+        app:layout_constraintTop_toBottomOf="@+id/syn_record_background_img" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:text="同步数据信息"
+        android:textSize="20sp"
+        android:layout_marginTop="14dp"
+        android:textColor="@color/color_92D"
+        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
+        app:layout_constraintTop_toBottomOf="@+id/syn_alarm_icon_img" />
+    <LinearLayout
+        android:id="@+id/syn_lin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/to_service_back_img"
+        android:layout_marginStart="120dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/syn_history_icon_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/syn_history_icon" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="同步数据信息中"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:layout_marginStart="7dp" />
+        <TextView
+            android:id="@+id/syn_num_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="80%"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:layout_marginStart="1dp" />
+    </LinearLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <LinearLayout
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/customToolbar"
+        app:layout_constraintLeft_toLeftOf="parent"
         android:orientation="vertical">
-
-        <com.xysss.keeplearning.app.widget.CustomToolBar
-            android:id="@+id/customToolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

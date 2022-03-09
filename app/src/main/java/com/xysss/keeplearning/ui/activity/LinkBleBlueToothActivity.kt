@@ -36,28 +36,20 @@ import no.nordicsemi.android.support.v18.scanner.ScanCallback
 import no.nordicsemi.android.support.v18.scanner.ScanResult
 
 class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLinkBluetoothBinding>() {
-
     //默认蓝牙适配器
     private var defaultAdapter = BluetoothAdapter.getDefaultAdapter()
-
     //低功耗蓝牙适配器
     private lateinit var bleAdapter: BleDeviceAdapter
-
     //蓝牙列表
     private var mList: MutableList<BleDevice> = ArrayList()
-
     //地址列表
     private var addressList: MutableList<String> = ArrayList()
-
     //当前是否扫描
     private var isScanning = false
-
     //当前扫描设备是否过滤设备名称为Null的设备
     private var isScanNullNameDevice = false
-
     //当前扫描设备是否过滤设备信号值强度低于目标值的设备
     private var rssi = -100
-
     //注册开启蓝牙  注意在onCreate之前注册
     private val activityResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

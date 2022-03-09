@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2196F3</color>
+    <color name="colorPrimary">#0B4290</color>
     <color name="colorPrimaryDark">#2196F3</color>
     <color name="colorAccent">#2196F3</color>
     <color name="colorWhite">#ffffff</color>
@@ -9,6 +9,9 @@
     <color name="color_8FF">#F2F8FF</color>
     <color name="color_9FB">#3B89FB</color>
     <color name="colorGreen">#62B75D</color>
+    <color name="color_AFF">#4BDAFF</color>
+    <color name="color_995">#438995</color>
+    <color name="color_92D">#94692D</color>
     <color name="colorBottomNavDefault">#505050</color>
     <color name="colorGray_E">#EEEEEE</color>
     <color name="colorBlackGry">#333333</color>

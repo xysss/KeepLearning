@@ -12,6 +12,7 @@
         android:layout_height="?actionBarSize"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
+
     <LinearLayout
         android:id="@+id/blueLink"
         android:layout_width="wrap_content"
@@ -37,15 +38,18 @@
             android:src="@mipmap/no_connected_icon"
             android:layout_height="wrap_content"/>
     </LinearLayout>
+
     <ImageView
-        android:id="@+id/test_background_img"
+        android:id="@+id/testBackgroundImg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@mipmap/test_background"
         app:layout_constraintTop_toBottomOf="@+id/customToolbar"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
+
     <ImageView
+        android:id="@+id/testImg"
         android:layout_width="wrap_content"
         android:layout_marginTop="40dp"
         app:layout_constraintTop_toBottomOf="@+id/customToolbar"
@@ -53,7 +57,9 @@
         app:layout_constraintRight_toRightOf="parent"
         android:src="@mipmap/start_icon"
         android:layout_height="wrap_content"/>
+
     <TextView
+        android:id="@+id/testText"
         android:layout_width="wrap_content"
         android:layout_marginTop="65dp"
         android:textSize="20sp"
@@ -63,31 +69,34 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_height="wrap_content"/>
+
     <TextView
         android:layout_height="wrap_content"
         android:id="@+id/concentrationNum"
         android:layout_width="wrap_content"
         android:textStyle="bold"
-        android:textSize="60sp"
+        android:textSize="50sp"
         android:text="6688"
         android:layout_marginTop="-10dp"
         android:includeFontPadding="false"
         android:textColor="@color/color_AFF"
-        app:layout_constraintTop_toBottomOf="@+id/test_background_img"
+        app:layout_constraintTop_toBottomOf="@+id/testBackgroundImg"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
+
     <TextView
         android:id="@+id/concentrationUnit"
         android:layout_width="wrap_content"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="15dp"
         android:layout_marginStart="12dp"
         android:textSize="20sp"
         android:text="ppm"
         android:textColor="@color/color_AFF"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/test_background_img"
+        app:layout_constraintTop_toBottomOf="@+id/testBackgroundImg"
         app:layout_constraintLeft_toRightOf="@+id/concentrationNum"
         android:layout_height="wrap_content"/>
+
     <TextView
         android:id="@+id/materialName"
         android:layout_width="wrap_content"
@@ -100,8 +109,9 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/concentrationNum"
         android:layout_height="wrap_content"/>
+
     <ImageView
-        android:id="@+id/to_service_back_img"
+        android:id="@+id/toServiceBackImg"
         android:layout_width="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_marginStart="20dp"
@@ -109,6 +119,7 @@
         android:src="@mipmap/to_service_background"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/materialName" />
+
     <ImageView
         android:id="@+id/to_service_icon_img"
         android:layout_width="wrap_content"
@@ -118,6 +129,7 @@
         android:layout_marginStart="75dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/materialName" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -128,13 +140,14 @@
         android:textColor="@color/color_995"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/to_service_icon_img" />
+
     <ImageView
-        android:id="@+id/syn_record_background_img"
+        android:id="@+id/synRecordBackgroundImg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:src="@mipmap/syn_record_background"
-        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
+        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
         app:layout_constraintTop_toBottomOf="@+id/materialName" />
 
     <ImageView
@@ -144,8 +157,9 @@
         android:src="@mipmap/syn_record_icon"
         android:layout_marginTop="35dp"
         android:layout_marginStart="77dp"
-        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
+        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
         app:layout_constraintTop_toBottomOf="@+id/materialName" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -154,15 +168,17 @@
         android:text="同步数据信息"
         android:textSize="20sp"
         android:layout_marginTop="14dp"
-        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
+        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
         app:layout_constraintTop_toBottomOf="@+id/syn_record_icon_img" />
+
     <ImageView
-        android:id="@+id/syn_alarm_background_img"
+        android:id="@+id/synAlarmBackgroundImg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@mipmap/syn_alarm_background"
-        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
-        app:layout_constraintTop_toBottomOf="@+id/syn_record_background_img" />
+        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
+        app:layout_constraintTop_toBottomOf="@+id/synRecordBackgroundImg" />
+
     <ImageView
         android:id="@+id/syn_alarm_icon_img"
         android:layout_width="wrap_content"
@@ -170,8 +186,9 @@
         android:src="@mipmap/syn_alarm_icon"
         android:layout_marginTop="22dp"
         android:layout_marginStart="77dp"
-        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
-        app:layout_constraintTop_toBottomOf="@+id/syn_record_background_img" />
+        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
+        app:layout_constraintTop_toBottomOf="@+id/synRecordBackgroundImg" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -180,14 +197,16 @@
         android:textSize="20sp"
         android:layout_marginTop="14dp"
         android:textColor="@color/color_92D"
-        app:layout_constraintLeft_toRightOf="@+id/to_service_back_img"
+        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
         app:layout_constraintTop_toBottomOf="@+id/syn_alarm_icon_img" />
+
     <LinearLayout
+        android:visibility="invisible"
         android:id="@+id/syn_lin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/to_service_back_img"
+        app:layout_constraintTop_toBottomOf="@+id/toServiceBackImg"
         android:layout_marginStart="120dp"
         android:layout_marginTop="5dp"
         android:orientation="horizontal">
@@ -281,64 +300,6 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content" />
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_marginTop="20dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:id="@+id/button2"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="开始上传实时数据"
-                    android:layout_height="wrap_content"/>
-
-                <Button
-                    android:id="@+id/button3"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="同步设备数据记录"
-                    android:layout_height="wrap_content"/>
-                <Button
-                    android:id="@+id/button4"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="同步设备报警记录"
-                    android:layout_height="wrap_content"/>
-                <Button
-                    android:id="@+id/button5"
-                    android:visibility="gone"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="读取物质库条目"
-                    android:layout_height="wrap_content"/>
-                <Button
-                    android:id="@+id/button6"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:visibility="gone"
-                    android:text="物质库"
-                    android:layout_height="wrap_content"/>
-                <Button
-                    android:id="@+id/button7"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="打印报告"
-                    android:layout_height="wrap_content"/>
-                <Button
-                    android:id="@+id/button9"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="开始上传云端数据"
-                    android:layout_height="wrap_content"/>
-                <Button
-                    android:id="@+id/button10"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="点击连接蓝牙设备"
-                    android:layout_height="wrap_content"/>
             </LinearLayout>
         </LinearLayout>
 

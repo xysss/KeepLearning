@@ -10,6 +10,7 @@ import com.xysss.keeplearning.app.room.Record
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils
 import com.xysss.keeplearning.app.util.Crc8
+import com.xysss.keeplearning.app.util.FileUtils
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.data.repository.Repository
 import com.xysss.keeplearning.data.response.MaterialInfo
@@ -299,10 +300,10 @@ class BleCallback : BluetoothGattCallback() {
                 mmkv.putInt(ValueKey.deviceCurrentRunningTime,it.readByteArrayBE(21, 4).readInt32LE())
                 mmkv.putInt(ValueKey.deviceCurrentAlarmNumber,it.readByteArrayBE(25, 4).readInt32LE())
                 mmkv.putInt(ValueKey.deviceCumulativeRunningTime,it.readByteArrayBE(29, 4).readInt32LE())
-                mmkv.putString(ValueKey.deviceDensityMax,String.format("%.3f", it.readByteArrayBE(33, 4).readFloatLE()))
-                mmkv.putString(ValueKey.deviceDensityMin,String.format("%.3f", it.readByteArrayBE(37, 4).readFloatLE()))
-                mmkv.putString(ValueKey.deviceTwaNumber,String.format("%.3f", it.readByteArrayBE(41, 4).readFloatLE()))
-                mmkv.putString(ValueKey.deviceSteLNumber,String.format("%.3f", it.readByteArrayBE(45, 4).readFloatLE()))
+                mmkv.putString(ValueKey.deviceDensityMax,String.format("%.2f", it.readByteArrayBE(33, 4).readFloatLE()))
+                mmkv.putString(ValueKey.deviceDensityMin,String.format("%.2f", it.readByteArrayBE(37, 4).readFloatLE()))
+                mmkv.putString(ValueKey.deviceTwaNumber,String.format("%.2f", it.readByteArrayBE(41, 4).readFloatLE()))
+                mmkv.putString(ValueKey.deviceSteLNumber,String.format("%.2f", it.readByteArrayBE(45, 4).readFloatLE()))
                 mmkv.putString(ValueKey.deviceId,String(tempBytes))
                 mmkv.putString(ValueKey.recTopicValue, recTopicDefault+String(tempBytes)+"/")
                 mmkv.putString(ValueKey.sendTopicValue, sendTopicDefault+String(tempBytes)+"/")
@@ -316,7 +317,7 @@ class BleCallback : BluetoothGattCallback() {
         mBytes.let {
             if (it.size == 49) {
                 //浓度值
-                val concentrationNum = String.format("%.3f", it.readByteArrayBE(7, 4).readFloatLE())
+                val concentrationNum = String.format("%.2f", it.readByteArrayBE(7, 4).readFloatLE())
                 //报警状态
                 val concentrationState = it.readByteArrayBE(11, 4).readInt32LE()
                 //物质库索引
@@ -386,6 +387,10 @@ class BleCallback : BluetoothGattCallback() {
                             //存储数据
                             if (Repository.forgetRecordIsExist(dateRecord.timestamp)==0){
                                 Repository.insertRecord(dateRecord)
+
+
+                                //保存文件
+                                //FileUtils.appendFile("", recordFileName)
                             }
                             //请求物质名称
                             if (newIndex!=mVocIndex){
@@ -435,7 +440,7 @@ class BleCallback : BluetoothGattCallback() {
                 //物质索引号
                 val matterIndex=it.readByteArrayBE(7,4).readInt32LE()
                 //cf值
-                val mcfNum=String.format("%.3f",it.readByteArrayBE(11,4).readFloatLE())
+                val mcfNum=String.format("%.2f",it.readByteArrayBE(11,4).readFloatLE())
                 var i = 35
                 while (i < it.size)
                     if (it[i] == ByteUtils.FRAME_00) break else i++

@@ -9,8 +9,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Color
+import android.opengl.Visibility
 import android.os.Bundle
 import android.os.IBinder
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import com.blankj.utilcode.util.ServiceUtils.bindService
 import com.blankj.utilcode.util.ToastUtils
@@ -96,9 +98,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 //            "state方法中的线程号：$id".logE("xysLog")
 //            "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
 //            mViewBinding.tvState.text = "收到转码后的数据长度: ${it?.length}: $it"
-            mViewBinding.oneConcentrationNum.text=it.concentrationNum
-            mViewBinding.oneConcentrationUnit.text=it.concentrationUnit
-            mViewBinding.oneMaterialName.text=it.materialName
+            mViewBinding.concentrationNum.text=it.concentrationNum
+            mViewBinding.concentrationUnit.text=it.concentrationUnit
+            mViewBinding.materialName.text=it.materialName
         }
     }
 
@@ -145,12 +147,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             mViewBinding.testDownload, mViewBinding.testUpload, mViewBinding.testCrash,
             mViewBinding.getPermission, mViewBinding.testRoom, mViewBinding.linkBlueTooth,
 
-            mViewBinding.button2, mViewBinding.button3, mViewBinding.button4,
-            mViewBinding.button5, mViewBinding.button6, mViewBinding.button7,
-            mViewBinding.button9,mViewBinding.button10,
 
-            mViewBinding.blueLink
-
+            mViewBinding.blueLink,mViewBinding.testBackgroundImg,mViewBinding.toServiceBackImg,
+            mViewBinding.synRecordBackgroundImg,mViewBinding.synAlarmBackgroundImg
 
         ) {
             when (it.id) {
@@ -158,41 +157,38 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                     val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
                     requestDataLauncher.launch(intentBle)
                 }
-                R.id.button2 -> {
+
+                R.id.testBackgroundImg->{
                     if(isClickStart){
                         isStopReqRealMsg =false
                         BleHelper.addSendLinkedDeque(send10Msg)
 
-                        mViewBinding.button2.text="停止上传实时数据"
                         isClickStart=false
+                        mViewBinding.testText.text="停止"
+                        mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.mipmap.pause_icon,null))
                     }else{
                         isStopReqRealMsg =true
 
-                        mViewBinding.button2.text="开始上传实时数据"
                         isClickStart=true
+                        mViewBinding.testText.text="开始"
+                        mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.mipmap.start_icon,null))
                     }
                 }
-                R.id.button3 -> {
-                    BleHelper.sendRecordMsg()
-                }
-                R.id.button4 -> {
-                    BleHelper.sendAlarmMsg()
-                }
-                R.id.button5 -> {
-                    BleHelper.addSendLinkedDeque(send21Msg)
-                }
-                R.id.button6 -> {
-                    BleHelper.addSendLinkedDeque(send20Msg)
-                }
-                R.id.button7 -> {
-                    FileUtils.appendFile("", recordFileName)
-                }
-                R.id.button9 -> {
+
+                R.id.toServiceBackImg->{
                     if (mmkv.getString(ValueKey.deviceId,"")!=""){
                         mViewModel.setMqttConnect()
                     }
                 }
 
+                R.id.synRecordBackgroundImg->{
+                    BleHelper.sendRecordMsg()
+                    mViewBinding.synLin.visibility=View.VISIBLE
+                }
+
+                R.id.synAlarmBackgroundImg->{
+                    BleHelper.sendAlarmMsg()
+                }
 
 
 

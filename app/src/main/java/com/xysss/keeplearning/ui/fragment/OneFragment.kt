@@ -82,6 +82,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         //去连接蓝牙
         val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
         requestDataLauncher.launch(intentBle)
+
+        requestCameraPermissions()
     }
 
     override fun onResume() {
@@ -112,9 +114,10 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         ToastUtils.showShort("请求相机权限")
         //请求打开相机权限
         val rxPermissions = RxPermissions(requireActivity())
-        rxPermissions.request(Manifest.permission.CAMERA).subscribe { aBoolean ->
+        rxPermissions.request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE).subscribe { aBoolean ->
                 if (aBoolean) {
-                    ToastUtils.showShort("相机权限已经打开，直接跳入相机")
+                    ToastUtils.showShort("权限已经打开")
                 } else {
                     ToastUtils.showShort("权限被拒绝")
                 }

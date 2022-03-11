@@ -2,10 +2,12 @@ package com.xysss.keeplearning.app.util
 
 import android.content.Context
 import android.os.Environment
+import com.xysss.keeplearning.app.room.Alarm
+import com.xysss.keeplearning.app.room.Record
 import com.xysss.mvvmhelper.base.appContext
 import java.io.*
 import java.nio.charset.Charset
-import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * 作者 : xys
@@ -51,61 +53,65 @@ object FileUtils {
         f.writeText(text, Charset.defaultCharset())
     }
 
-    //末尾追加写文件
-    fun appendFile(text: String, destFile: String) {
-        val f = File(destFile)
-        if (!f.exists()) {
-            f.createNewFile()
-        }
-        f.appendText(text, Charset.defaultCharset())
-    }
-
-    fun hasSdcard(): Boolean {
+    private fun hasSdcard(): Boolean {
         val status = Environment.getExternalStorageState()
         return Environment.MEDIA_MOUNTED == status
     }
 
-    fun saveRecord(data: String, fileName: String): String? {
-        val format = """
-             ${
-            SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                .format(System.currentTimeMillis())
-        }
-             
-             """.trimIndent()
-        var sb = ""
-        //DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        //String time = formatter.format(new Date());
-        //String fileName = "crash-" + time + ".txt";
-        if (fileName == "自检记录") {
-            sb = """
-            $data
-            
-            """.trimIndent()
-        } else if (fileName == "故障记录") {
-            sb = """
-            $format$data
-            
-            """.trimIndent()
-        }
+    fun saveRecord(record: Record){
+//        val simpleDateFormat = SimpleDateFormat("yyyy/MM/dd hh:mm:ss")
+//        var timeMoment=simpleDateFormat.format(System.currentTimeMillis()) + "\r\n"
+//        val formatter: DateFormat = SimpleDateFormat("yyyy-MM-dd")
+//        val time = formatter.format(Date())
+//        val fileName = "数据记录.txt"
+
         if (hasSdcard()) {
-            val path =
-                Environment.getExternalStorageDirectory().absolutePath + File.separator + "EF1000" + File.separator
-            val dir = File(path)
-            if (!dir.exists()) dir.mkdirs()
+            val sdPath = appContext.getExternalFilesDir(null)?.path + "/vp200/"
+            val file = File(sdPath)
+            val fileName="数据记录.txt"
+            if (!file.exists()) {
+                file.mkdir()
+            }
+            var dataText="时间:${record.timestamp}   报警状态:${record.alarm}   cf数值:${record.cf}   数值:${record.ppm}\n"
+
             var fos: FileOutputStream? = null
             try {
-                fos = FileOutputStream("$path$fileName.txt", true)
-                fos.write(sb.toByteArray())
+                fos = FileOutputStream(sdPath + fileName, true)
+                fos.write(dataText.toByteArray())
                 fos.flush()
                 fos.close()
             } catch (e: FileNotFoundException) {
                 e.printStackTrace()
-            } catch (e: IOException) {
+            }
+        }
+    }
+
+    fun saveAlarm(alarm :Alarm){
+//        val simpleDateFormat = SimpleDateFormat("yyyy/MM/dd hh:mm:ss")
+//        var timeMoment=simpleDateFormat.format(System.currentTimeMillis()) + "\r\n"
+//        val formatter: DateFormat = SimpleDateFormat("yyyy-MM-dd")
+//        val time = formatter.format(Date())
+//        val fileName = "数据记录.txt"
+
+        if (hasSdcard()) {
+            val sdPath = appContext.getExternalFilesDir(null)?.path + "/vp200/"
+            val file = File(sdPath)
+            val fileName="报警记录.txt"
+            if (!file.exists()) {
+                file.mkdir()
+            }
+            var dataText="时间:${alarm.timestamp}   报警状态:${alarm.state}   报警类型:${alarm.type}   数值:${alarm.value}\n"
+
+            var fos: FileOutputStream? = null
+            try {
+                fos = FileOutputStream(sdPath + fileName, true)
+                fos.write(dataText.toByteArray())
+                fos.flush()
+                fos.close()
+            } catch (e: FileNotFoundException) {
                 e.printStackTrace()
             }
         }
-        return fileName
     }
 
 

@@ -382,15 +382,13 @@ class BleCallback : BluetoothGattCallback() {
                             val mUserId=it.readByteArrayBE(firstIndex+40,4).readInt32LE()
                             val mPlaceId=it.readByteArrayBE(firstIndex+44,4).readInt32LE()
 
-                            val dateRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex, mAlarm.toString(),
+                            val dataRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex, mAlarm.toString(),
                                 mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString(),mPlaceId.toString())
                             //存储数据
-                            if (Repository.forgetRecordIsExist(dateRecord.timestamp)==0){
-                                Repository.insertRecord(dateRecord)
-
-
+                            if (Repository.forgetRecordIsExist(dataRecord.timestamp)==0){
+                                Repository.insertRecord(dataRecord)
                                 //保存文件
-                                //FileUtils.appendFile("", recordFileName)
+                                FileUtils.saveRecord(dataRecord)
                             }
                             //请求物质名称
                             if (newIndex!=mVocIndex){
@@ -501,6 +499,7 @@ class BleCallback : BluetoothGattCallback() {
                 //不存在
                 if (Repository.forgetAlarmIsExist(alarm.timestamp)==0){
                     Repository.insertAlarm(alarm)
+                    FileUtils.saveAlarm(alarm)
                 }
             }
             //Repository.insertAlarmList(alarmArrayList)

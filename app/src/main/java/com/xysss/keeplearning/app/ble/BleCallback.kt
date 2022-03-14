@@ -100,6 +100,8 @@ class BleCallback : BluetoothGattCallback() {
 
                 "蓝牙:通知开启成功，准备完成:".logE("xysLog")
 
+                uiCallback.bleConnected("已连接设备")
+
                 scope.launch(Dispatchers.IO) {
                     startSendMessage()
                 }
@@ -112,7 +114,10 @@ class BleCallback : BluetoothGattCallback() {
                     delay(500)
                     BleHelper.addSendLinkedDeque(reqDeviceMsg)  //请求设备信息
                 }
-            } else "通知开启失败".logE("xysLog")
+            } else{
+                uiCallback.bleConnected("未连接设备")
+                "通知开启失败".logE("xysLog")
+            }
         }
     }
 
@@ -174,7 +179,6 @@ class BleCallback : BluetoothGattCallback() {
             }
         }
     }
-
 
     private suspend fun startDealMessage() {
         while (true) {
@@ -475,7 +479,11 @@ class BleCallback : BluetoothGattCallback() {
         //recordArrayList.logE("xysLog")
         recordSum= mmkv.getInt(ValueKey.deviceRecordSum,0)
         if (recordIndex<recordSum-recordReadNum){
-            "recordIndex: $recordIndex".logE("xysLog")
+            val progress=recordIndex/recordSum*100
+
+            "recordIndex: $recordIndex recordSum: $recordSum progress: $progress".logE("xysLog")
+
+            uiCallback.synProgress(progress.toInt())
             val sendBytes=startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
             val command=recordHeadMsg+sendBytes.toHexString(false).trim()
             BleHelper.addSendLinkedDeque(command)
@@ -578,6 +586,8 @@ class BleCallback : BluetoothGattCallback() {
      */
     interface UiCallback {
         fun realData(materialInfo:MaterialInfo)
+        fun bleConnected(state:String)
+        fun synProgress(num:Int)
         fun mqttSendMsg(bytes:ByteArray)
     }
 

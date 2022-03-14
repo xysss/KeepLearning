@@ -193,4 +193,7 @@ dependencies {
     //mqtt
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+
+    // Anko Commons 废弃了 不建议使用
+    implementation "org.jetbrains.anko:anko:$anko_version"
 }

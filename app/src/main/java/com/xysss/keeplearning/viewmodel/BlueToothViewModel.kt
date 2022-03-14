@@ -35,8 +35,13 @@ import java.lang.StringBuilder
 
 class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback {
     val bleDate: LiveData<MaterialInfo> get() = _bleDate
+    val bleState: LiveData<String> get() = _bleState
+    val progressNum: LiveData<Int> get() = _progressNum
 
     private val _bleDate=MutableLiveData<MaterialInfo>()
+    private val _bleState=MutableLiveData<String>()
+    private val _progressNum=MutableLiveData<Int>()
+
     @SuppressLint("StaticFieldLeak")
     private lateinit var mService: MQTTService
 
@@ -50,16 +55,6 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback {
 
     fun putService(service:MQTTService){
         mService=service
-    }
-
-    fun saveRecordFile(){
-        scope.launch(Dispatchers.IO) {
-            Repository.getAllRecordList()
-            val builder = StringBuilder()
-        }
-    }
-    fun saveAlarmFile(){
-
     }
 
     fun setMqttConnect(){
@@ -82,6 +77,14 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback {
     override fun realData(materialInfo: MaterialInfo) {
         _bleDate.postValue(materialInfo)
         materialInfo.toString().logE("xysLog")
+    }
+
+    override fun bleConnected(state:String) {
+        _bleState.postValue(state)
+    }
+
+    override fun synProgress(num: Int) {
+        _progressNum.postValue(num)
     }
 
     override fun mqttSendMsg(bytes: ByteArray) {

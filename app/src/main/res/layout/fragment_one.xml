@@ -23,7 +23,7 @@
         android:layout_marginEnd="20dp"
         android:layout_height="wrap_content">
         <TextView
-            android:id="@+id/blueLinkTv"
+            android:id="@+id/blueTv"
             android:layout_width="wrap_content"
             android:text="未连接设备"
             android:textSize="13sp"
@@ -193,7 +193,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
-        android:text="同步数据信息"
+        android:text="同步报警信息"
         android:textSize="20sp"
         android:layout_marginTop="14dp"
         android:textColor="@color/color_92D"
@@ -212,6 +212,7 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:visibility="invisible"
             android:id="@+id/syn_history_icon_img"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -219,7 +220,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="同步数据信息中"
+            android:text="同步中"
             android:textColor="@color/white"
             android:textSize="11sp"
             android:layout_marginStart="7dp" />
@@ -227,11 +228,28 @@
             android:id="@+id/syn_num_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="80%"
+            android:text="0%"
             android:textColor="@color/white"
             android:textSize="11sp"
             android:layout_marginStart="1dp" />
     </LinearLayout>
+
+    <ProgressBar
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:id="@+id/progress_bar"
+        android:progressDrawable="@drawable/progress_bg"
+        android:max="100"
+        app:layout_constraintTop_toBottomOf="@+id/syn_lin"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        style="?android:attr/progressBarStyleHorizontal"/>
+
+
+
 
 
 
@@ -252,170 +270,109 @@
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@+id/customToolbar"
         app:layout_constraintLeft_toLeftOf="parent"
         android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="match_parent"
+
+        <Button
+            android:id="@+id/loginBtn"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="bottom"
-            android:orientation="vertical"
-            android:paddingBottom="20dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/text1"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="@string/bottom_read_concentrationUnit"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/one_concentrationUnit"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/text2"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="@string/bottom_read_concentrationNum"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/one_concentrationNum"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/text3"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="@string/bottom_read_materialName"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/one_materialName"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
-        </LinearLayout>
-
-
-
-
-
-
-        <LinearLayout
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/dp_40"
             android:gravity="center"
-            android:orientation="vertical">
+            android:text="点我去登录界面"
+            app:layout_constraintBottom_toTopOf="@+id/testPageBtn"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
 
-            <Button
-                android:id="@+id/loginBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_40"
-                android:gravity="center"
-                android:text="点我去登录界面"
-                app:layout_constraintBottom_toTopOf="@+id/testPageBtn"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_chainStyle="packed" />
+        <Button
+            android:id="@+id/getPermission"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="申请权限"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
 
-            <Button
-                android:id="@+id/getPermission"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="申请权限"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
+        <Button
+            android:id="@+id/testRoom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="测试数据库"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
 
-            <Button
-                android:id="@+id/testRoom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="测试数据库"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
+        <Button
+            android:id="@+id/testPageBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点我去测试Fragment界面"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
 
-            <Button
-                android:id="@+id/testPageBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="点我去测试Fragment界面"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
+        <Button
+            android:id="@+id/testListBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点我去测试List界面"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
 
-            <Button
-                android:id="@+id/testListBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="点我去测试List界面"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
+        <Button
+            android:id="@+id/testDownload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击我下载文件"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
 
-            <Button
-                android:id="@+id/testDownload"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="点击我下载文件"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
+        <Button
+            android:id="@+id/testUpload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击我上传文件"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
 
-            <Button
-                android:id="@+id/testUpload"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="点击我上传文件"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
+        <Button
+            android:id="@+id/testCrash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击测试捕获异常"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
 
-            <Button
-                android:id="@+id/testCrash"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="点击测试捕获异常"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
+        <Button
+            android:id="@+id/linkBlueTooth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击去连接ble蓝牙"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
 
-            <Button
-                android:id="@+id/linkBlueTooth"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="点击去连接ble蓝牙"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
-
-            <TextView
-                android:id="@+id/testUpdateText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="进度：==" />
-
-
-        </LinearLayout>
+        <TextView
+            android:id="@+id/testUpdateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="进度：==" />
 
     </LinearLayout>
 

@@ -355,8 +355,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
     inner class MyTimerTask : TimerTask() {
         override fun run() {
-            val id = Thread.currentThread().id
-            "此时运行在${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("xysLog")
+//            val id = Thread.currentThread().id
+//            "此时运行在${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("xysLog")
             if (isRecOK){
                 isRecOK=false
             }else{

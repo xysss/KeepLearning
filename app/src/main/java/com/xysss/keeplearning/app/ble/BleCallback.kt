@@ -154,10 +154,6 @@ class BleCallback : BluetoothGattCallback() {
      * 先触发
      */
     override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
-//        val id = Thread.currentThread().id
-//        "蓝牙回调方法中的线程号：$id".logE("xysLog")
-//        "蓝牙回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
-
         scope.launch(Dispatchers.IO){
             if (isConnectMqtt)
                 uiCallback.mqttSendMsg(characteristic.value)
@@ -231,15 +227,19 @@ class BleCallback : BluetoothGattCallback() {
                         }
                         if (afterBytes[0] == ByteUtils.FRAME_START && afterBytes[afterBytes.size - 1] == ByteUtils.FRAME_END) {
                             //CRC校验
-                            if (Crc8.isFrameValid(afterBytes, afterBytes.size))
+                            if (Crc8.isFrameValid(afterBytes, afterBytes.size)){
                                 analyseMessage(afterBytes)  //分发数据
+                                isRecOK=true
+                            }
                             else{
                                 "CRC校验错误".logE("xysLog")
                                 "协议长度: $newLength  解析长度：${afterBytes.size} : ${afterBytes.toHexString()}".logE("xysLog")
+                                isRecOK=false
                             }
                         } else{
                             "协议长度: $newLength  解析长度：${afterBytes.size} :长度 ${afterBytes.toHexString()}".logE("xysLog")
                             "协议开头结尾不对".logE("xysLog")
+                            isRecOK=false
                         }
                         transcodingBytesList.clear()
                     }
@@ -479,11 +479,11 @@ class BleCallback : BluetoothGattCallback() {
         //recordArrayList.logE("xysLog")
         recordSum= mmkv.getInt(ValueKey.deviceRecordSum,0)
         if (recordIndex<recordSum-recordReadNum){
-            val progress=recordIndex/recordSum*100
+            val progress=recordIndex*100/recordSum
 
             "recordIndex: $recordIndex recordSum: $recordSum progress: $progress".logE("xysLog")
 
-            uiCallback.synProgress(progress.toInt())
+            uiCallback.synProgress(progress.toInt(),"$recordIndex/$recordSum")
             val sendBytes=startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
             val command=recordHeadMsg+sendBytes.toHexString(false).trim()
             BleHelper.addSendLinkedDeque(command)
@@ -587,7 +587,7 @@ class BleCallback : BluetoothGattCallback() {
     interface UiCallback {
         fun realData(materialInfo:MaterialInfo)
         fun bleConnected(state:String)
-        fun synProgress(num:Int)
+        fun synProgress(progress:Int,numShow:String)
         fun mqttSendMsg(bytes:ByteArray)
     }
 

@@ -37,10 +37,12 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback {
     val bleDate: LiveData<MaterialInfo> get() = _bleDate
     val bleState: LiveData<String> get() = _bleState
     val progressNum: LiveData<Int> get() = _progressNum
+    val numShow: LiveData<String> get() = _numShow
 
     private val _bleDate=MutableLiveData<MaterialInfo>()
     private val _bleState=MutableLiveData<String>()
     private val _progressNum=MutableLiveData<Int>()
+    private val _numShow=MutableLiveData<String>()
 
     @SuppressLint("StaticFieldLeak")
     private lateinit var mService: MQTTService
@@ -83,8 +85,9 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback {
         _bleState.postValue(state)
     }
 
-    override fun synProgress(num: Int) {
-        _progressNum.postValue(num)
+    override fun synProgress(progress: Int,numShow :String) {
+        _progressNum.postValue(progress)
+        _numShow.postValue(numShow)
     }
 
     override fun mqttSendMsg(bytes: ByteArray) {

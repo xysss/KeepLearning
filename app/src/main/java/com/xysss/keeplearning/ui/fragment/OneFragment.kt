@@ -21,8 +21,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
-import com.xysss.keeplearning.app.ext.isStopReqRealMsg
-import com.xysss.keeplearning.app.ext.mmkv
+import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.data.annotation.ValueKey
@@ -30,12 +29,12 @@ import com.xysss.keeplearning.databinding.FragmentOneBinding
 import com.xysss.keeplearning.ui.activity.*
 import com.xysss.keeplearning.viewmodel.BlueToothViewModel
 import com.xysss.mvvmhelper.base.appContext
-import com.xysss.mvvmhelper.ext.msg
-import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
-import com.xysss.mvvmhelper.ext.showDialogMessage
-import com.xysss.mvvmhelper.ext.toStartActivity
+import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadingDialogEntity
 import com.xysss.mvvmhelper.net.LoadingType.Companion.LOADING_CUSTOM
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.*
 
 /**
  * Author:bysd-2
@@ -52,6 +51,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
     private val send20Msg="55000a0920000100"  //读取物质库信息
     private val send21Msg="55000D0921000401000000"  //读取物质条目信息
     private var isClickStart=true
+    private var mTimer : Timer?=null
+    private var mTask: MyTimerTask?=null
+
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
@@ -94,10 +96,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
     override fun initObserver() {
         super.initObserver()
         mViewModel.bleDate.observe(this){
-//            val id = Thread.currentThread().id
-//            "state方法中的线程号：$id".logE("xysLog")
-//            "state方回调运行在${if (isMainThread()) "主线程" else "子线程"}中".logE("xysLog")
-//            mViewBinding.tvState.text = "收到转码后的数据长度: ${it?.length}: $it"
             mViewBinding.concentrationNum.text=it.concentrationNum
             mViewBinding.concentrationUnit.text=it.concentrationUnit
             mViewBinding.materialName.text=it.materialName
@@ -109,7 +107,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 mViewBinding.blueTv.setTextColor(Color.parseColor("#4BDAFF"))
                 mViewBinding.blueLinkImg.setImageDrawable(resources.getDrawable(R.mipmap.connected_icon,null))
 
-                dismissCustomLoading(loadingDialogEntity)
+                dismissProgressUI()
             }else if (it=="未连接设备"){
                 mViewBinding.blueTv.setTextColor(Color.parseColor("#FFFFFFFF"))
                 mViewBinding.blueLinkImg.setImageDrawable(resources.getDrawable(R.mipmap.no_connected_icon,null))
@@ -117,9 +115,16 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         }
 
         mViewModel.progressNum.observe(this){
-
             mViewBinding.progressBar.progress=it
             mViewBinding.synNumText.text="$it%"
+            if (it==100){
+                dismissProgressUI()
+                ToastUtils.showShort("同步完成!")
+            }
+        }
+
+        mViewModel.numShow.observe(this){
+            mViewBinding.numShowText.text=it
         }
 
     }
@@ -199,17 +204,15 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                         setMessage("是否开始同步记录，这可能需要等待一段时间")
                         setCancelable(false)
                         setPositiveButton("确定"){ _, _ ->
-                            mViewBinding.synLin.visibility= View.VISIBLE
-                            mViewBinding.progressBar.visibility = View.VISIBLE
-
-                            loadingDialogEntity.loadingType= LOADING_CUSTOM
-                            loadingDialogEntity.loadingMessage="同步数据信息中"
-                            loadingDialogEntity.isShow=true
-                            loadingDialogEntity.requestCode="reqRecord"
-                            showCustomLoading(loadingDialogEntity)
+                            showProgressUI()
 
                             BleHelper.sendRecordMsg()
+
+                            mTimer = Timer()
+                            mTask = MyTimerTask()
+                            mTimer?.schedule(mTask,0,15*1000)
                         }
+
                         setNegativeButton("取消"){ _, _ ->
                         }
                         show()
@@ -228,15 +231,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                         setMessage("请确定开始同步记录，这可能需要等待一段时间")
                         setCancelable(false)
                         setPositiveButton("OK"){dialog,which->
-                            mViewBinding.synLin.visibility= View.VISIBLE
-                            mViewBinding.progressBar.visibility = View.VISIBLE
-
-                            loadingDialogEntity.loadingType= LOADING_CUSTOM
-                            loadingDialogEntity.loadingMessage="同步报警信息中"
-                            loadingDialogEntity.isShow=true
-                            loadingDialogEntity.requestCode="reqAlarm"
-                            showCustomLoading(loadingDialogEntity)
-
+                            showProgressUI()
                             BleHelper.sendAlarmMsg()
                         }
                         setNegativeButton("Cancle"){dialog,which->
@@ -330,11 +325,51 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         mViewBinding.progressBar.visibility = View.INVISIBLE
 
         BleHelper.addSendLinkedDeque(send10Msg)
+    }
 
+    private fun showProgressUI(){
+        mViewBinding.synLin.visibility= View.VISIBLE
+        mViewBinding.progressBar.visibility = View.VISIBLE
+        mViewBinding.numShowText.visibility = View.VISIBLE
+
+        loadingDialogEntity.loadingType= LOADING_CUSTOM
+        loadingDialogEntity.loadingMessage="同步数据信息中"
+        loadingDialogEntity.isShow=true
+        loadingDialogEntity.requestCode="reqRecord"
+        showCustomLoading(loadingDialogEntity)
+    }
+
+    private fun dismissProgressUI(){
+        mViewBinding.synLin.visibility= View.INVISIBLE
+        mViewBinding.progressBar.visibility = View.INVISIBLE
+        mViewBinding.numShowText.visibility = View.INVISIBLE
+
+        dismissCustomLoading(loadingDialogEntity)
     }
 
     override fun onDestroy() {
         BleHelper.gatt?.close()
+        mTimer?.cancel()
         super.onDestroy()
+    }
+
+    inner class MyTimerTask : TimerTask() {
+        override fun run() {
+            val id = Thread.currentThread().id
+            "此时运行在${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("xysLog")
+            if (isRecOK){
+                isRecOK=false
+            }else{
+                scope.launch(Dispatchers.Main) {
+                    dismissProgressUI()
+                    ToastUtils.showShort("数据接收错误,请重新尝试!")
+
+                    mTimer?.cancel()
+                    mTimer=null
+                    mTask?.cancel()
+                    mTask=null
+                }
+            }
+        }
     }
 }

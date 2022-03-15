@@ -24,6 +24,7 @@ val dataMatterDao = AppDatabase.getDatabase().dataMatterDao()
 
 val job= Job()
 val scope = CoroutineScope(job)
+var isRecOK=true
 
 const val recordFileName="recordFileName"
 const val alarmFileName="alarmFileName"

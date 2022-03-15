@@ -208,7 +208,6 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toServiceBackImg"
         android:layout_marginStart="120dp"
-        android:layout_marginTop="5dp"
         android:orientation="horizontal">
 
         <ImageView
@@ -234,6 +233,7 @@
             android:layout_marginStart="1dp" />
     </LinearLayout>
 
+    <!--    android:indeterminate="true"-->
     <ProgressBar
         android:visibility="invisible"
         android:layout_width="match_parent"
@@ -247,6 +247,18 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         style="?android:attr/progressBarStyleHorizontal"/>
+
+    <TextView
+        android:visibility="invisible"
+        android:id="@+id/numShowText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0/0"
+        android:textColor="@color/white"
+        android:textSize="11sp"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginEnd="20dp" />
 
 
 

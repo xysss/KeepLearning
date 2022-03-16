@@ -280,7 +280,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
     private fun synMessage(flag:Int){
         stopTest()
-
         //已经废弃，不建议使用
 //                    val dialog = progressDialog("正在努力加载页面", "请稍候")
 //                    dialog.setCanceledOnTouchOutside(false)  //禁止外部点击消失

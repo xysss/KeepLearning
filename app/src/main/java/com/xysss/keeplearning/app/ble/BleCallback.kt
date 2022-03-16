@@ -478,12 +478,12 @@ class BleCallback : BluetoothGattCallback() {
         //Repository.insertRecordList(recordArrayList)
         //recordArrayList.logE("xysLog")
         recordSum= mmkv.getInt(ValueKey.deviceRecordSum,0)
+
+        val recordProgress=recordIndex*100/recordSum
+        "recordIndex: $recordIndex recordSum: $recordSum progress: $recordProgress".logE("xysLog")
+        uiCallback.synProgress(recordProgress.toInt(),"$recordIndex/$recordSum")
+
         if (recordIndex<recordSum-recordReadNum){
-            val progress=recordIndex*100/recordSum
-
-            "recordIndex: $recordIndex recordSum: $recordSum progress: $progress".logE("xysLog")
-
-            uiCallback.synProgress(progress.toInt(),"$recordIndex/$recordSum")
             val sendBytes=startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
             val command=recordHeadMsg+sendBytes.toHexString(false).trim()
             BleHelper.addSendLinkedDeque(command)
@@ -513,6 +513,11 @@ class BleCallback : BluetoothGattCallback() {
             //Repository.insertAlarmList(alarmArrayList)
             //alarmArrayList.logE("xysLog")
             alarmSum= mmkv.getInt(ValueKey.deviceAlarmSum,0)
+
+            val alarmProgress=alarmIndex*100/alarmSum
+            "alarmIndex: $alarmIndex alarmSum: $alarmSum progress: $alarmProgress".logE("xysLog")
+            uiCallback.synProgress(alarmProgress.toInt(),"$alarmIndex/$alarmSum")
+
             if (alarmIndex<alarmSum-alarmReadNum){
                 "alarmIndex: $alarmIndex:$alarmReadNum:$alarmSum".logE("xysLog")
                 val sendBytes=startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)

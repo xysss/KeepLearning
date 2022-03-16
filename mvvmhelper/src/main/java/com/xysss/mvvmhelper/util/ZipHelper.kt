@@ -186,6 +186,6 @@ class ZipHelper private constructor() {
     }
 
     init {
-        throw IllegalStateException("you can't instantiate me!")
+        throw IllegalStateException("you can't instantiate me")
     }
 }

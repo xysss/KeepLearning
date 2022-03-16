@@ -40,7 +40,7 @@ val Throwable.msg: String
         ) {
             "连接超时,请稍后再试"
         } else if (this is ConnectException) {
-            "网络不给力，请稍候重试！"
+            "网络不给力，请稍候重试"
         } else if (this is HttpStatusCodeException) {
             "Http状态码异常"
         } else if (this is JsonSyntaxException) {

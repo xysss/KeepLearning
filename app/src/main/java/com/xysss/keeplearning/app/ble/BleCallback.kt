@@ -319,7 +319,7 @@ class BleCallback : BluetoothGattCallback() {
 
     private suspend fun dealMsg90(mBytes: ByteArray){
         mBytes.let {
-            if (it.size == 49) {
+            if (it.size == 69) {
                 //浓度值
                 val concentrationNum = String.format("%.2f", it.readByteArrayBE(7, 4).readFloatLE())
                 //报警状态

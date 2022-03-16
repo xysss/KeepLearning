@@ -319,6 +319,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         realDataTask.cancel()
         mTimer.cancel()
     }
+
     private fun startTest(){
         isStopReqRealMsg =false
         isClickStart=false

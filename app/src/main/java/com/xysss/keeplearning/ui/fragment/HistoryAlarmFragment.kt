@@ -21,7 +21,6 @@ class HistoryAlarmFragment :BaseFragment<HistoryAlarmViewModel,FragmentHistoryAl
     private  val testAdapter: HistoryAlarmAdapter by lazy { HistoryAlarmAdapter(arrayListOf()) }
 
     override fun initView(savedInstanceState: Bundle?) {
-
         mViewBinding.listSmartRefresh.refresh {
             //下拉刷新
             mViewModel.getAlarmList(true)

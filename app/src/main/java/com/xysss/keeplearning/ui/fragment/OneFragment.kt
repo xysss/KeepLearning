@@ -315,6 +315,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
         mViewBinding.synLin.visibility= View.INVISIBLE
         mViewBinding.progressBar.visibility = View.INVISIBLE
+
+        realDataTask.cancel()
+        mTimer.cancel()
     }
     private fun startTest(){
         isStopReqRealMsg =false

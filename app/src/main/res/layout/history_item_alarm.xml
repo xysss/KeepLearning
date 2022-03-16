@@ -44,7 +44,7 @@
                     tools:text="1" />
 
                 <TextView
-                    android:id="@+id/alarm_value"
+                    android:id="@+id/alarm_state"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -79,12 +79,12 @@
                 <TextView
                     android:layout_width="60dp"
                     android:layout_height="match_parent"
-                    android:text="报警状态:"
+                    android:text="报警数值:"
                     android:textColor="@color/colorBlack333"
                     android:textSize="13sp" />
 
                 <TextView
-                    android:id="@+id/alarm_state"
+                    android:id="@+id/alarm_value"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"

@@ -44,11 +44,6 @@ class HistoryRecordFragment :BaseFragment<HistoryRecordViewModel,FragmentHistory
         mViewModel.getRecordList(true)
     }
 
-    override fun onLoadRetry() {
-        showLoadingUi()
-        mViewModel.getRecordList(true)
-    }
-
     override fun initObserver() {
         super.initObserver()
         mViewModel.recordListData.observe(this){
@@ -68,4 +63,10 @@ class HistoryRecordFragment :BaseFragment<HistoryRecordViewModel,FragmentHistory
             }
         }
     }
+
+    override fun onLoadRetry() {
+        showLoadingUi()
+        mViewModel.getRecordList(true)
+    }
+
 }

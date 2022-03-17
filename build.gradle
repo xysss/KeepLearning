@@ -6,11 +6,9 @@ buildscript {
         anko_version="0.10.8"
     }
     repositories {
-
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/jcenter' }
-
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
@@ -23,11 +21,9 @@ buildscript {
 
 allprojects {
     repositories {
-
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/jcenter' }
-
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }

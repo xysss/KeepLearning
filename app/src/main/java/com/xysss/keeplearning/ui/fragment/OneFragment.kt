@@ -49,7 +49,6 @@ import java.util.*
  */
 
 class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
-
     private var downloadApkPath = ""
     private lateinit var mService: MQTTService
     private var loadingDialogEntity=LoadingDialogEntity()
@@ -58,9 +57,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
     private val send20Msg="55000a0920000100"  //读取物质库信息
     private val send21Msg="55000D0921000401000000"  //读取物质条目信息
     private var isClickStart=true
-    private lateinit var mTimer : Timer
-    private lateinit var historyTask: HistoryTimerTask
-    private lateinit var realDataTask: RealTimeDataTimerTask
+    private var mTimer : Timer?=null
+    private var historyTask: HistoryTimerTask?=null
+    private var realDataTask: RealTimeDataTimerTask?=null
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
@@ -128,8 +127,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 dismissProgressUI()
                 ToastUtils.showShort("同步完成")
 
-                historyTask.cancel()
-                mTimer.cancel()
+                historyTask?.cancel()
+                mTimer?.cancel()
             }
         }
 
@@ -213,20 +212,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                //以下为demo按钮
                 R.id.testRoom -> {
                     toStartActivity(RoomSampleActivity::class.java)
                 }
@@ -298,7 +284,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                     BleHelper.sendAlarmMsg()
                 mTimer = Timer()
                 historyTask = HistoryTimerTask()
-                mTimer.schedule(historyTask,15*1000,15*1000)
+                mTimer?.schedule(historyTask,15*1000,15*1000)
             }
 
             setNegativeButton("取消"){ _, _ ->
@@ -316,8 +302,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         mViewBinding.synLin.visibility= View.INVISIBLE
         mViewBinding.progressBar.visibility = View.INVISIBLE
 
-        realDataTask.cancel()
-        mTimer.cancel()
+        realDataTask?.cancel()
+        mTimer?.cancel()
     }
 
     private fun startTest(){
@@ -325,15 +311,15 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         isClickStart=false
         mViewBinding.testText.text="停止"
         mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.mipmap.pause_icon,null))
-
+        //展示进度条
         mViewBinding.synLin.visibility= View.INVISIBLE
         mViewBinding.progressBar.visibility = View.INVISIBLE
-
+        //发送请求实时数据指令
         BleHelper.addSendLinkedDeque(send10Msg)
-
+        //开启超时监测
         mTimer = Timer()
         realDataTask = RealTimeDataTimerTask()
-        mTimer.schedule(realDataTask,15*1000,15*1000)
+        mTimer?.schedule(realDataTask,15*1000,15*1000)
     }
 
     private fun showProgressUI(){
@@ -362,9 +348,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 
     override fun onDestroy() {
         BleHelper.gatt?.close()
-        realDataTask.cancel()
-        historyTask.cancel()
-        mTimer.cancel()
+        realDataTask?.cancel()
+        historyTask?.cancel()
+        mTimer?.cancel()
         super.onDestroy()
     }
 
@@ -376,8 +362,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 scope.launch(Dispatchers.Main) {
                     dismissProgressUI()
                     ToastUtils.showShort("数据接收错误,请重新尝试")
-                    realDataTask.cancel()
-                    mTimer.cancel()
+                    realDataTask?.cancel()
+                    mTimer?.cancel()
                     stopTest()
                 }
             }
@@ -394,8 +380,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 scope.launch(Dispatchers.Main) {
                     dismissProgressUI()
                     ToastUtils.showShort("数据接收错误,请重新尝试")
-                    historyTask.cancel()
-                    mTimer.cancel()
+                    historyTask?.cancel()
+                    mTimer?.cancel()
                 }
             }
         }

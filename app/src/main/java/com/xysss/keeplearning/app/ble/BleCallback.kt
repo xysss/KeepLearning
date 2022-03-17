@@ -519,7 +519,6 @@ class BleCallback : BluetoothGattCallback() {
             uiCallback.synProgress(alarmProgress.toInt(),"$alarmIndex/$alarmSum")
 
             if (alarmIndex<alarmSum-alarmReadNum){
-                "alarmIndex: $alarmIndex:$alarmReadNum:$alarmSum".logE("xysLog")
                 val sendBytes=startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)
                 val command=alarmHeadMsg+sendBytes.toHexString(false).trim()
                 BleHelper.addSendLinkedDeque(command)

@@ -18,11 +18,11 @@ class HistoryAlarmAdapter(data: ArrayList<Any>) :
 
     override fun convert(holder: BaseViewHolder, item: Any) {
         val itemAlarm = item as Alarm
-        holder.setText(R.id.alarm_id, itemAlarm.id.toString()+".")
-        holder.setText(R.id.alarm_value, itemAlarm.value)
-        holder.setText(R.id.alarm_time, itemAlarm.timestamp)
-        holder.setText(R.id.alarm_type, itemAlarm.type)
-        holder.setText(R.id.alarm_state, "报警")
+        holder.setText(R.id.itemAlarmId, itemAlarm.id.toString()+".")
+        holder.setText(R.id.itemAlarmValue, itemAlarm.value)
+        holder.setText(R.id.itemAlarmTime, itemAlarm.timestamp)
+        holder.setText(R.id.itemAlarmType, itemAlarm.type)
+        holder.setText(R.id.itemAlarmState, "报警")
         //holder.setText(R.id.alarm_state, itemAlarm.state)
     }
 }

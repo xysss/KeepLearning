@@ -18,9 +18,9 @@ class HistoryRecordAdapter(data: ArrayList<Any>) : BaseQuickAdapter<Any, BaseVie
 
     override fun convert(holder: BaseViewHolder, item: Any) {
         val itemData=item as JoinResult
-        holder.setText(R.id.item_todo_title, itemData.matterName)
-        holder.setText(R.id.item_todo_id,itemData.id.toString()+".")
-        holder.setText(R.id.item_todo_date, itemData.timestamp)
+        holder.setText(R.id.itemRecordName, itemData.matterName?:"测试异丁烯")
+        holder.setText(R.id.itemRecordId,itemData.id.toString()+".")
+        holder.setText(R.id.itemRecordDate, itemData.timestamp)
         holder.setText(R.id.cfNum, itemData.cf)
         holder.setText(R.id.alarm, itemData.alarm)
         holder.setText(R.id.user_id, itemData.userId)

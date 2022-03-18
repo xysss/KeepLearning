@@ -16,7 +16,7 @@ import com.xysss.mvvmhelper.util.decoration.DividerOrientation
  * Time:2021/9/2811:16
  */
 
-class TestFragment1 : BaseFragment<ListViewModel, ActivityListBinding>() {
+class TestFragment : BaseFragment<ListViewModel, ActivityListBinding>() {
 
     private val testAdapter: TestAdapter by lazy { TestAdapter(arrayListOf()) }
 

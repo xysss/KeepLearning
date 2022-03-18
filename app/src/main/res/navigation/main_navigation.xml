@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/mainfragment"
-        android:name="com.xysss.keeplearning.ui.fragment.TestFragment1"
+        android:name="com.xysss.keeplearning.ui.fragment.TestFragment"
         android:label="HomeFragment">
 
 

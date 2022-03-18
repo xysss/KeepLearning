@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentPagerAdapter
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.initBack
 import com.xysss.keeplearning.databinding.ActivityTestBinding
-import com.xysss.keeplearning.ui.fragment.TestFragment1
+import com.xysss.keeplearning.ui.fragment.TestFragment
 import com.xysss.mvvmhelper.base.BaseViewModel
 
 /**
@@ -24,7 +24,7 @@ class TestActivity : BaseActivity<BaseViewModel, ActivityTestBinding>() {
         mViewBinding.testViewPager.adapter = object :
             FragmentPagerAdapter(supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
             override fun getItem(position: Int): Fragment {
-                return TestFragment1()
+                return TestFragment()
             }
 
             override fun getCount(): Int {

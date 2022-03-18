@@ -167,8 +167,8 @@ class BleCallback : BluetoothGattCallback() {
 
     private suspend fun startSendMessage(){
         while (true){
-            if (sendLinkedDeque.peek()!=null){
-                sendLinkedDeque.poll()?.let {
+            if (!sendLinkedDeque.isEmpty()){
+                sendLinkedDeque.take()?.let {
                     delay(500)
                     BleHelper.sendBlueToothMsg(it)
                 }
@@ -178,8 +178,8 @@ class BleCallback : BluetoothGattCallback() {
 
     private suspend fun startDealMessage() {
         while (true) {
-            if (recLinkedDeque.peek() != null){
-                recLinkedDeque.poll()!!.let {
+            if (!recLinkedDeque.isEmpty()){
+                recLinkedDeque.take().let {
                     if (it == ByteUtils.FRAME_START) {
                         transcodingBytesList.clear()
                         transcodingBytesList.add(it)
@@ -349,8 +349,8 @@ class BleCallback : BluetoothGattCallback() {
                 )
                 uiCallback.realData(materialInfo)
 
+                delay(1000)
                 if (!isStopReqRealMsg){
-                    delay(1000)
                     BleHelper.addSendLinkedDeque(reqRealTimeDataMsg)
                 }
             }

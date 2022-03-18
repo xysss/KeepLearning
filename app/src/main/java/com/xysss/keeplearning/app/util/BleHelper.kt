@@ -78,12 +78,12 @@ object BleHelper {
 
     @Synchronized
     fun addRecLinkedDeque(byte: Byte) {
-        recLinkedDeque.add(byte)
+        recLinkedDeque.put(byte)
     }
 
     @Synchronized
     fun addSendLinkedDeque(sendMsg:String) {
-        sendLinkedDeque.add(sendMsg)
+        sendLinkedDeque.put(sendMsg)
     }
 
     fun sendBlueToothMsg(command: String){

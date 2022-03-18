@@ -264,7 +264,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
     }
 
     private fun synMessage(flag:Int){
-        stopTest()
         //已经废弃，不建议使用
 //                    val dialog = progressDialog("正在努力加载页面", "请稍候")
 //                    dialog.setCanceledOnTouchOutside(false)  //禁止外部点击消失
@@ -276,6 +275,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             setMessage("是否开始同步记录，这可能需要等待一段时间")
             setCancelable(false)
             setPositiveButton("确定"){ _, _ ->
+                stopTest()
                 showProgressUI()
                 if (flag==1)
                     BleHelper.sendRecordMsg()
@@ -283,7 +283,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                     BleHelper.sendAlarmMsg()
                 mTimer = Timer()
                 historyTask = HistoryTimerTask()
-                mTimer?.schedule(historyTask,15*1000,15*1000)
+                mTimer?.schedule(historyTask,10*1000,10*1000)
             }
 
             setNegativeButton("取消"){ _, _ ->

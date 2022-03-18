@@ -7,6 +7,7 @@ import com.xysss.keeplearning.data.annotation.ValueKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.LinkedBlockingQueue
 
 /**
  * 作者　: xys
@@ -60,8 +61,8 @@ val readNumByteArray0100=ByteArray(4)
 val matterIndexMsg=ByteArray(4)
 
 //val recLinkedDeque=LinkedBlockingDeque<ByteArray>(1000)
-val recLinkedDeque=LinkedBlockingDeque<Byte>(100000)
-val sendLinkedDeque=LinkedBlockingDeque<String>(1000)
+val recLinkedDeque= LinkedBlockingQueue<Byte>(100000)
+val sendLinkedDeque=LinkedBlockingQueue<String>(1000)
 
 var isStopReqRealMsg=false
 

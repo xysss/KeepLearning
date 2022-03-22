@@ -32,7 +32,7 @@ class HistoryAlarmFragment :BaseFragment<HistoryAlarmViewModel,FragmentHistoryAl
         mViewBinding.listRecyclerView.run {
             grid(1)
             divider {
-                setColor(getColorExt(R.color.colorWhite))
+                setColor(getColorExt(R.color.color_8FF))
                 setDivider(10.dp)
                 includeVisible = true
                 orientation = DividerOrientation.GRID

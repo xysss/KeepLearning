@@ -189,6 +189,7 @@ class MQTTService : Service(){
         try {
             mqttClient?.disconnect(null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
+                    isConnectMqtt=false
                     "Disconnected".logE(TAG)
                 }
 

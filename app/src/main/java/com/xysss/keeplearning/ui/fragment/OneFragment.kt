@@ -21,10 +21,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
-import com.xysss.keeplearning.app.ext.isRecOK
-import com.xysss.keeplearning.app.ext.isStopReqRealMsg
-import com.xysss.keeplearning.app.ext.mmkv
-import com.xysss.keeplearning.app.ext.scope
+import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.data.annotation.ValueKey
@@ -199,9 +196,20 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                         stopTest()
                 }
                 R.id.toServiceBackImg->{
+
                     if (mmkv.getString(ValueKey.deviceId,"")!=""){
-                        mViewModel.setMqttConnect()
+                        recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
+                        sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
+
+                        if (isConnectMqtt){
+                            mViewBinding.servicesTex.text="开启上传"
+                            mService.mpttDisconnect()
+                        }else{
+                            mViewBinding.servicesTex.text="关闭上传"
+                            mService.connectMqtt(appContext)
+                        }
                     }
+
                 }
                 R.id.synRecordBackgroundImg->{
                     synMessage(1)

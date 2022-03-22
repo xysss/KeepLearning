@@ -59,19 +59,6 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback {
         mService=service
     }
 
-    fun setMqttConnect(){
-        recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
-        sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
-
-        if (isConnectMqtt){
-            isConnectMqtt=false
-            mService.mpttDisconnect()
-        }else{
-            isConnectMqtt=true
-            mService.connectMqtt(appContext)
-        }
-    }
-
     fun connectBlueTooth(device: BluetoothDevice?){
         BleHelper.connectBlueTooth(device,bleCallBack)
     }

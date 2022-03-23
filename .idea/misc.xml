@@ -47,7 +47,14 @@
         <entry key="..\:/xysLearn/KeepLearning/mvvmhelper/src/main/res/layout/activity_base.xml" value="0.3536458333333333" />
         <entry key="..\:/xysLearn/KeepLearning/mvvmhelper/src/main/res/layout/layout_loading.xml" value="0.25677083333333334" />
         <entry key="app/src/main/res/drawable-v24/ic_add.xml" value="0.296875" />
+        <entry key="app/src/main/res/drawable-v24/ic_bluetooth.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.33611111111111114" />
+        <entry key="app/src/main/res/drawable-xxhdpi/ic_add.xml" value="0.24895833333333334" />
+        <entry key="app/src/main/res/drawable-xxhdpi/ic_launcher_foreground.xml" value="0.2630208333333333" />
+        <entry key="app/src/main/res/drawable-xxhdpi/ic_widgets.xml" value="0.2630208333333333" />
+        <entry key="app/src/main/res/drawable-xxhdpi/shape_white_top_radius_24.xml" value="0.2630208333333333" />
+        <entry key="app/src/main/res/drawable/ic_add.xml" value="0.2630208333333333" />
+        <entry key="app/src/main/res/drawable/ic_bluetooth.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.3802083333333333" />
         <entry key="app/src/main/res/drawable/progress_bg.xml" value="0.3425925925925926" />
         <entry key="app/src/main/res/drawable/selector_nav_color.xml" value="0.37435897435897436" />
@@ -65,6 +72,7 @@
         <entry key="app/src/main/res/layout/activity_test.xml" value="0.26614583333333336" />
         <entry key="app/src/main/res/layout/activity_web.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/dialog_uuid_edit.xml" value="0.3640625" />
+        <entry key="app/src/main/res/layout/fragment_four.xml" value="0.246875" />
         <entry key="app/src/main/res/layout/fragment_history_alarm.xml" value="0.1527384624700375" />
         <entry key="app/src/main/res/layout/fragment_history_record.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_one.xml" value="0.278942593755224" />

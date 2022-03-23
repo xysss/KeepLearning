@@ -107,12 +107,12 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             mViewBinding.blueTv.text=it
             if (it=="已连接设备"){
                 mViewBinding.blueTv.setTextColor(Color.parseColor("#4BDAFF"))
-                mViewBinding.blueLinkImg.setImageDrawable(resources.getDrawable(R.mipmap.connected_icon,null))
+                mViewBinding.blueLinkImg.setImageDrawable(resources.getDrawable(R.drawable.connected_icon,null))
 
                 dismissProgressUI()
             }else if (it=="未连接设备"){
                 mViewBinding.blueTv.setTextColor(Color.parseColor("#FFFFFFFF"))
-                mViewBinding.blueLinkImg.setImageDrawable(resources.getDrawable(R.mipmap.no_connected_icon,null))
+                mViewBinding.blueLinkImg.setImageDrawable(resources.getDrawable(R.drawable.no_connected_icon,null))
             }
         }
 
@@ -304,7 +304,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         isStopReqRealMsg =true
         isClickStart=true
         mViewBinding.testText.text="开始"
-        mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.mipmap.start_icon,null))
+        mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.drawable.start_icon,null))
 
         mViewBinding.synLin.visibility= View.INVISIBLE
         mViewBinding.progressBar.visibility = View.INVISIBLE
@@ -317,7 +317,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
         isStopReqRealMsg =false
         isClickStart=false
         mViewBinding.testText.text="停止"
-        mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.mipmap.pause_icon,null))
+        mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.drawable.pause_icon,null))
         //展示进度条
         mViewBinding.synLin.visibility= View.INVISIBLE
         mViewBinding.progressBar.visibility = View.INVISIBLE

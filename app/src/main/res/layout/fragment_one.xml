@@ -35,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_marginStart="3dp"
             android:layout_gravity="center"
-            android:src="@mipmap/no_connected_icon"
+            android:src="@drawable/no_connected_icon"
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
@@ -43,7 +43,7 @@
         android:id="@+id/testBackgroundImg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/test_background"
+        android:src="@drawable/test_background"
         app:layout_constraintTop_toBottomOf="@+id/customToolbar"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
@@ -55,7 +55,7 @@
         app:layout_constraintTop_toBottomOf="@+id/customToolbar"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:src="@mipmap/start_icon"
+        android:src="@drawable/start_icon"
         android:layout_height="wrap_content"/>
 
     <TextView
@@ -115,7 +115,7 @@
         android:layout_marginTop="5dp"
         android:layout_marginStart="20dp"
         android:layout_height="wrap_content"
-        android:src="@mipmap/to_service_background"
+        android:src="@drawable/to_service_background"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/materialName" />
 
@@ -123,7 +123,7 @@
         android:id="@+id/to_service_icon_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/to_service_icon"
+        android:src="@drawable/to_service_icon"
         android:layout_marginTop="88dp"
         android:layout_marginStart="75dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -146,7 +146,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:src="@mipmap/syn_record_background"
+        android:src="@drawable/syn_record_background"
         app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
         app:layout_constraintTop_toBottomOf="@+id/materialName" />
 
@@ -154,7 +154,7 @@
         android:id="@+id/syn_record_icon_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/syn_record_icon"
+        android:src="@drawable/syn_record_icon"
         android:layout_marginTop="35dp"
         android:layout_marginStart="77dp"
         app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
@@ -175,7 +175,7 @@
         android:id="@+id/synAlarmBackgroundImg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/syn_alarm_background"
+        android:src="@drawable/syn_alarm_background"
         app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
         app:layout_constraintTop_toBottomOf="@+id/synRecordBackgroundImg" />
 
@@ -183,7 +183,7 @@
         android:id="@+id/syn_alarm_icon_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/syn_alarm_icon"
+        android:src="@drawable/syn_alarm_icon"
         android:layout_marginTop="22dp"
         android:layout_marginStart="77dp"
         app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
@@ -216,7 +216,7 @@
             android:id="@+id/syn_history_icon_img"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/syn_history_icon" />
+            android:src="@drawable/syn_history_icon" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

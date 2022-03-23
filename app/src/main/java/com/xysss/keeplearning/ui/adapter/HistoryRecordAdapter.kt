@@ -22,7 +22,11 @@ class HistoryRecordAdapter(data: ArrayList<Any>) : BaseQuickAdapter<Any, BaseVie
         holder.setText(R.id.itemRecordId,itemData.id.toString()+".")
         holder.setText(R.id.itemRecordDate, itemData.timestamp)
         holder.setText(R.id.cfNum, itemData.cf)
-        holder.setText(R.id.alarm, itemData.alarm)
+        if (itemData.alarm!="0"){
+            holder.setText(R.id.alarm, "报警")
+        }else{
+            holder.setText(R.id.alarm, "正常")
+        }
         holder.setText(R.id.user_id, itemData.userId)
         holder.setText(R.id.place_id, itemData.ppm)
     }

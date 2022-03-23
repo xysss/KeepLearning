@@ -3,18 +3,18 @@
     <item
         android:id="@+id/navigationRead"
         android:checked="true"
-        android:icon="@mipmap/home_menu"
+        android:icon="@drawable/home_menu"
         android:title="@string/bottom_title_read" />
     <item
         android:id="@+id/navigationPaper"
-        android:icon="@mipmap/history_menu"
+        android:icon="@drawable/history_menu"
         android:title="@string/bottom_title_paper" />
     <item
         android:id="@+id/navigationReport"
-        android:icon="@mipmap/setting_menu"
+        android:icon="@drawable/setting_menu"
         android:title="@string/bottom_title_report" />
 <!--    <item-->
 <!--        android:id="@+id/navigationUser"-->
-<!--        android:icon="@mipmap/ic_launcher_code"-->
+<!--        android:icon="@drawable/ic_launcher_code"-->
 <!--        android:title="@string/bottom_title_user" />-->
 </menu>

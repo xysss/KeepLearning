@@ -139,7 +139,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
     @SuppressLint("CheckResult")
     private fun requestCameraPermissions() {
         ToastUtils.showShort("请求相机权限")
-        //请求打开相机权限swdxz
+        //请求打开相机权限
         val rxPermissions = RxPermissions(requireActivity())
         rxPermissions.request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE).subscribe { aBoolean ->
@@ -217,7 +217,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 R.id.synAlarmBackgroundImg->{
                     synMessage(2)
                 }
-
 
                 //以下为demo按钮
                 R.id.testRoom -> {

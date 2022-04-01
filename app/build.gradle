@@ -36,7 +36,6 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"  //用于启用JUnit测试
         resConfigs "zh-rCN", "zh-rHK", "zh-rMO", "zh-rTW" // 去除无用语言
-        signingConfig signingConfigs.debug
         multiDexEnabled true
         externalNativeBuild {
             cmake {

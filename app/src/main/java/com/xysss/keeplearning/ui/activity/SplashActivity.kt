@@ -33,23 +33,27 @@ class SplashActivity : BaseActivity<BaseViewModel, ActivitySplashBinding>() {
         }
         val isFirst = mmkv.getBoolean(ValueKey.isFirst,true)
         if(isFirst){
-            mViewBinding.splashImage.gone()
-            mViewPager = findViewById(R.id.splash_banner)
-            mViewPager.apply {
-                adapter = SplashBannerAdapter()
-                setLifecycleRegistry(lifecycle)
-                registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                    override fun onPageSelected(position: Int) {
-                        super.onPageSelected(position)
-                        if (position == resList.size - 1) {
-                            mViewBinding.splashJoin.visible()
-                        } else {
-                            mViewBinding.splashJoin.gone()
-                        }
-                    }
-                })
-                create(resList.toList())
-            }
+            mViewBinding.splashImage.visible()
+            mViewBinding.splashBanner.gone()
+            jumpToMainActivity()
+
+//            mViewBinding.splashImage.gone()
+//            mViewPager = findViewById(R.id.splash_banner)
+//            mViewPager.apply {
+//                adapter = SplashBannerAdapter()
+//                setLifecycleRegistry(lifecycle)
+//                registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+//                    override fun onPageSelected(position: Int) {
+//                        super.onPageSelected(position)
+//                        if (position == resList.size - 1) {
+//                            mViewBinding.splashJoin.visible()
+//                        } else {
+//                            mViewBinding.splashJoin.gone()
+//                        }
+//                    }
+//                })
+//                create(resList.toList())
+//            }
         }else{
             mViewBinding.splashImage.visible()
             mViewBinding.splashBanner.gone()

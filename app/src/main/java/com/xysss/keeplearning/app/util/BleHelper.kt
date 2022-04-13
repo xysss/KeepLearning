@@ -12,6 +12,7 @@ import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.mvvmhelper.base.appContext
+import com.xysss.mvvmhelper.ext.logE
 import java.util.*
 
 
@@ -21,8 +22,12 @@ object BleHelper {
     public var gatt: BluetoothGatt?=null
     private var findDevice: BluetoothDevice? = null
 
-    lateinit var transSendCodingBytes: ByteArray
+    private lateinit var transSendCodingBytes: ByteArray
     private val transSendCodingList = ArrayList<Byte>()
+
+    const val synRecord="synRecord"
+    const val synAlarm="synAlarm"
+    var synFlag=""
 
     /**
      * 启用指令通知
@@ -78,12 +83,26 @@ object BleHelper {
 
     @Synchronized
     fun addRecLinkedDeque(byte: Byte) {
-        recLinkedDeque.put(byte)
+        if (!recLinkedDeque.offer(byte)){
+            "recLinkedDeque空间已满".logE("xysLog")
+        }
     }
 
     @Synchronized
     fun addSendLinkedDeque(sendMsg:String) {
-        sendLinkedDeque.put(sendMsg)
+        if (!sendLinkedDeque.offer(sendMsg)){
+            "sendLinkedDeque空间已满".logE("xysLog")
+        }
+    }
+
+    fun retryHistoryMessage(recordCommand :String,alarmCommand:String) {
+        if (synFlag==synRecord){
+            "synRecord:$recordCommand".logE("xysLog")
+            addSendLinkedDeque(recordCommand)
+        }else if (synFlag==synAlarm){
+            "synAlarm:$alarmCommand".logE("xysLog")
+            addSendLinkedDeque(alarmCommand)
+        }
     }
 
     fun sendBlueToothMsg(command: String){

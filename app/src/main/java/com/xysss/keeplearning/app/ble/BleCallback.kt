@@ -40,6 +40,7 @@ class BleCallback : BluetoothGattCallback() {
     private var recordCommand = ""
     private var alarmCommand = ""
 
+
     fun setUiCallback(uiCallback: UiCallback) {
         this.uiCallback = uiCallback
     }
@@ -163,86 +164,84 @@ class BleCallback : BluetoothGattCallback() {
         "收到数据：${characteristic.value.size}长度: ${characteristic.value.toHexString()}".logE("xysLog")
         scope.launch(Dispatchers.IO){
             for (byte in characteristic.value)
-            BleHelper.addRecLinkedDeque(byte)
+                BleHelper.addRecLinkedDeque(byte)
         }
     }
 
     private suspend fun startSendMessage(){
         while (true){
-            if (!sendLinkedDeque.isEmpty()){
-                sendLinkedDeque.take()?.let {
-                    delay(500)
-                    BleHelper.sendBlueToothMsg(it)
-                }
+            sendLinkedDeque.poll()?.let {
+                delay(500)
+                BleHelper.sendBlueToothMsg(it)
             }
         }
     }
 
     private suspend fun startDealMessage() {
         while (true) {
-            if (!recLinkedDeque.isEmpty()){
-                recLinkedDeque.take().let {
-                    if (it == ByteUtils.FRAME_START) {
-                        transcodingBytesList.clear()
-                        transcodingBytesList.add(it)
-                    } else if (beforeIsFF) {
-                        when (it) {
-                            ByteUtils.FRAME_FF -> {
-                                transcodingBytesList.add(ByteUtils.FRAME_FF)
-                            }
-                            ByteUtils.FRAME_00 -> {
-                                transcodingBytesList.add(ByteUtils.FRAME_START)
-                            }
-                            else -> {
-                                transcodingBytesList.add(ByteUtils.FRAME_FF)
-                                transcodingBytesList.add(it)
-                            }
+            recLinkedDeque.poll()?.let {
+                if (it == ByteUtils.FRAME_START) {
+                    transcodingBytesList.clear()
+                    transcodingBytesList.add(it)
+                } else if (beforeIsFF) {
+                    when (it) {
+                        ByteUtils.FRAME_FF -> {
+                            transcodingBytesList.add(ByteUtils.FRAME_FF)
                         }
-                        beforeIsFF = false
-                    } else if (!beforeIsFF) {
-                        if (it == ByteUtils.FRAME_FF) {
-                            beforeIsFF = true
-                        } else {
-                            beforeIsFF = false
+                        ByteUtils.FRAME_00 -> {
+                            transcodingBytesList.add(ByteUtils.FRAME_START)
+                        }
+                        else -> {
+                            transcodingBytesList.add(ByteUtils.FRAME_FF)
                             transcodingBytesList.add(it)
                         }
                     }
-
-                    //取协议数据长度
-                    if (transcodingBytesList.size == 3) {
-                        newLengthBytes[0] = transcodingBytesList[1]
-                        newLengthBytes[1] = transcodingBytesList[2]
-                        newLength = newLengthBytes.readInt16BE()
-                        "协议长度: $newLength".logE("xysLog")
+                    beforeIsFF = false
+                } else if (!beforeIsFF) {
+                    if (it == ByteUtils.FRAME_FF) {
+                        beforeIsFF = true
+                    } else {
+                        beforeIsFF = false
+                        transcodingBytesList.add(it)
                     }
+                }
 
-                    if (transcodingBytesList.size == newLength && transcodingBytesList.size > 9) {
-                        transcodingBytesList.let { arrayList ->
-                            afterBytes = ByteArray(arrayList.size)
-                            for (k in afterBytes.indices) {
-                                afterBytes[k] = arrayList[k]
-                            }
+                //取协议数据长度
+                if (transcodingBytesList.size == 3) {
+                    newLengthBytes[0] = transcodingBytesList[1]
+                    newLengthBytes[1] = transcodingBytesList[2]
+                    newLength = newLengthBytes.readInt16BE()
+                    "协议长度: $newLength".logE("xysLog")
+                    isRecOK =true
+                }
+
+                if (transcodingBytesList.size == newLength && transcodingBytesList.size > 9) {
+                    transcodingBytesList.let { arrayList ->
+                        afterBytes = ByteArray(arrayList.size)
+                        for (k in afterBytes.indices) {
+                            afterBytes[k] = arrayList[k]
                         }
-                        isRecOK =
-                            if (afterBytes[0] == ByteUtils.FRAME_START && afterBytes[afterBytes.size - 1] == ByteUtils.FRAME_END) {
-                                //CRC校验
-                                if (Crc8.isFrameValid(afterBytes, afterBytes.size)) {
-                                    analyseMessage(afterBytes)  //分发数据
-                                    true
-                                } else {
-                                    "CRC校验错误".logE("xysLog")
-                                    "协议长度: $newLength  解析长度：${afterBytes.size} : ${afterBytes.toHexString()}".logE("xysLog")
-                                    false
-                                }
-                            } else {
-                                "协议长度: $newLength  解析长度：${afterBytes.size} :长度 ${afterBytes.toHexString()}".logE("xysLog")
-                                "协议开头结尾不对".logE("xysLog")
-                                false
-                            }
-                        transcodingBytesList.clear()
-                    } else if (newLength == 0) {
-                        "解析协议长度为0，${transcodingBytesList.toHexString()}".logE("xysLog")
                     }
+
+                    if (afterBytes[0] == ByteUtils.FRAME_START && afterBytes[afterBytes.size - 1] == ByteUtils.FRAME_END) {
+                        //CRC校验
+                        if (Crc8.isFrameValid(afterBytes, afterBytes.size)) {
+                            analyseMessage(afterBytes)  //分发数据
+                            "协议正确: ${afterBytes.toHexString()}".logE("xysLog")
+                        } else {
+                            "CRC校验错误，协议长度: $newLength : ${afterBytes.toHexString()}".logE("xysLog")
+                            BleHelper.retryHistoryMessage(recordCommand,alarmCommand)
+                        }
+                    } else {
+                        "协议开头结尾不对:  ${afterBytes.toHexString()}".logE("xysLog")
+                        BleHelper.retryHistoryMessage(recordCommand,alarmCommand)
+                    }
+                    transcodingBytesList.clear()
+                } else if (newLength < 9 && transcodingBytesList.size > 9) { //协议长度不够
+                    "解析协议不完整，协议长度: $newLength  解析长度：${transcodingBytesList.size} ,${transcodingBytesList.toHexString()}".logE("xysLog")
+                    isRecOK = false
+                    //BleHelper.retryHistoryMessage(recordCommand,alarmCommand)
+                    //transcodingBytesList.clear()
                 }
             }
         }
@@ -438,7 +437,7 @@ class BleCallback : BluetoothGattCallback() {
 
     private fun dealMsgA1(mBytes: ByteArray) {
         mBytes.let {
-            if (it.size == 57) {
+            if (it.size == 77) {
                 //物质索引号
                 val matterIndex = it.readByteArrayBE(7, 4).readInt32LE()
                 //cf值
@@ -453,7 +452,7 @@ class BleCallback : BluetoothGattCallback() {
                     Repository.insertMatter(matter)
                 }
             } else {
-                "查询物质信息协议长度不为57，实际长度：${it.size}".logE("xysLog")
+                "查询物质信息协议长度不为77，实际长度：${it.size}".logE("xysLog")
             }
         }
     }
@@ -568,16 +567,12 @@ class BleCallback : BluetoothGattCallback() {
                 if (charaProp and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
                     notify_UUID_chara = characteristic.uuid
                     notify_UUID_service = bluetoothGattService.uuid
-                    "44notify_chara=$notify_UUID_chara----notify_service=$notify_UUID_service".logE(
-                        "xysLog"
-                    )
+                    "44notify_chara=$notify_UUID_chara----notify_service=$notify_UUID_service".logE("xysLog")
                 }
                 if (charaProp and BluetoothGattCharacteristic.PROPERTY_INDICATE > 0) {
                     indicate_UUID_chara = characteristic.uuid
                     indicate_UUID_service = bluetoothGattService.uuid
-                    "55indicate_chara=$indicate_UUID_chara----indicate_service=$indicate_UUID_service".logE(
-                        "xysLog"
-                    )
+                    "55indicate_chara=$indicate_UUID_chara----indicate_service=$indicate_UUID_service".logE("xysLog")
                 }
             }
         }

@@ -29,10 +29,7 @@ import com.xysss.keeplearning.databinding.FragmentOneBinding
 import com.xysss.keeplearning.ui.activity.*
 import com.xysss.keeplearning.viewmodel.BlueToothViewModel
 import com.xysss.mvvmhelper.base.appContext
-import com.xysss.mvvmhelper.ext.msg
-import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
-import com.xysss.mvvmhelper.ext.showDialogMessage
-import com.xysss.mvvmhelper.ext.toStartActivity
+import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadingDialogEntity
 import com.xysss.mvvmhelper.net.LoadingType.Companion.LOADING_CUSTOM
 import kotlinx.coroutines.Dispatchers
@@ -196,7 +193,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                         stopTest()
                 }
                 R.id.toServiceBackImg->{
-
                     if (mmkv.getString(ValueKey.deviceId,"")!=""){
                         recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
                         sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
@@ -284,13 +280,17 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             setPositiveButton("确定"){ _, _ ->
                 stopTest()
                 showProgressUI()
-                if (flag==1)
+                if (flag==1){
                     BleHelper.sendRecordMsg()
-                else if (flag==2)
+                    BleHelper.synFlag = BleHelper.synRecord
+                }
+                else if (flag==2){
                     BleHelper.sendAlarmMsg()
+                    BleHelper.synFlag = BleHelper.synAlarm
+                }
                 mTimer = Timer()
                 historyTask = HistoryTimerTask()
-                mTimer?.schedule(historyTask,10*1000,10*1000)
+                mTimer?.schedule(historyTask,10*1000,20*1000)
             }
 
             setNegativeButton("取消"){ _, _ ->
@@ -345,6 +345,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
     }
 
     private fun dismissProgressUI(){
+        BleHelper.synFlag=""
         mViewBinding.synLin.visibility= View.INVISIBLE
         mViewBinding.progressBar.visibility = View.INVISIBLE
         mViewBinding.numShowText.visibility = View.INVISIBLE
@@ -388,6 +389,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                     ToastUtils.showShort("数据接收错误,请重新尝试")
                     historyTask?.cancel()
                     mTimer?.cancel()
+                    "20秒同步尝试超时".logE("xysLog")
                 }
             }
         }

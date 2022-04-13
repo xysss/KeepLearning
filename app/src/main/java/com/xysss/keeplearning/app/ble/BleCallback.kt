@@ -33,10 +33,12 @@ class BleCallback : BluetoothGattCallback() {
     private var recordArrayList=ArrayList<Record>()
     private var alarmArrayList=ArrayList<Alarm>()
     private val newLengthBytes = ByteArray(2)
-    private var newLength=0
-    private var newIndex=-1
-    private var mVocIndex=0
-    private var beforeIsFF=false
+    private var newLength = 0
+    private var newIndex = -1
+    private var mVocIndex = 0
+    private var beforeIsFF = false
+    private var recordCommand = ""
+    private var alarmCommand = ""
 
     fun setUiCallback(uiCallback: UiCallback) {
         this.uiCallback = uiCallback
@@ -183,9 +185,7 @@ class BleCallback : BluetoothGattCallback() {
                     if (it == ByteUtils.FRAME_START) {
                         transcodingBytesList.clear()
                         transcodingBytesList.add(it)
-                    }
-
-                    else if (beforeIsFF){
+                    } else if (beforeIsFF) {
                         when (it) {
                             ByteUtils.FRAME_FF -> {
                                 transcodingBytesList.add(ByteUtils.FRAME_FF)
@@ -198,14 +198,12 @@ class BleCallback : BluetoothGattCallback() {
                                 transcodingBytesList.add(it)
                             }
                         }
-                        beforeIsFF=false
-                    }
-                    else if (!beforeIsFF){
-                        if (it == ByteUtils.FRAME_FF){
-                            beforeIsFF=true
-                        }
-                        else{
-                            beforeIsFF=false
+                        beforeIsFF = false
+                    } else if (!beforeIsFF) {
+                        if (it == ByteUtils.FRAME_FF) {
+                            beforeIsFF = true
+                        } else {
+                            beforeIsFF = false
                             transcodingBytesList.add(it)
                         }
                     }
@@ -225,28 +223,31 @@ class BleCallback : BluetoothGattCallback() {
                                 afterBytes[k] = arrayList[k]
                             }
                         }
-                        if (afterBytes[0] == ByteUtils.FRAME_START && afterBytes[afterBytes.size - 1] == ByteUtils.FRAME_END) {
-                            //CRC校验
-                            if (Crc8.isFrameValid(afterBytes, afterBytes.size)){
-                                analyseMessage(afterBytes)  //分发数据
-                                isRecOK=true
+                        isRecOK =
+                            if (afterBytes[0] == ByteUtils.FRAME_START && afterBytes[afterBytes.size - 1] == ByteUtils.FRAME_END) {
+                                //CRC校验
+                                if (Crc8.isFrameValid(afterBytes, afterBytes.size)) {
+                                    analyseMessage(afterBytes)  //分发数据
+                                    true
+                                } else {
+                                    "CRC校验错误".logE("xysLog")
+                                    "协议长度: $newLength  解析长度：${afterBytes.size} : ${afterBytes.toHexString()}".logE("xysLog")
+                                    false
+                                }
+                            } else {
+                                "协议长度: $newLength  解析长度：${afterBytes.size} :长度 ${afterBytes.toHexString()}".logE("xysLog")
+                                "协议开头结尾不对".logE("xysLog")
+                                false
                             }
-                            else{
-                                "CRC校验错误".logE("xysLog")
-                                "协议长度: $newLength  解析长度：${afterBytes.size} : ${afterBytes.toHexString()}".logE("xysLog")
-                                isRecOK=false
-                            }
-                        } else{
-                            "协议长度: $newLength  解析长度：${afterBytes.size} :长度 ${afterBytes.toHexString()}".logE("xysLog")
-                            "协议开头结尾不对".logE("xysLog")
-                            isRecOK=false
-                        }
                         transcodingBytesList.clear()
+                    } else if (newLength == 0) {
+                        "解析协议长度为0，${transcodingBytesList.toHexString()}".logE("xysLog")
                     }
                 }
             }
         }
     }
+
     private suspend fun analyseMessage(mBytes: ByteArray?) {
         mBytes?.let {
             when (it[4]) {
@@ -257,15 +258,14 @@ class BleCallback : BluetoothGattCallback() {
                     }
                 }
                 //实时数据
-                ByteUtils.Msg90 ->{
-                    scope
-                        .launch(Dispatchers.IO) {
-                        dealMsg90(it)
-                    }
+                ByteUtils.Msg90 -> {
+                    scope.launch(Dispatchers.IO) {
+                            dealMsg90(it)
+                        }
                 }
                 //历史记录
-                ByteUtils.Msg81 ->{
-                    scope.launch(Dispatchers.IO){
+                ByteUtils.Msg81 -> {
+                    scope.launch(Dispatchers.IO) {
                         dealMsg81(it)
                     }
                 }
@@ -286,13 +286,13 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
-    private fun dealMsg80(mBytes: ByteArray){
+    private fun dealMsg80(mBytes: ByteArray) {
         mBytes.let {
             if (it.size == 71) {
                 //设备序列号
                 var i = 49
                 while (i < it.size)
-                    if (it[i] ==ByteUtils.FRAME_00) break else i++
+                    if (it[i] == ByteUtils.FRAME_00) break else i++
                 val tempBytes: ByteArray = it.readByteArrayBE(49, i - 49)
 
                 mmkv.putString(ValueKey.deviceHardwareVersion,it[7].toInt().toString()+":"+it[8].toInt().toString())
@@ -317,7 +317,7 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
-    private suspend fun dealMsg90(mBytes: ByteArray){
+    private suspend fun dealMsg90(mBytes: ByteArray) {
         mBytes.let {
             if (it.size == 69) {
                 //浓度值
@@ -334,30 +334,30 @@ class BleCallback : BluetoothGattCallback() {
                     else -> ""
                 }
                 //CF值
-                val cfNum=it.readByteArrayBE(23, 4).readFloatLE()
+                val cfNum = it.readByteArrayBE(23, 4).readFloatLE()
                 //物质名称
                 var i = 27
                 while (i < it.size)
                     if (it[i] == ByteUtils.FRAME_00) break else i++
-                val tempBytes: ByteArray = it.readByteArrayBE(27, i-27)
+                val tempBytes: ByteArray = it.readByteArrayBE(27, i - 27)
                 //val name = tempBytes.toAsciiString()
-                val name= String(tempBytes)
+                val name = String(tempBytes)
                 //tempBytes.toHexString().logE("xysLog")
                 val materialInfo = MaterialInfo(
                     concentrationNum, concentrationState.toString(),
-                    materialLibraryIndex, concentrationUnit,cfNum.toString(),name
+                    materialLibraryIndex, concentrationUnit, cfNum.toString(), name
                 )
                 uiCallback.realData(materialInfo)
 
                 delay(1000)
-                if (!isStopReqRealMsg){
+                if (!isStopReqRealMsg) {
                     BleHelper.addSendLinkedDeque(reqRealTimeDataMsg)
                 }
             }
         }
     }
 
-    private suspend fun dealMsg81(mBytes: ByteArray){
+    private suspend fun dealMsg81(mBytes: ByteArray) {
         mBytes.let {
             if (it.size > 18) {
                 //开始记录索引
@@ -367,40 +367,40 @@ class BleCallback : BluetoothGattCallback() {
                 //数据记录
                 if (it[7] == ByteUtils.FRAME_00) {
                     //uiCallback.state(ByteUtils.RecordRecFlag)
-                    recordArrayList=ArrayList(dataNum)
-                    for (i in 0..dataNum){
-                        val firstIndex=16+i*48
-                        if (firstIndex+44<it.size&&dataNum>0){
-                            val mTimestamp=it.readByteArrayBE(firstIndex,4).readUInt32LE()
-                            val mDateStr=ByteUtils.getDateTime(mTimestamp.toString())
-                            val mReserve=it.readByteArrayBE(firstIndex+4,4).readInt32LE()
-                            val mPpm=it.readByteArrayBE(firstIndex+8,4).readFloatLE()
-                            val mPpmStr=ByteUtils.getNoMoreThanTwoDigits(mPpm)
-                            val mCF=it.readByteArrayBE(firstIndex+12,4).readFloatLE()
-                            mVocIndex=it.readByteArrayBE(firstIndex+16,4).readInt32LE()
-                            val mAlarm=it.readByteArrayBE(firstIndex+20,4).readInt32LE()
-                            val mHi=it.readByteArrayBE(firstIndex+24,4).readFloatLE()
-                            val mLo=it.readByteArrayBE(firstIndex+28,4).readFloatLE()
-                            val mTwa=it.readByteArrayBE(firstIndex+32,4).readFloatLE()
-                            val mStel=it.readByteArrayBE(firstIndex+36,4).readFloatLE()
-                            val mUserId=it.readByteArrayBE(firstIndex+40,4).readInt32LE()
-                            val mPlaceId=it.readByteArrayBE(firstIndex+44,4).readInt32LE()
+                    recordArrayList = ArrayList(dataNum)
+                    for (i in 0..dataNum) {
+                        val firstIndex = 16 + i * 48
+                        if (firstIndex + 44 < it.size && dataNum > 0) {
+                            val mTimestamp = it.readByteArrayBE(firstIndex, 4).readUInt32LE()
+                            val mDateStr = ByteUtils.getDateTime(mTimestamp.toString())
+                            val mReserve = it.readByteArrayBE(firstIndex + 4, 4).readInt32LE()
+                            val mPpm = it.readByteArrayBE(firstIndex + 8, 4).readFloatLE()
+                            val mPpmStr = ByteUtils.getNoMoreThanTwoDigits(mPpm)
+                            val mCF = it.readByteArrayBE(firstIndex + 12, 4).readFloatLE()
+                            mVocIndex = it.readByteArrayBE(firstIndex + 16, 4).readInt32LE()
+                            val mAlarm = it.readByteArrayBE(firstIndex + 20, 4).readInt32LE()
+                            val mHi = it.readByteArrayBE(firstIndex + 24, 4).readFloatLE()
+                            val mLo = it.readByteArrayBE(firstIndex + 28, 4).readFloatLE()
+                            val mTwa = it.readByteArrayBE(firstIndex + 32, 4).readFloatLE()
+                            val mStel = it.readByteArrayBE(firstIndex + 36, 4).readFloatLE()
+                            val mUserId = it.readByteArrayBE(firstIndex + 40, 4).readInt32LE()
+                            val mPlaceId = it.readByteArrayBE(firstIndex + 44, 4).readInt32LE()
 
                             val dataRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex, mAlarm.toString(),
                                 mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString(),mPlaceId.toString())
                             //存储数据
-                            if (Repository.forgetRecordIsExist(dataRecord.timestamp)==0){
+                            if (Repository.forgetRecordIsExist(dataRecord.timestamp) == 0) {
                                 Repository.insertRecord(dataRecord)
                                 //保存文件
                                 FileUtils.saveRecord(dataRecord)
                             }
                             //请求物质名称
-                            if (newIndex!=mVocIndex){
-                                if (Repository.forgetMatterIsExist(mVocIndex)==0) {
-                                    val sendBytes=matterIndexMsg.writeInt32LE(mVocIndex.toLong())
-                                    val command=matterHeadMsg+sendBytes.toHexString(false).trim()
-                                    BleHelper.addSendLinkedDeque(command)
-                                    newIndex=mVocIndex
+                            if (newIndex != mVocIndex) {
+                                if (Repository.forgetMatterIsExist(mVocIndex) == 0) {
+                                    val sendBytes = matterIndexMsg.writeInt32LE(mVocIndex.toLong())
+                                    val materialNameCommand = matterHeadMsg + sendBytes.toHexString(false).trim()
+                                    BleHelper.addSendLinkedDeque(materialNameCommand)
+                                    newIndex = mVocIndex
                                     //阻塞1000ms,等待结果协议接收完成,如果底层发送延时时间变动，此处时间也需要更改
                                     delay(1000)
                                 }
@@ -415,16 +415,16 @@ class BleCallback : BluetoothGattCallback() {
                 else if ((it[7] == ByteUtils.FRAME_01)) {
                     //uiCallback.state(ByteUtils.AlarmRecOverFlag)
                     //报警记录协议条数
-                    alarmArrayList=ArrayList(dataNum)
-                    for (i in 0..dataNum){
-                        val firstIndex=16+i*16
-                        if (firstIndex+12<it.size&&dataNum>0){
-                            val mTimestamp=it.readByteArrayBE(firstIndex,4).readUInt32LE()
-                            val dateTimeStr=ByteUtils.getDateTime(mTimestamp.toString())
+                    alarmArrayList = ArrayList(dataNum)
+                    for (i in 0..dataNum) {
+                        val firstIndex = 16 + i * 16
+                        if (firstIndex + 12 < it.size && dataNum > 0) {
+                            val mTimestamp = it.readByteArrayBE(firstIndex, 4).readUInt32LE()
+                            val dateTimeStr = ByteUtils.getDateTime(mTimestamp.toString())
 
-                            val mAlarm=it.readByteArrayBE(firstIndex+4,4).readInt32LE()
-                            val mType=it.readByteArrayBE(firstIndex+8,4).readInt32LE()
-                            val mValue=it.readByteArrayBE(firstIndex+12,4).readInt32LE()
+                            val mAlarm = it.readByteArrayBE(firstIndex + 4, 4).readInt32LE()
+                            val mType = it.readByteArrayBE(firstIndex + 8, 4).readInt32LE()
+                            val mValue = it.readByteArrayBE(firstIndex + 12, 4).readInt32LE()
                             //val alarmRecord=Alarm("123","alarm","mType","mValue")
                             val alarmRecord=Alarm(dateTimeStr,mAlarm.toString(),mType.toString(),mValue.toString())
                             alarmArrayList.add(alarmRecord)
@@ -436,23 +436,23 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
-    private fun dealMsgA1(mBytes: ByteArray){
+    private fun dealMsgA1(mBytes: ByteArray) {
         mBytes.let {
             if (it.size == 57) {
                 //物质索引号
-                val matterIndex=it.readByteArrayBE(7,4).readInt32LE()
+                val matterIndex = it.readByteArrayBE(7, 4).readInt32LE()
                 //cf值
-                val mcfNum=String.format("%.2f",it.readByteArrayBE(11,4).readFloatLE())
+                val mcfNum = String.format("%.2f", it.readByteArrayBE(11, 4).readFloatLE())
                 var i = 35
                 while (i < it.size)
                     if (it[i] == ByteUtils.FRAME_00) break else i++
                 val tempBytes: ByteArray = it.readByteArrayBE(35, i - 35)
                 val matterName = String(tempBytes)
-                val matter=Matter(matterIndex,matterName,mcfNum)
-                if (Repository.forgetMatterIsExist(matter.voc_index_matter)==0){
+                val matter = Matter(matterIndex, matterName, mcfNum)
+                if (Repository.forgetMatterIsExist(matter.voc_index_matter) == 0) {
                     Repository.insertMatter(matter)
                 }
-            }else{
+            } else {
                 "查询物质信息协议长度不为57，实际长度：${it.size}".logE("xysLog")
             }
         }
@@ -464,7 +464,7 @@ class BleCallback : BluetoothGattCallback() {
                 //物质库个数
                 val matterSum = it.readByteArrayBE(7, 4).readInt32LE()
                 "物质库个数：$matterSum".logE("xysLog")
-                mmkv.putInt(ValueKey.matterSum,matterSum)
+                mmkv.putInt(ValueKey.matterSum, matterSum)
 
                 //当前选中索引
                 val choiceIndex = it.readByteArrayBE(11, 4).readInt32LE()
@@ -477,24 +477,23 @@ class BleCallback : BluetoothGattCallback() {
     private fun recordData() {
         //Repository.insertRecordList(recordArrayList)
         //recordArrayList.logE("xysLog")
-        recordSum= mmkv.getInt(ValueKey.deviceRecordSum,0)
+        recordSum = mmkv.getInt(ValueKey.deviceRecordSum, 0)
 
-        val recordProgress=recordIndex*100/recordSum
+        val recordProgress = recordIndex * 100 / recordSum
         "recordIndex: $recordIndex recordSum: $recordSum progress: $recordProgress".logE("xysLog")
-        uiCallback.synProgress(recordProgress.toInt(),"$recordIndex/$recordSum")
+        uiCallback.synProgress(recordProgress.toInt(), "$recordIndex/$recordSum")
 
-        if (recordIndex<recordSum-recordReadNum){
-            val sendBytes=startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
-            val command=recordHeadMsg+sendBytes.toHexString(false).trim()
-            BleHelper.addSendLinkedDeque(command)
+        if (recordIndex < recordSum - recordReadNum) {
+            val sendBytes = startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
+            recordCommand = recordHeadMsg + sendBytes.toHexString(false).trim()
+            BleHelper.addSendLinkedDeque(recordCommand)
             recordIndex += recordReadNum
-        }
-        else{
-            if (recordIndex<recordSum){
-                recordReadNum=recordSum-recordIndex
-                val sendBytes=startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
-                val command=recordHeadMsg+sendBytes.toHexString(false).trim()
-                BleHelper.addSendLinkedDeque(command)
+        } else {
+            if (recordIndex < recordSum) {
+                recordReadNum = recordSum - recordIndex
+                val sendBytes = startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
+                recordCommand = recordHeadMsg + sendBytes.toHexString(false).trim()
+                BleHelper.addSendLinkedDeque(recordCommand)
             }
             recordIndex = recordSum.toLong()
         }
@@ -502,34 +501,33 @@ class BleCallback : BluetoothGattCallback() {
 
 
     private fun alarmData(alarmArrayList: ArrayList<Alarm>) {
-        if (alarmArrayList.size!=0){
-            for (alarm in alarmArrayList){
+        if (alarmArrayList.size != 0) {
+            for (alarm in alarmArrayList) {
                 //不存在
-                if (Repository.forgetAlarmIsExist(alarm.timestamp)==0){
+                if (Repository.forgetAlarmIsExist(alarm.timestamp) == 0) {
                     Repository.insertAlarm(alarm)
                     FileUtils.saveAlarm(alarm)
                 }
             }
             //Repository.insertAlarmList(alarmArrayList)
             //alarmArrayList.logE("xysLog")
-            alarmSum= mmkv.getInt(ValueKey.deviceAlarmSum,0)
+            alarmSum = mmkv.getInt(ValueKey.deviceAlarmSum, 0)
 
-            val alarmProgress=alarmIndex*100/alarmSum
+            val alarmProgress = alarmIndex * 100 / alarmSum
             "alarmIndex: $alarmIndex alarmSum: $alarmSum progress: $alarmProgress".logE("xysLog")
-            uiCallback.synProgress(alarmProgress.toInt(),"$alarmIndex/$alarmSum")
+            uiCallback.synProgress(alarmProgress.toInt(), "$alarmIndex/$alarmSum")
 
-            if (alarmIndex<alarmSum-alarmReadNum){
-                val sendBytes=startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)
-                val command=alarmHeadMsg+sendBytes.toHexString(false).trim()
-                BleHelper.addSendLinkedDeque(command)
+            if (alarmIndex < alarmSum - alarmReadNum) {
+                val sendBytes = startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)
+                alarmCommand = alarmHeadMsg + sendBytes.toHexString(false).trim()
+                BleHelper.addSendLinkedDeque(alarmCommand)
                 alarmIndex += alarmReadNum
-            }
-            else{
-                if (alarmIndex<alarmSum){
-                    alarmReadNum=alarmSum-alarmIndex
-                    val sendBytes=startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)
-                    val command=alarmHeadMsg+sendBytes.toHexString(false).trim()
-                    BleHelper.addSendLinkedDeque(command)
+            } else {
+                if (alarmIndex < alarmSum) {
+                    alarmReadNum = alarmSum - alarmIndex
+                    val sendBytes = startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)
+                    alarmCommand = alarmHeadMsg + sendBytes.toHexString(false).trim()
+                    BleHelper.addSendLinkedDeque(alarmCommand)
                     "alarmIndex: $alarmIndex:$alarmReadNum:$alarmSum".logE("xysLog")
                 }
                 alarmIndex = alarmSum.toLong()
@@ -589,10 +587,10 @@ class BleCallback : BluetoothGattCallback() {
      * UI回调
      */
     interface UiCallback {
-        fun realData(materialInfo:MaterialInfo)
-        fun bleConnected(state:String)
-        fun synProgress(progress:Int,numShow:String)
-        fun mqttSendMsg(bytes:ByteArray)
+        fun realData(materialInfo: MaterialInfo)
+        fun bleConnected(state: String)
+        fun synProgress(progress: Int, numShow: String)
+        fun mqttSendMsg(bytes: ByteArray)
     }
 
 }

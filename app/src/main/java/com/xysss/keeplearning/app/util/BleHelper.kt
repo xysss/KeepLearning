@@ -28,6 +28,8 @@ object BleHelper {
     const val synRecord="synRecord"
     const val synAlarm="synAlarm"
     var synFlag=""
+    var recordCommand = ""
+    var alarmCommand = ""
 
     /**
      * 启用指令通知
@@ -95,7 +97,7 @@ object BleHelper {
         }
     }
 
-    fun retryHistoryMessage(recordCommand :String,alarmCommand:String) {
+    fun retryHistoryMessage() {
         if (synFlag==synRecord){
             "synRecord:$recordCommand".logE("xysLog")
             addSendLinkedDeque(recordCommand)

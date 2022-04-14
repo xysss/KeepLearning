@@ -37,8 +37,7 @@ class BleCallback : BluetoothGattCallback() {
     private var newIndex = -1
     private var mVocIndex = 0
     private var beforeIsFF = false
-    private var recordCommand = ""
-    private var alarmCommand = ""
+
 
 
     fun setUiCallback(uiCallback: UiCallback) {
@@ -230,11 +229,11 @@ class BleCallback : BluetoothGattCallback() {
                             "协议正确: ${afterBytes.toHexString()}".logE("xysLog")
                         } else {
                             "CRC校验错误，协议长度: $newLength : ${afterBytes.toHexString()}".logE("xysLog")
-                            BleHelper.retryHistoryMessage(recordCommand,alarmCommand)
+                            BleHelper.retryHistoryMessage()
                         }
                     } else {
                         "协议开头结尾不对:  ${afterBytes.toHexString()}".logE("xysLog")
-                        BleHelper.retryHistoryMessage(recordCommand,alarmCommand)
+                        BleHelper.retryHistoryMessage()
                     }
                     transcodingBytesList.clear()
                 } else if (newLength < 9 && transcodingBytesList.size > 9) { //协议长度不够
@@ -484,15 +483,15 @@ class BleCallback : BluetoothGattCallback() {
 
         if (recordIndex < recordSum - recordReadNum) {
             val sendBytes = startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
-            recordCommand = recordHeadMsg + sendBytes.toHexString(false).trim()
-            BleHelper.addSendLinkedDeque(recordCommand)
+            BleHelper.recordCommand = recordHeadMsg + sendBytes.toHexString(false).trim()
+            BleHelper.addSendLinkedDeque(BleHelper.recordCommand)
             recordIndex += recordReadNum
         } else {
             if (recordIndex < recordSum) {
                 recordReadNum = recordSum - recordIndex
                 val sendBytes = startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
-                recordCommand = recordHeadMsg + sendBytes.toHexString(false).trim()
-                BleHelper.addSendLinkedDeque(recordCommand)
+                BleHelper.recordCommand = recordHeadMsg + sendBytes.toHexString(false).trim()
+                BleHelper.addSendLinkedDeque(BleHelper.recordCommand)
             }
             recordIndex = recordSum.toLong()
         }
@@ -518,15 +517,15 @@ class BleCallback : BluetoothGattCallback() {
 
             if (alarmIndex < alarmSum - alarmReadNum) {
                 val sendBytes = startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)
-                alarmCommand = alarmHeadMsg + sendBytes.toHexString(false).trim()
-                BleHelper.addSendLinkedDeque(alarmCommand)
+                BleHelper.alarmCommand = alarmHeadMsg + sendBytes.toHexString(false).trim()
+                BleHelper.addSendLinkedDeque(BleHelper.alarmCommand)
                 alarmIndex += alarmReadNum
             } else {
                 if (alarmIndex < alarmSum) {
                     alarmReadNum = alarmSum - alarmIndex
                     val sendBytes = startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)
-                    alarmCommand = alarmHeadMsg + sendBytes.toHexString(false).trim()
-                    BleHelper.addSendLinkedDeque(alarmCommand)
+                    BleHelper.alarmCommand = alarmHeadMsg + sendBytes.toHexString(false).trim()
+                    BleHelper.addSendLinkedDeque(BleHelper.alarmCommand)
                     "alarmIndex: $alarmIndex:$alarmReadNum:$alarmSum".logE("xysLog")
                 }
                 alarmIndex = alarmSum.toLong()

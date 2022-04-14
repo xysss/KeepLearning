@@ -53,6 +53,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
     private var mTimer : Timer?=null
     private var historyTask: HistoryTimerTask?=null
     private var realDataTask: RealTimeDataTimerTask?=null
+    private var retryFlagCount = 0
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
@@ -290,7 +291,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                 }
                 mTimer = Timer()
                 historyTask = HistoryTimerTask()
-                mTimer?.schedule(historyTask,10*1000,20*1000)
+                mTimer?.schedule(historyTask,10*1000,10*1000)
             }
 
             setNegativeButton("取消"){ _, _ ->
@@ -383,13 +384,22 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
 //            "此时运行在${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("xysLog")
             if (isRecOK){
                 isRecOK=false
+                retryFlagCount=0
             }else{
                 scope.launch(Dispatchers.Main) {
-                    dismissProgressUI()
-                    ToastUtils.showShort("数据接收错误,请重新尝试")
-                    historyTask?.cancel()
-                    mTimer?.cancel()
-                    "20秒同步尝试超时".logE("xysLog")
+                    if(retryFlagCount<4){  //超时最多连续重发3次
+                        isRecOK=true
+                        retryFlagCount++
+                        BleHelper.retryHistoryMessage()
+                        "接收超时进行第 $retryFlagCount 次重发尝试".logE("xysLog")
+                    }else{
+                        retryFlagCount=0
+                        dismissProgressUI()
+                        ToastUtils.showShort("数据接收错误,请重新尝试")
+                        historyTask?.cancel()
+                        mTimer?.cancel()
+                        "同步尝试超时".logE("xysLog")
+                    }
                 }
             }
         }

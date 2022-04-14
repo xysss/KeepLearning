@@ -129,22 +129,18 @@ object BleHelper {
     fun sendRecordMsg(){
         recordIndex =1L
         recordReadNum =5L
-        val sendBytes= startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(
-            recordReadNum
-        )
-        val command= recordHeadMsg +sendBytes.toHexString(false).trim()
-        addSendLinkedDeque(command)
+        val sendBytes= startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
+        recordCommand= recordHeadMsg +sendBytes.toHexString(false).trim()
+        addSendLinkedDeque(recordCommand)
         recordIndex += recordReadNum
     }
 
     fun sendAlarmMsg(){
         alarmIndex =1L
-        alarmReadNum =10L
-        val sendBytes= startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(
-            alarmReadNum
-        )
-        val command= alarmHeadMsg +sendBytes.toHexString(false).trim()
-        addSendLinkedDeque(command)
+        alarmReadNum =5L
+        val sendBytes= startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)
+        alarmCommand= alarmHeadMsg +sendBytes.toHexString(false).trim()
+        addSendLinkedDeque(alarmCommand)
         alarmIndex += alarmReadNum
     }
 

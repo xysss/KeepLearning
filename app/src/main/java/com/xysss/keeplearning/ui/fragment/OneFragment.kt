@@ -314,6 +314,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
     }
 
     private fun startTest(){
+        //切换实时数据模式
+        BleHelper.synFlag="实时数据模式"
         isStopReqRealMsg =false
         isClickStart=false
         mViewBinding.testText.text="停止"
@@ -388,7 +390,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             }else{
                 scope.launch(Dispatchers.Main) {
                     if(retryFlagCount<4){  //超时最多连续重发3次
-                        isRecOK=true
                         retryFlagCount++
                         BleHelper.retryHistoryMessage()
                         "接收超时进行第 $retryFlagCount 次重发尝试".logE("xysLog")

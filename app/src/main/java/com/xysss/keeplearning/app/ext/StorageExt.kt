@@ -53,7 +53,7 @@ var recordReadNum=5L
 var recordSum= 0
 
 var alarmIndex=1L
-var alarmReadNum=10L
+var alarmReadNum=5L
 var alarmSum= 0
 
 val startIndexByteArray0100=ByteArray(4)

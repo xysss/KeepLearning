@@ -211,7 +211,6 @@ class BleCallback : BluetoothGattCallback() {
                     newLengthBytes[1] = transcodingBytesList[2]
                     newLength = newLengthBytes.readInt16BE()
                     "协议长度: $newLength".logE("xysLog")
-                    isRecOK =true
                 }
 
                 if (transcodingBytesList.size == newLength && transcodingBytesList.size > 9) {
@@ -222,25 +221,28 @@ class BleCallback : BluetoothGattCallback() {
                         }
                     }
 
-                    if (afterBytes[0] == ByteUtils.FRAME_START && afterBytes[afterBytes.size - 1] == ByteUtils.FRAME_END) {
+                    isRecOK = if (afterBytes[0] == ByteUtils.FRAME_START && afterBytes[afterBytes.size - 1] == ByteUtils.FRAME_END) {
                         //CRC校验
                         if (Crc8.isFrameValid(afterBytes, afterBytes.size)) {
                             analyseMessage(afterBytes)  //分发数据
-                            "协议正确: ${afterBytes.toHexString()}".logE("xysLog")
+                            //"协议正确: ${afterBytes.toHexString()}".logE("xysLog")
+                            true
                         } else {
                             "CRC校验错误，协议长度: $newLength : ${afterBytes.toHexString()}".logE("xysLog")
                             BleHelper.retryHistoryMessage()
+                            false
                         }
                     } else {
                         "协议开头结尾不对:  ${afterBytes.toHexString()}".logE("xysLog")
                         BleHelper.retryHistoryMessage()
+                        false
                     }
                     transcodingBytesList.clear()
                 } else if (newLength < 9 && transcodingBytesList.size > 9) { //协议长度不够
                     "解析协议不完整，协议长度: $newLength  解析长度：${transcodingBytesList.size} ,${transcodingBytesList.toHexString()}".logE("xysLog")
                     isRecOK = false
                     //BleHelper.retryHistoryMessage(recordCommand,alarmCommand)
-                    //transcodingBytesList.clear()
+                    transcodingBytesList.clear()
                 }
             }
         }

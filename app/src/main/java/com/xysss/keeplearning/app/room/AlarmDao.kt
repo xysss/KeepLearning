@@ -21,7 +21,7 @@ interface AlarmDao {
     @Query("select * from Alarm")
     fun loadAllAlarm(): List<Alarm>
 
-    @Query("select * from Alarm order by id limit :size offset :index")
+    @Query("select * from Alarm order by id desc limit :size offset :index")
     fun loadLimitAlarm(size:Int,index: Int): List<Alarm>
 
     @Delete

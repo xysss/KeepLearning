@@ -18,11 +18,10 @@ import java.util.ArrayList
 class HistoryRecordViewModel :BaseViewModel(){
     val recordListData: LiveData<DataHistoryResponse<Any>> get() = _recordListData
     private var pageIndex = 0
-    private val readNum=10
+    private val readNum=20
     private var _recordListData = MutableLiveData<DataHistoryResponse<Any>>()
     fun getRecordList(isRefresh: Boolean, loadingXml: Boolean = false) {
         if (isRefresh) {
-            //是刷新 玩Android的这个接口pageIndex 是0 开始 （真操蛋啊...）
             pageIndex = 0
         }
         viewModelScope.launch(Dispatchers.IO) {

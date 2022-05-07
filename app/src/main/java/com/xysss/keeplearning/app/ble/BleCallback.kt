@@ -102,7 +102,7 @@ class BleCallback : BluetoothGattCallback() {
 
                 "蓝牙:通知开启成功，准备完成:".logE("xysLog")
 
-                uiCallback.bleConnected("已连接设备")
+//                uiCallback.bleConnected("已连接设备")
 
                 scope.launch(Dispatchers.IO) {
                     startSendMessage()
@@ -313,6 +313,8 @@ class BleCallback : BluetoothGattCallback() {
                 mmkv.putString(ValueKey.sendTopicValue, sendTopicDefault+String(tempBytes)+"/")
 
                 "设备信息解析成功: ${String(tempBytes)}".logE("xysLog")
+
+                uiCallback.bleConnected("已连接设备")
             }
         }
     }
@@ -372,7 +374,7 @@ class BleCallback : BluetoothGattCallback() {
                         val firstIndex = 16 + i * 48
                         if (firstIndex + 44 < it.size && dataNum > 0) {
                             val mTimestamp = it.readByteArrayBE(firstIndex, 4).readUInt32LE()
-                            val mDateStr = ByteUtils.getDateTime(mTimestamp.toString())
+                            val mDateStr = ByteUtils.getDateTime(mTimestamp*1000)
                             val mReserve = it.readByteArrayBE(firstIndex + 4, 4).readInt32LE()
                             val mPpm = it.readByteArrayBE(firstIndex + 8, 4).readFloatLE()
                             val mPpmStr = ByteUtils.getNoMoreThanTwoDigits(mPpm)
@@ -389,11 +391,11 @@ class BleCallback : BluetoothGattCallback() {
                             val dataRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex, mAlarm.toString(),
                                 mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString(),mPlaceId.toString())
                             //存储数据
-                            if (Repository.forgetRecordIsExist(dataRecord.timestamp) == 0) {
-                                Repository.insertRecord(dataRecord)
-                                //保存文件
-                                FileUtils.saveRecord(dataRecord)
-                            }
+                            Repository.insertRecord(dataRecord)
+                            //保存文件
+                            FileUtils.saveRecord(dataRecord)
+//                            if (Repository.forgetRecordIsExist(dataRecord.timestamp) == 0) {
+//                            }
                             //请求物质名称
                             if (newIndex != mVocIndex) {
                                 if (Repository.forgetMatterIsExist(mVocIndex) == 0) {
@@ -420,7 +422,7 @@ class BleCallback : BluetoothGattCallback() {
                         val firstIndex = 16 + i * 16
                         if (firstIndex + 12 < it.size && dataNum > 0) {
                             val mTimestamp = it.readByteArrayBE(firstIndex, 4).readUInt32LE()
-                            val dateTimeStr = ByteUtils.getDateTime(mTimestamp.toString())
+                            val dateTimeStr = ByteUtils.getDateTime(mTimestamp*1000)
 
                             val mAlarm = it.readByteArrayBE(firstIndex + 4, 4).readInt32LE()
                             val mType = it.readByteArrayBE(firstIndex + 8, 4).readInt32LE()
@@ -477,11 +479,10 @@ class BleCallback : BluetoothGattCallback() {
     private fun recordData() {
         //Repository.insertRecordList(recordArrayList)
         //recordArrayList.logE("xysLog")
-        recordSum = mmkv.getInt(ValueKey.deviceRecordSum, 0)
 
         val recordProgress = recordIndex * 100 / recordSum
         "recordIndex: $recordIndex recordSum: $recordSum progress: $recordProgress".logE("xysLog")
-        uiCallback.synProgress(recordProgress.toInt(), "$recordIndex/$recordSum")
+        uiCallback.synProgress(recordProgress.toInt(), "${recordIndex-1}/$recordSum")
 
         if (recordIndex < recordSum - recordReadNum) {
             val sendBytes = startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
@@ -503,19 +504,18 @@ class BleCallback : BluetoothGattCallback() {
     private fun alarmData(alarmArrayList: ArrayList<Alarm>) {
         if (alarmArrayList.size != 0) {
             for (alarm in alarmArrayList) {
+                Repository.insertAlarm(alarm)
+                FileUtils.saveAlarm(alarm)
                 //不存在
-                if (Repository.forgetAlarmIsExist(alarm.timestamp) == 0) {
-                    Repository.insertAlarm(alarm)
-                    FileUtils.saveAlarm(alarm)
-                }
+//                if (Repository.forgetAlarmIsExist(alarm.timestamp) == 0) {
+//                }
             }
             //Repository.insertAlarmList(alarmArrayList)
             //alarmArrayList.logE("xysLog")
-            alarmSum = mmkv.getInt(ValueKey.deviceAlarmSum, 0)
 
             val alarmProgress = alarmIndex * 100 / alarmSum
             "alarmIndex: $alarmIndex alarmSum: $alarmSum progress: $alarmProgress".logE("xysLog")
-            uiCallback.synProgress(alarmProgress.toInt(), "$alarmIndex/$alarmSum")
+            uiCallback.synProgress(alarmProgress.toInt(), "${alarmIndex-1}/$alarmSum")
 
             if (alarmIndex < alarmSum - alarmReadNum) {
                 val sendBytes = startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)

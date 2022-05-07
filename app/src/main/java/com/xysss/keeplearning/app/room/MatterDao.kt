@@ -32,7 +32,7 @@ interface MatterDao {
     @Query("delete from Matter where mId = :voc_index")
     fun deleteMatterByLastName(voc_index: String): Int
 
-    //查询表中某单词是否存在  存在返回值为1，不存在返回值为0.
+    //查询表中某条目是否存在  存在返回值为1，不存在返回值为0.
     @Query("select 1 from Matter where voc_index_matter =:index  limit 1")
     fun forgetMatterIsExist(index:Int):Int
 }

@@ -127,21 +127,21 @@ object BleHelper {
     }
 
     fun sendRecordMsg(){
+        recordReadNum = if(recordSum>5) 5L else recordSum.toLong()
         recordIndex =1L
-        recordReadNum =5L
         val sendBytes= startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
         recordCommand= recordHeadMsg +sendBytes.toHexString(false).trim()
         addSendLinkedDeque(recordCommand)
-        recordIndex += recordReadNum
+        recordIndex += recordReadNum-1
     }
 
     fun sendAlarmMsg(){
+        alarmReadNum = if(alarmSum>5) 5L else alarmSum.toLong()
         alarmIndex =1L
-        alarmReadNum =5L
         val sendBytes= startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)
         alarmCommand= alarmHeadMsg +sendBytes.toHexString(false).trim()
         addSendLinkedDeque(alarmCommand)
-        alarmIndex += alarmReadNum
+        alarmIndex += alarmReadNum-1
     }
 
     private fun transSendCoding(bytes: ByteArray): ByteArray {

@@ -280,18 +280,33 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
             setCancelable(false)
             setPositiveButton("确定"){ _, _ ->
                 stopTest()
-                showProgressUI()
+
                 if (flag==1){
-                    BleHelper.sendRecordMsg()
-                    BleHelper.synFlag = BleHelper.synRecord
+                    recordSum = mmkv.getInt(ValueKey.deviceRecordSum, 0)
+                    if (recordSum!=0){
+                        showProgressUI()
+                        BleHelper.synFlag = BleHelper.synRecord
+                        BleHelper.sendRecordMsg()
+                        mTimer = Timer()
+                        historyTask = HistoryTimerTask()
+                        mTimer?.schedule(historyTask,10*1000,10*1000)
+                    }else{
+                        ToastUtils.showShort("设备上未查询到数据")
+                    }
                 }
                 else if (flag==2){
-                    BleHelper.sendAlarmMsg()
-                    BleHelper.synFlag = BleHelper.synAlarm
+                    alarmSum = mmkv.getInt(ValueKey.deviceAlarmSum, 0)
+                    if (alarmSum!=0){
+                        showProgressUI()
+                        BleHelper.synFlag = BleHelper.synAlarm
+                        BleHelper.sendAlarmMsg()
+                        mTimer = Timer()
+                        historyTask = HistoryTimerTask()
+                        mTimer?.schedule(historyTask,10*1000,10*1000)
+                    }else{
+                        ToastUtils.showShort("设备上未查询到数据")
+                    }
                 }
-                mTimer = Timer()
-                historyTask = HistoryTimerTask()
-                mTimer?.schedule(historyTask,10*1000,10*1000)
             }
 
             setNegativeButton("取消"){ _, _ ->

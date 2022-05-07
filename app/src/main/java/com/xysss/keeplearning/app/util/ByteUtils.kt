@@ -1,9 +1,13 @@
 package com.xysss.keeplearning.app.util
 
+import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.experimental.xor
 
@@ -75,14 +79,8 @@ object ByteUtils {
         return format.format(number)
     }
 
-    fun getDateTime(s: String): String {
-        return try {
-            val sdf = SimpleDateFormat("yyyy/MM/dd hh:mm:ss")
-            val netDate = Date(s.toLong() * 1000)
-            sdf.format(netDate)
-        } catch (e: Exception) {
-            e.toString()
-        }
+    fun getDateTime(times: Long): String {
+        return SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(times)
     }
 
     /**

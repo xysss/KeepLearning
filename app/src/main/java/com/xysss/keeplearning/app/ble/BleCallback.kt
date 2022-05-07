@@ -374,7 +374,7 @@ class BleCallback : BluetoothGattCallback() {
                         val firstIndex = 16 + i * 48
                         if (firstIndex + 44 < it.size && dataNum > 0) {
                             val mTimestamp = it.readByteArrayBE(firstIndex, 4).readUInt32LE()
-                            val mDateStr = ByteUtils.getDateTime(mTimestamp*1000)
+                            val mDateStr = ByteUtils.getDateTime((mTimestamp-28800)*1000)
                             val mReserve = it.readByteArrayBE(firstIndex + 4, 4).readInt32LE()
                             val mPpm = it.readByteArrayBE(firstIndex + 8, 4).readFloatLE()
                             val mPpmStr = ByteUtils.getNoMoreThanTwoDigits(mPpm)
@@ -422,7 +422,7 @@ class BleCallback : BluetoothGattCallback() {
                         val firstIndex = 16 + i * 16
                         if (firstIndex + 12 < it.size && dataNum > 0) {
                             val mTimestamp = it.readByteArrayBE(firstIndex, 4).readUInt32LE()
-                            val dateTimeStr = ByteUtils.getDateTime(mTimestamp*1000)
+                            val dateTimeStr = ByteUtils.getDateTime((mTimestamp-28800)*1000)  //以格林威治为标准需要北京时间减8小时
 
                             val mAlarm = it.readByteArrayBE(firstIndex + 4, 4).readInt32LE()
                             val mType = it.readByteArrayBE(firstIndex + 8, 4).readInt32LE()

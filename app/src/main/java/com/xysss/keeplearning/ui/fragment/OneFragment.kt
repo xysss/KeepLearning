@@ -24,7 +24,9 @@ import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.BleHelper
+import com.xysss.keeplearning.app.util.FileUtils
 import com.xysss.keeplearning.data.annotation.ValueKey
+import com.xysss.keeplearning.data.repository.Repository
 import com.xysss.keeplearning.databinding.FragmentOneBinding
 import com.xysss.keeplearning.ui.activity.*
 import com.xysss.keeplearning.viewmodel.BlueToothViewModel
@@ -290,6 +292,11 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                         mTimer = Timer()
                         historyTask = HistoryTimerTask()
                         mTimer?.schedule(historyTask,10*1000,10*1000)
+                        scope.launch(Dispatchers.IO) {
+                            //清空正常数据
+                            Repository.deleteAllRecords()
+                            FileUtils.deleteSingleFile(FileUtils.sdPath+FileUtils.recordFileName)
+                        }
                     }else{
                         ToastUtils.showShort("设备上未查询到数据")
                     }
@@ -303,6 +310,11 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                         mTimer = Timer()
                         historyTask = HistoryTimerTask()
                         mTimer?.schedule(historyTask,10*1000,10*1000)
+                        //清空报警数据
+                        scope.launch(Dispatchers.IO) {
+                            Repository.deleteAllAlarm()
+                            FileUtils.deleteSingleFile(FileUtils.sdPath+FileUtils.AlarmFileName)
+                        }
                     }else{
                         ToastUtils.showShort("设备上未查询到数据")
                     }

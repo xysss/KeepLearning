@@ -39,6 +39,11 @@ object Repository {
         return dataRecordDao.forgetRecordIsExist(time)
     }
     @Synchronized
+    fun deleteAllRecords(){
+        return dataRecordDao.deleteAllRecords()
+    }
+
+    @Synchronized
     fun insertAlarm(alarm:Alarm):Long{
         return dataAlarmDao.insertAlarm(alarm)
     }
@@ -53,6 +58,10 @@ object Repository {
     @Synchronized
     fun forgetAlarmIsExist(time :String):Int{
         return dataAlarmDao.forgetAlarmIsExist(time)
+    }
+    @Synchronized
+    fun deleteAllAlarm(){
+        return dataAlarmDao.deleteAllAlarm()
     }
 
     @Synchronized

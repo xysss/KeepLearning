@@ -35,6 +35,9 @@ interface RecordDao {
     @Query("delete from Record where id = :voc_index")
     fun deleteRecordByLastName(voc_index: String): Int
 
+    @Query("delete from Record")
+    fun deleteAllRecords()
+
     //查询表中某单词是否存在  存在返回值为1，不存在返回值为0.
     @Query("select 1 from Record where timestamp =:time  limit 1")
     fun forgetRecordIsExist(time:String):Int

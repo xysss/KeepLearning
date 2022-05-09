@@ -16,6 +16,21 @@ import java.util.*
  */
 object FileUtils {
 
+    val sdPath = appContext.getExternalFilesDir(null)?.path + "/vp200/"
+    const val recordFileName="数据记录.txt"
+    const val AlarmFileName="报警记录.txt"
+
+
+    fun deleteSingleFile(filePathName:String):Boolean {
+        var file =  File(filePathName)
+        // 如果文件路径所对应的文件存在，并且是一个文件，则直接删除
+        return if (file.exists() && file.isFile()) {
+            file.delete()
+        } else {
+            false
+        }
+    }
+
     fun saveString(str: String) {
         try {
             val fileOutput = appContext.openFileOutput("data", Context.MODE_PRIVATE)
@@ -66,9 +81,7 @@ object FileUtils {
 //        val fileName = "数据记录.txt"
 
         if (hasSdcard()) {
-            val sdPath = appContext.getExternalFilesDir(null)?.path + "/vp200/"
             val file = File(sdPath)
-            val fileName="数据记录.txt"
             if (!file.exists()) {
                 file.mkdir()
             }
@@ -76,7 +89,7 @@ object FileUtils {
 
             var fos: FileOutputStream? = null
             try {
-                fos = FileOutputStream(sdPath + fileName, true)
+                fos = FileOutputStream(sdPath + recordFileName, true)
                 fos.write(dataText.toByteArray())
                 fos.flush()
                 fos.close()
@@ -94,9 +107,7 @@ object FileUtils {
 //        val fileName = "数据记录.txt"
 
         if (hasSdcard()) {
-            val sdPath = appContext.getExternalFilesDir(null)?.path + "/vp200/"
             val file = File(sdPath)
-            val fileName="报警记录.txt"
             if (!file.exists()) {
                 file.mkdir()
             }
@@ -104,7 +115,7 @@ object FileUtils {
 
             var fos: FileOutputStream? = null
             try {
-                fos = FileOutputStream(sdPath + fileName, true)
+                fos = FileOutputStream(sdPath + AlarmFileName, true)
                 fos.write(dataText.toByteArray())
                 fos.flush()
                 fos.close()

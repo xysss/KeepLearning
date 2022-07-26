@@ -39,11 +39,12 @@ android {
         multiDexEnabled true
         externalNativeBuild {
             cmake {
-                cppFlags ''
+                version "3.10.2"
+                cppFlags ""
             }
         }
         ndk {
-            abiFilters "armeabi-v7a",'arm64-v8a',"x86"  //armeabi
+            abiFilters "armeabi-v7a","x86"  //armeabi,'arm64-v8a'
         }
     }
     buildTypes {
@@ -72,10 +73,8 @@ android {
     externalNativeBuild {
         cmake {
             path file('src/main/cpp/CMakeLists.txt')
-            version '3.10.2'
         }
     }
-
     android.applicationVariants.all {
         variant ->
             variant.outputs.all {
@@ -102,9 +101,21 @@ android {
                 '--set-max-idx-number=60000'//每个包内方法数上限
         ]
     }*/
+
+    sourceSets {
+        main {
+            jniLibs.srcDir 'libs'
+        }
+    }
 }
 
 dependencies {
+
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation files('libs/bos-android-sdk-1.0.2.jar')
+    implementation files('libs/BaiduTraceSDK_v3_0_4.jar')
+    implementation files('libs/BaiduLBS_Android.jar')
+
     //项目核心框架
     implementation project(path: ':mvvmhelper')
 
@@ -192,7 +203,4 @@ dependencies {
     //mqtt
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
-
-    // Anko Commons 废弃了 不建议使用
-    //implementation "org.jetbrains.anko:anko:$anko_version"
 }

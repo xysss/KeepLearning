@@ -29,6 +29,7 @@ import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.data.repository.Repository
 import com.xysss.keeplearning.databinding.FragmentOneBinding
 import com.xysss.keeplearning.ui.activity.*
+import com.xysss.keeplearning.ui.activity.baidumap.BaiduMapActivity
 import com.xysss.keeplearning.viewmodel.BlueToothViewModel
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.*
@@ -196,18 +197,21 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>(){
                         stopTest()
                 }
                 R.id.toServiceBackImg->{
-                    if (mmkv.getString(ValueKey.deviceId,"")!=""){
-                        recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
-                        sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
 
-                        if (isConnectMqtt){
-                            mViewBinding.servicesTex.text="开启上传"
-                            mService.mpttDisconnect()
-                        }else{
-                            mViewBinding.servicesTex.text="关闭上传"
-                            mService.connectMqtt(appContext)
-                        }
-                    }
+                    toStartActivity(BaiduMapActivity::class.java)
+
+//                    if (mmkv.getString(ValueKey.deviceId,"")!=""){
+//                        recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
+//                        sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
+//
+//                        if (isConnectMqtt){
+//                            mViewBinding.servicesTex.text="开启上传"
+//                            mService.mpttDisconnect()
+//                        }else{
+//                            mViewBinding.servicesTex.text="关闭上传"
+//                            mService.connectMqtt(appContext)
+//                        }
+//                    }
 
                 }
                 R.id.synRecordBackgroundImg->{

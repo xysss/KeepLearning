@@ -1,12 +1,31 @@
 package com.xysss.keeplearning.app.ext
 
+import android.graphics.Color
 import android.os.Looper
+import com.baidu.mapapi.map.*
+import com.baidu.mapapi.map.BaiduMap.OnMapStatusChangeListener
+import com.baidu.mapapi.model.LatLng
+import com.baidu.mapapi.model.LatLngBounds
+import com.baidu.mapapi.utils.CoordinateConverter
+import com.baidu.trace.model.BaseRequest
+import com.baidu.trace.model.CoordType
+import com.baidu.trace.model.TraceLocation
 import com.tencent.mmkv.MMKV
+import com.xysss.keeplearning.R
+import com.xysss.keeplearning.app.App.Companion.mSequenceGenerator
+import com.xysss.keeplearning.app.App.Companion.screenHeight
+import com.xysss.keeplearning.app.App.Companion.screenWidth
+import com.xysss.keeplearning.app.App.Companion.serviceId
+import com.xysss.keeplearning.app.App.Companion.trackConf
 import com.xysss.keeplearning.app.room.AppDatabase
+import com.xysss.keeplearning.app.util.BitmapUtil
+import com.xysss.keeplearning.app.util.CommonUtil
+import com.xysss.keeplearning.app.util.MapUtil
 import com.xysss.keeplearning.data.annotation.ValueKey
+import com.xysss.keeplearning.ui.activity.baidumap.model.CurrentLocation
+import com.xysss.mvvmhelper.base.appContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.LinkedBlockingQueue
 
 /**
@@ -74,4 +93,28 @@ val mmkv: MMKV by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
 
 fun isMainThread(): Boolean {
     return Looper.getMainLooper().thread.id == Thread.currentThread().id
+}
+
+var bmArrowPoint: BitmapDescriptor? = null
+
+var bmStart: BitmapDescriptor? = null
+
+var bmEnd: BitmapDescriptor? = null
+
+/**
+ * 创建bitmap，在MainActivity onCreate()中调用
+ */
+fun BitmapUtilInit() {
+    bmArrowPoint = BitmapDescriptorFactory.fromResource(R.mipmap.icon_point)
+    bmStart = BitmapDescriptorFactory.fromResource(R.mipmap.icon_start)
+    bmEnd = BitmapDescriptorFactory.fromResource(R.mipmap.icon_end)
+}
+
+/**
+ * 回收bitmap，在MainActivity onDestroy()中调用
+ */
+fun BitmapUtilclear() {
+    bmArrowPoint!!.recycle()
+    bmStart!!.recycle()
+    bmEnd!!.recycle()
 }

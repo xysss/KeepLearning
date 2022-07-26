@@ -53,6 +53,7 @@
         <entry key="app/src/main/res/drawable-xxhdpi/ic_launcher_foreground.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable-xxhdpi/ic_widgets.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable-xxhdpi/shape_white_top_radius_24.xml" value="0.2630208333333333" />
+        <entry key="app/src/main/res/drawable/all_border.xml" value="0.185" />
         <entry key="app/src/main/res/drawable/ic_add.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable/ic_bluetooth.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.3802083333333333" />
@@ -61,6 +62,8 @@
         <entry key="app/src/main/res/drawable/shape_login_btn.xml" value="0.33611111111111114" />
         <entry key="app/src/main/res/drawable/shape_login_edit.xml" value="0.33611111111111114" />
         <entry key="app/src/main/res/drawable/shape_white_top_radius_24.xml" value="0.296875" />
+        <entry key="app/src/main/res/drawable/toast_border.xml" value="0.185" />
+        <entry key="app/src/main/res/layout/activity_bai_du_map_trace.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/activity_data_exchange.xml" value="0.4052757520582584" />
         <entry key="app/src/main/res/layout/activity_demo.xml" value="0.19375" />
         <entry key="app/src/main/res/layout/activity_error.xml" value="0.20364583333333333" />
@@ -71,7 +74,14 @@
         <entry key="app/src/main/res/layout/activity_navigation.xml" value="0.17291666666666666" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.1585144927536232" />
         <entry key="app/src/main/res/layout/activity_test.xml" value="0.26614583333333336" />
+        <entry key="app/src/main/res/layout/activity_title.xml" value="0.3640625" />
+        <entry key="app/src/main/res/layout/activity_top.xml" value="0.3640625" />
+        <entry key="app/src/main/res/layout/activity_tracing.xml" value="0.3640625" />
+        <entry key="app/src/main/res/layout/activity_tracing_options.xml" value="0.3640625" />
+        <entry key="app/src/main/res/layout/activity_trackquery.xml" value="0.3640625" />
+        <entry key="app/src/main/res/layout/activity_trackquery_options.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/activity_web.xml" value="0.3640625" />
+        <entry key="app/src/main/res/layout/dialog_date.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/dialog_uuid_edit.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/fragment_four.xml" value="0.246875" />
         <entry key="app/src/main/res/layout/fragment_history_alarm.xml" value="0.1527384624700375" />
@@ -90,6 +100,7 @@
         <entry key="app/src/main/res/layout/item_bluetooth.xml" value="0.20364583333333333" />
         <entry key="app/src/main/res/layout/item_test.xml" value="0.26145833333333335" />
         <entry key="app/src/main/res/layout/layout_splach_banner.xml" value="0.20364583333333333" />
+        <entry key="app/src/main/res/layout/layout_toast.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/main_navigation.xml" value="0.18697916666666667" />
         <entry key="app/src/main/res/layout/shape_home_background.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/toolbar_layout_custom.xml" value="0.25052083333333336" />

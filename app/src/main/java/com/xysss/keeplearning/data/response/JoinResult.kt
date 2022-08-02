@@ -1,8 +1,5 @@
 package com.xysss.keeplearning.data.response
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-
 /**
  * 作者 : xys
  * 时间 : 2022-02-17 10:08

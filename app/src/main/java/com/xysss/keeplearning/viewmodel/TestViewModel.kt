@@ -4,7 +4,6 @@ import android.net.Uri
 import android.os.Build
 import androidx.lifecycle.viewModelScope
 import com.xysss.keeplearning.app.api.NetUrl
-import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.util.Android10DownloadFactory
 import com.xysss.keeplearning.app.util.UriUtils
 import com.xysss.mvvmhelper.base.BaseViewModel

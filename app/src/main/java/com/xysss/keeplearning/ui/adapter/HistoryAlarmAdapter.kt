@@ -5,7 +5,6 @@ import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.room.Alarm
-import com.xysss.keeplearning.app.room.Record
 
 /**
  * 作者 : xys

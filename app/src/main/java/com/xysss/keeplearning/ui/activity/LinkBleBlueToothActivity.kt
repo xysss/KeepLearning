@@ -3,7 +3,6 @@ package com.xysss.keeplearning.ui.activity
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.DatePickerDialog
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.graphics.Color
@@ -25,7 +24,6 @@ import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ble.BleDevice
 import com.xysss.keeplearning.app.ble.BleDeviceAdapter
 import com.xysss.keeplearning.app.ext.*
-import com.xysss.keeplearning.app.util.*
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.ActivityLinkBluetoothBinding
 import com.xysss.keeplearning.databinding.DialogScanFilterBinding

@@ -4,7 +4,6 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.module.LoadMoreModule
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.xysss.keeplearning.R
-import com.xysss.keeplearning.app.room.Record
 import com.xysss.keeplearning.data.response.JoinResult
 
 /**

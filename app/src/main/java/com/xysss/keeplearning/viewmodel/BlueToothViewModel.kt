@@ -7,23 +7,17 @@ import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.swallowsonny.convertextlibrary.toHexString
-import com.swallowsonny.convertextlibrary.writeInt32LE
 import com.xysss.keeplearning.app.api.NetUrl
 import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.ext.*
-import com.xysss.keeplearning.app.room.Matter
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.Android10DownloadFactory
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.UriUtils
-import com.xysss.keeplearning.data.annotation.ValueKey
-import com.xysss.keeplearning.data.repository.Repository
 import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -31,7 +25,6 @@ import rxhttp.toFlow
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.param.RxHttp
 import java.io.File
-import java.lang.StringBuilder
 
 class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback {
     val bleDate: LiveData<MaterialInfo> get() = _bleDate

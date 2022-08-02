@@ -1,21 +1,10 @@
 package com.xysss.keeplearning.app
 
-import android.app.Application
 import android.view.Gravity
 import androidx.multidex.BuildConfig
 import androidx.multidex.MultiDex
 import cat.ereza.customactivityoncrash.config.CaocConfig
-import com.baidu.mapapi.SDKInitializer
-import com.baidu.trace.LBSTraceClient
-import com.baidu.trace.Trace
-import com.baidu.mapapi.model.LatLng
-import com.baidu.trace.api.entity.LocRequest
-import com.baidu.trace.api.entity.OnEntityListener
-import com.baidu.trace.api.track.LatestPointRequest
-import com.baidu.trace.api.track.OnTrackListener
-import com.baidu.trace.model.OnCustomAttributeListener
-import com.baidu.trace.model.ProcessOption
-import com.baidu.trace.model.TransportMode
+import com.amap.api.location.AMapLocationClient
 import com.effective.android.anchors.Project
 import com.effective.android.anchors.Task
 import com.hjq.toast.ToastUtils
@@ -27,19 +16,8 @@ import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.bugly.Bugly
 import com.tencent.mmkv.MMKV
 import com.xysss.keeplearning.R
-import com.xysss.keeplearning.app.App.Companion.clearTraceStatus
-import com.xysss.keeplearning.app.App.Companion.entityName
-import com.xysss.keeplearning.app.App.Companion.getScreenSize
-import com.xysss.keeplearning.app.App.Companion.getTag
-import com.xysss.keeplearning.app.App.Companion.locRequest
-import com.xysss.keeplearning.app.App.Companion.mClient
-import com.xysss.keeplearning.app.App.Companion.mTrace
-import com.xysss.keeplearning.app.App.Companion.serviceId
-import com.xysss.keeplearning.app.App.Companion.trackConf
+
 import com.xysss.keeplearning.app.api.NetHttpClient
-import com.xysss.keeplearning.app.ext.*
-import com.xysss.keeplearning.app.util.CommonUtil
-import com.xysss.keeplearning.app.util.NetUtil
 import com.xysss.keeplearning.ui.activity.ErrorActivity
 import com.xysss.keeplearning.ui.activity.SplashActivity
 import com.xysss.mvvmhelper.base.appContext
@@ -91,6 +69,11 @@ class InitNetWork : Task(TASK_ID, true) {
     override fun run(name: String) {
         //传入自己的OKHttpClient 并添加了自己的拦截器
         RxHttpPlugins.init(NetHttpClient.getDefaultOkHttpClient().build())
+
+        AMapLocationClient.setApiKey("14d725d8750fd214e06be136605ebb82")
+        //高德定位必须来保障信息安全
+        AMapLocationClient.updatePrivacyAgree(appContext, true)
+        AMapLocationClient.updatePrivacyShow(appContext, true, true)
     }
 }
 
@@ -181,38 +164,6 @@ class InitToast : Task(TASK_ID, false) {
         //初始化吐司 这个吐司必须要主线程中初始化
         ToastUtils.init(appContext)
         ToastUtils.setGravity(Gravity.BOTTOM, 0, 100.dp)
-    }
-}
-
-class InitBaiDuMap : Task(TASK_ID, false) {
-    companion object {
-        const val TASK_ID = "5"
-    }
-
-    override fun run(name: String) {
-        entityName = CommonUtil.getImei(appContext).toString()
-
-        // 若为创建独立进程，则不初始化成员变量
-        if ("com.baidu.track:remote" == CommonUtil.getCurProcessName(appContext)) {
-            return
-        }
-
-        SDKInitializer.initialize(appContext)
-        getScreenSize()
-        mClient = LBSTraceClient(appContext)
-        mTrace = Trace(serviceId, entityName)
-
-        trackConf = appContext.getSharedPreferences("track_conf", Application.MODE_PRIVATE)
-        locRequest = LocRequest(serviceId)
-
-        mClient!!.setOnCustomAttributeListener {
-            val map: MutableMap<String, String> = HashMap()
-            map["key1"] = "value1"
-            map["key2"] = "value2"
-            map
-        }
-
-        clearTraceStatus()
     }
 }
 

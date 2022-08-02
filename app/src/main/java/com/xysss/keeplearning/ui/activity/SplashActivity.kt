@@ -3,13 +3,11 @@ package com.xysss.keeplearning.ui.activity
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.viewpager2.widget.ViewPager2
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.ActivitySplashBinding
-import com.xysss.keeplearning.ui.adapter.SplashBannerAdapter
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.ext.gone
 import com.xysss.mvvmhelper.ext.toStartActivity

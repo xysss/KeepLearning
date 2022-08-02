@@ -2,7 +2,6 @@ package com.xysss.keeplearning.app.util
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.util.Log
 
 /**
  * 作者 : xys
@@ -25,7 +24,6 @@ class NetUtil {
                     return true
                 }
             } catch (e: Exception) {
-                Log.e(Constants.TAG, "current network is not available")
                 return false
             }
             return false

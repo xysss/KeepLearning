@@ -8,7 +8,6 @@ import com.xysss.keeplearning.app.ext.job
 import com.xysss.keeplearning.databinding.ActivityMainBinding
 import com.xysss.keeplearning.ui.adapter.MainAdapter
 import com.xysss.keeplearning.viewmodel.TestViewModel
-import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.net.manager.NetState
 
 class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {

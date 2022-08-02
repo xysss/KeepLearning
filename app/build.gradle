@@ -8,6 +8,13 @@ static def releaseTime() {
     return new Date().format("yyyyMMdd-HH")
 }
 android {
+
+//    sourceSets {
+//        main {
+//            jniLibs.srcDirs = ['libs']
+//        }
+//    }
+
     signingConfigs {
         app {
             keyAlias sign.keyAlias
@@ -59,7 +66,6 @@ android {
             minifyEnabled false
             zipAlignEnabled true
             shrinkResources false
-            signingConfig signingConfigs.app
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -110,11 +116,8 @@ android {
 }
 
 dependencies {
-
+    //直接使用引入libs下所有jar包的方式：
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation files('libs/bos-android-sdk-1.0.2.jar')
-    implementation files('libs/BaiduTraceSDK_v3_0_4.jar')
-    implementation files('libs/BaiduLBS_Android.jar')
 
     //项目核心框架
     implementation project(path: ':mvvmhelper')

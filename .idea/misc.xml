@@ -58,11 +58,13 @@
         <entry key="app/src/main/res/drawable/ic_bluetooth.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.3802083333333333" />
         <entry key="app/src/main/res/drawable/progress_bg.xml" value="0.3425925925925926" />
+        <entry key="app/src/main/res/drawable/radio_selector.xml" value="0.117" />
         <entry key="app/src/main/res/drawable/selector_nav_color.xml" value="0.37435897435897436" />
         <entry key="app/src/main/res/drawable/shape_login_btn.xml" value="0.33611111111111114" />
         <entry key="app/src/main/res/drawable/shape_login_edit.xml" value="0.33611111111111114" />
         <entry key="app/src/main/res/drawable/shape_white_top_radius_24.xml" value="0.296875" />
         <entry key="app/src/main/res/drawable/toast_border.xml" value="0.185" />
+        <entry key="app/src/main/res/layout/activity_amap_track.xml" value="0.19519927536231885" />
         <entry key="app/src/main/res/layout/activity_bai_du_map_trace.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/activity_data_exchange.xml" value="0.4052757520582584" />
         <entry key="app/src/main/res/layout/activity_demo.xml" value="0.19375" />
@@ -82,6 +84,7 @@
         <entry key="app/src/main/res/layout/activity_trackquery_options.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/activity_web.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/dialog_date.xml" value="0.3640625" />
+        <entry key="app/src/main/res/layout/dialog_scan_filter.xml" value="0.15260416666666668" />
         <entry key="app/src/main/res/layout/dialog_uuid_edit.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/fragment_four.xml" value="0.246875" />
         <entry key="app/src/main/res/layout/fragment_history_alarm.xml" value="0.1527384624700375" />

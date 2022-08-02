@@ -1,7 +1,6 @@
 package com.xysss.keeplearning.data.response
 
 import android.annotation.SuppressLint
-import android.app.ApplicationErrorReport
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 

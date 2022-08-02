@@ -8,7 +8,8 @@
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" /> <!-- 定位权限 -->
-    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
+    <uses-permission
+        android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
@@ -34,8 +35,8 @@
         android:name="android.permission.READ_LOGS"
         tools:ignore="ProtectedPermissions" /> <!-- Arms 配置 -->
     <meta-data
-        android:name="com.baidu.lbsapi.API_KEY"
-        android:value="5MiirpkrkGDGy9ZrleVGppFo1XPIGdDG" />
+        android:name="com.amap.api.v2.apikey"
+        android:value="14d725d8750fd214e06be136605ebb82"/>
     <meta-data
         android:name="design_width_in_dp"
         android:value="360" />
@@ -44,7 +45,7 @@
         android:value="640" />
 
     <application
-        android:name=".app.App"
+        android:name="com.xysss.keeplearning.app.App"
         android:allowBackup="false"
         android:icon="@mipmap/vp200_icon"
         android:label="@string/app_name"
@@ -56,41 +57,33 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute,LockedOrientationActivity"
         tools:replace="android:allowBackup,android:networkSecurityConfig">
-        <activity
-            android:name=".ui.activity.baidumap.BaiduMapActivity"
-            android:enabled="true"
-            android:exported="false" />
-        <activity android:name=".ui.activity.baidumap.TracingActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.activity.baidumap.TrackQueryActivity"
-            android:screenOrientation="portrait"/>
-        <activity
-            android:name=".ui.activity.baidumap.TracingOptionsActivity"
-            android:theme="@style/AppBaseTheme"
-            android:screenOrientation="portrait"/>
-        <activity
-            android:name=".ui.activity.baidumap.TrackQueryOptionsActivity"
-            android:theme="@style/AppBaseTheme"
-            android:screenOrientation="portrait"/>
 
         <service
-            android:name=".app.service.MQTTService"
+            android:name="com.xysss.keeplearning.app.service.MQTTService"
             android:enabled="true"
             android:exported="false"
             android:priority="1000" />
+
+        <service android:name="com.amap.api.location.APSService"/>
+
+        <service android:name="com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService"/>
+
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
         <activity
-            android:name=".ui.activity.DemoActivity"
+            android:name="com.xysss.keeplearning.ui.activity.gaode.AMapTrackActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.activity.SettingActivity"
+            android:name="com.xysss.keeplearning.ui.activity.DemoActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.activity.WebActivity"
+            android:name="com.xysss.keeplearning.ui.activity.SettingActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.activity.SplashActivity"
+            android:name="com.xysss.keeplearning.ui.activity.WebActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.xysss.keeplearning.ui.activity.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -100,41 +93,41 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name="com.xysss.keeplearning.ui.activity.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.TestActivity"
+            android:name="com.xysss.keeplearning.ui.activity.TestActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.ListActivity"
+            android:name="com.xysss.keeplearning.ui.activity.ListActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.LoginActivity"
+            android:name="com.xysss.keeplearning.ui.activity.LoginActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.activity.ErrorActivity"
+            android:name="com.xysss.keeplearning.ui.activity.ErrorActivity"
             android:label="错误界面"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.RoomSampleActivity"
+            android:name="com.xysss.keeplearning.ui.activity.RoomSampleActivity"
             android:label="数据库页面"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.activity.LinkBleBlueToothActivity"
+            android:name="com.xysss.keeplearning.ui.activity.LinkBleBlueToothActivity"
             android:label="蓝牙界面"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.BleDemoKotlin" />
         <activity
-            android:name=".ui.activity.NavigationActivity"
+            android:name="com.xysss.keeplearning.ui.activity.NavigationActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
@@ -152,12 +145,6 @@
         <meta-data
             android:name="android.webkit.WebView.EnableSafeBrowsing"
             android:value="true" />
-
-        <service
-            android:name="com.baidu.trace.LBSTraceService"
-            android:enabled="true"
-            android:exported="true"
-            android:process=":remote" />
     </application>
 
 </manifest>

@@ -51,20 +51,20 @@ class BleCallback : BluetoothGattCallback() {
         if (status == BluetoothGatt.GATT_SUCCESS) {
             Thread.sleep(500)
             gatt.discoverServices()
-            "开始连接服务".logE("xysLog")
+            "开始连接服务".logE(LogFlag)
         }
         when (newState) {
             BluetoothProfile.STATE_CONNECTED -> {
                 //获取MtuSize
                 //gatt.requestMtu(512)
-                "蓝牙已经连接".logE("xysLog")
+                "蓝牙已经连接".logE(LogFlag)
 //                Thread.sleep(500)
 //                gatt.discoverServices()
             }
             else -> "onConnectionStateChange: $status"
         }
 //        else{
-//            "onConnectionStateChange: $status".logE("xysLog")
+//            "onConnectionStateChange: $status".logE(LogFlag)
 //        }
 //        uiCallback.state(
 //            when (newState) {
@@ -85,7 +85,7 @@ class BleCallback : BluetoothGattCallback() {
      * 后触发
      */
     override fun onCharacteristicWrite(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
-        "发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："} ${characteristic.value.toHexString()}".logE("xysLog")
+        "发出: ${if (status == BluetoothGatt.GATT_SUCCESS) "成功：" else "失败："} ${characteristic.value.toHexString()}".logE(LogFlag)
     }
 
     /**
@@ -100,7 +100,7 @@ class BleCallback : BluetoothGattCallback() {
                     readRemoteRssi()
                 }
 
-                "蓝牙:通知开启成功，准备完成:".logE("xysLog")
+                "蓝牙:通知开启成功，准备完成:".logE(LogFlag)
 
 //                uiCallback.bleConnected("已连接设备")
 
@@ -118,7 +118,7 @@ class BleCallback : BluetoothGattCallback() {
                 }
             } else{
                 uiCallback.bleConnected("未连接设备")
-                "通知开启失败".logE("xysLog")
+                "通知开启失败".logE(LogFlag)
             }
         }
     }
@@ -127,7 +127,7 @@ class BleCallback : BluetoothGattCallback() {
      * 读取远程设备的信号强度回调
      */
     override fun onReadRemoteRssi(gatt: BluetoothGatt?, rssi: Int, status: Int) {}
-    //= "onReadRemoteRssi: rssi: $rssi".logE("xysLog")
+    //= "onReadRemoteRssi: rssi: $rssi".logE(LogFlag)
 
     /**
      * 获取MtuSize回调
@@ -145,7 +145,7 @@ class BleCallback : BluetoothGattCallback() {
         //initServiceAndChara(gatt)
         if (!BleHelper.enableIndicateNotification(gatt)) {
             gatt.disconnect()
-            "开启通知属性异常".logE("xysLog")
+            "开启通知属性异常".logE(LogFlag)
         } else {
             "发现了服务 code: $status".logE("xysLog")
         }

@@ -266,5 +266,4 @@ abstract class BaseVbActivity<VM : BaseViewModel,VB: ViewBinding> : AppCompatAct
         dismissLoadingExt()
         super.finish()
     }
-
 }

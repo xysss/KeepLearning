@@ -1,9 +1,6 @@
 package com.xysss.keeplearning.data.response
 
-import android.annotation.SuppressLint
-import android.os.Parcelable
 import com.xysss.mvvmhelper.entity.BasePage
-import kotlinx.android.parcel.Parcelize
 
 /**
  * 作者 : xys

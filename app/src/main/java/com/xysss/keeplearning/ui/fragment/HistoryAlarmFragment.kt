@@ -5,7 +5,6 @@ import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.databinding.FragmentHistoryAlarmBinding
 import com.xysss.keeplearning.ui.adapter.HistoryAlarmAdapter
-import com.xysss.keeplearning.ui.adapter.HistoryRecordAdapter
 import com.xysss.keeplearning.viewmodel.HistoryAlarmViewModel
 import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.util.decoration.DividerOrientation

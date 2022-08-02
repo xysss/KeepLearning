@@ -10,17 +10,15 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
-import android.util.Log
-import android.widget.Toast
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdate
 import com.amap.api.maps.CameraUpdateFactory
-import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.LatLngBounds
-import com.amap.api.maps.model.PolylineOptions
+import com.amap.api.maps.model.*
+import com.blankj.utilcode.util.ToastUtils
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
+import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.keeplearning.databinding.ActivityAmapTrackBinding
 import com.xysss.keeplearning.ui.activity.gaode.contract.ITripTrackCollection
 import com.xysss.keeplearning.ui.activity.gaode.database.TripDBHelper
@@ -31,6 +29,7 @@ import io.reactivex.functions.Consumer
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 /**
  * 作者 : xys
  * 时间 : 2022-08-01 15:12
@@ -38,7 +37,7 @@ import java.util.*
  */
 class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(){
 
-    lateinit var mTrackCollection: ITripTrackCollection
+    var mTrackCollection: ITripTrackCollection?=null
     private lateinit var mMap: AMap
     @SuppressLint("CheckResult")
     override fun initView(savedInstanceState: Bundle?) {
@@ -53,7 +52,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         ).subscribe(Consumer<Boolean?> { aBoolean ->
             if (!aBoolean) {
-                Toast.makeText(this, "没有相关权限", Toast.LENGTH_LONG).show()
+                ToastUtils.showShort("没有相关权限")
             }
         })
     }
@@ -75,14 +74,14 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     }
 
     private fun onStartClick() {
-        Log.v("MYTAG", "thread:" + Thread.currentThread().id).logE()
+        "thread: ${Thread.currentThread().id}".logE(LogFlag)
         // mTrackCollection = TripTrackCollection.getInstance(this);
         // mTrackCollection.start();
-        mTrackCollection.start()
+        mTrackCollection?.start()
     }
 
     private fun onStopClick() {
-        mTrackCollection.stop()
+        mTrackCollection?.stop()
     }
 
     private fun onShowClick() {
@@ -145,13 +144,18 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
             return
         }
         val mBuilder = LatLngBounds.Builder()
-        val polylineOptions =
-            PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
+        val polylineOptions = PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
                 .color(getDriveColor())
                 .width(getRouteWidth())
                 .addAll(list)
         mMap.clear()
         mMap.addPolyline(polylineOptions)
+
+
+        val latLng = LatLng(39.906901, 116.397972)  //标记点
+        val marker: Marker = mMap.addMarker(MarkerOptions().position(latLng).title("北京").snippet("DefaultMarker"))
+
+        //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
         for (i in list.indices) {
             mBuilder.include(list[i])
         }

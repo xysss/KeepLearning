@@ -212,10 +212,10 @@ class MQTTService : Service(){
             val info = connectivityManager.activeNetworkInfo
             return if (info != null && info.isAvailable) {
                 val name = info.typeName
-                "当前网络名称：$name".logE("xysLog")
+                "当前网络名称：$name".logE("LogFlag")
                 true
             } else {
-                "没有可用网络".logE("xysLog")
+                "没有可用网络".logE("LogFlag")
                 /*没有可用网络的时候，延迟3秒再尝试重连*/
                 Handler().postDelayed(
                     Runnable { connectMqtt(appContext) },

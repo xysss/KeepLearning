@@ -147,7 +147,7 @@ class BleCallback : BluetoothGattCallback() {
             gatt.disconnect()
             "开启通知属性异常".logE(LogFlag)
         } else {
-            "发现了服务 code: $status".logE("xysLog")
+            "发现了服务 code: $status".logE("LogFlag")
         }
     }
 
@@ -160,7 +160,7 @@ class BleCallback : BluetoothGattCallback() {
             if (isConnectMqtt)
                 uiCallback.mqttSendMsg(characteristic.value)
         }
-        "收到数据：${characteristic.value.size}长度: ${characteristic.value.toHexString()}".logE("xysLog")
+        "收到数据：${characteristic.value.size}长度: ${characteristic.value.toHexString()}".logE("LogFlag")
         scope.launch(Dispatchers.IO){
             for (byte in characteristic.value)
                 BleHelper.addRecLinkedDeque(byte)
@@ -210,7 +210,7 @@ class BleCallback : BluetoothGattCallback() {
                     newLengthBytes[0] = transcodingBytesList[1]
                     newLengthBytes[1] = transcodingBytesList[2]
                     newLength = newLengthBytes.readInt16BE()
-                    "协议长度: $newLength".logE("xysLog")
+                    "协议长度: $newLength".logE("LogFlag")
                 }
 
                 if (transcodingBytesList.size == newLength && transcodingBytesList.size > 9) {
@@ -225,21 +225,21 @@ class BleCallback : BluetoothGattCallback() {
                         //CRC校验
                         if (Crc8.isFrameValid(afterBytes, afterBytes.size)) {
                             analyseMessage(afterBytes)  //分发数据
-                            //"协议正确: ${afterBytes.toHexString()}".logE("xysLog")
+                            //"协议正确: ${afterBytes.toHexString()}".logE("LogFlag")
                             true
                         } else {
-                            "CRC校验错误，协议长度: $newLength : ${afterBytes.toHexString()}".logE("xysLog")
+                            "CRC校验错误，协议长度: $newLength : ${afterBytes.toHexString()}".logE("LogFlag")
                             BleHelper.retryHistoryMessage()
                             false
                         }
                     } else {
-                        "协议开头结尾不对:  ${afterBytes.toHexString()}".logE("xysLog")
+                        "协议开头结尾不对:  ${afterBytes.toHexString()}".logE("LogFlag")
                         BleHelper.retryHistoryMessage()
                         false
                     }
                     transcodingBytesList.clear()
                 } else if (newLength < 9 && transcodingBytesList.size > 9) { //协议长度不够
-                    "解析协议不完整，协议长度: $newLength  解析长度：${transcodingBytesList.size} ,${transcodingBytesList.toHexString()}".logE("xysLog")
+                    "解析协议不完整，协议长度: $newLength  解析长度：${transcodingBytesList.size} ,${transcodingBytesList.toHexString()}".logE("LogFlag")
                     isRecOK = false
                     //BleHelper.retryHistoryMessage(recordCommand,alarmCommand)
                     transcodingBytesList.clear()
@@ -281,7 +281,7 @@ class BleCallback : BluetoothGattCallback() {
                         dealMsgA0(it)
                     }
                 }
-                else -> it[4].toInt().logE("xysLog")
+                else -> it[4].toInt().logE("LogFlag")
             }
         }
     }
@@ -312,7 +312,7 @@ class BleCallback : BluetoothGattCallback() {
                 mmkv.putString(ValueKey.recTopicValue, recTopicDefault+String(tempBytes)+"/")
                 mmkv.putString(ValueKey.sendTopicValue, sendTopicDefault+String(tempBytes)+"/")
 
-                "设备信息解析成功: ${String(tempBytes)}".logE("xysLog")
+                "设备信息解析成功: ${String(tempBytes)}".logE("LogFlag")
 
                 uiCallback.bleConnected("已连接设备")
             }
@@ -344,7 +344,7 @@ class BleCallback : BluetoothGattCallback() {
                 val tempBytes: ByteArray = it.readByteArrayBE(27, i - 27)
                 //val name = tempBytes.toAsciiString()
                 val name = String(tempBytes)
-                //tempBytes.toHexString().logE("xysLog")
+                //tempBytes.toHexString().logE("LogFlag")
                 val materialInfo = MaterialInfo(
                     concentrationNum, concentrationState.toString(),
                     materialLibraryIndex, concentrationUnit, cfNum.toString(), name
@@ -455,7 +455,7 @@ class BleCallback : BluetoothGattCallback() {
                     Repository.insertMatter(matter)
                 }
             } else {
-                "查询物质信息协议长度不为77，实际长度：${it.size}".logE("xysLog")
+                "查询物质信息协议长度不为77，实际长度：${it.size}".logE("LogFlag")
             }
         }
     }
@@ -465,23 +465,23 @@ class BleCallback : BluetoothGattCallback() {
             if (it.size == 17) {
                 //物质库个数
                 val matterSum = it.readByteArrayBE(7, 4).readInt32LE()
-                "物质库个数：$matterSum".logE("xysLog")
+                "物质库个数：$matterSum".logE("LogFlag")
                 mmkv.putInt(ValueKey.matterSum, matterSum)
 
                 //当前选中索引
                 val choiceIndex = it.readByteArrayBE(11, 4).readInt32LE()
             } else {
-                "查询物质信息协议长度不为17，实际长度：${it.size}".logE("xysLog")
+                "查询物质信息协议长度不为17，实际长度：${it.size}".logE("LogFlag")
             }
         }
     }
 
     private fun recordData() {
         //Repository.insertRecordList(recordArrayList)
-        //recordArrayList.logE("xysLog")
+        //recordArrayList.logE("LogFlag")
 
         val recordProgress = recordIndex * 100 / recordSum
-        "recordIndex: $recordIndex recordSum: $recordSum progress: $recordProgress".logE("xysLog")
+        "recordIndex: $recordIndex recordSum: $recordSum progress: $recordProgress".logE("LogFlag")
         uiCallback.synProgress(recordProgress.toInt(), "${recordIndex-1}/$recordSum")
 
         if (recordIndex < recordSum - recordReadNum) {
@@ -511,10 +511,10 @@ class BleCallback : BluetoothGattCallback() {
 //                }
             }
             //Repository.insertAlarmList(alarmArrayList)
-            //alarmArrayList.logE("xysLog")
+            //alarmArrayList.logE("LogFlag")
 
             val alarmProgress = alarmIndex * 100 / alarmSum
-            "alarmIndex: $alarmIndex alarmSum: $alarmSum progress: $alarmProgress".logE("xysLog")
+            "alarmIndex: $alarmIndex alarmSum: $alarmSum progress: $alarmProgress".logE("LogFlag")
             uiCallback.synProgress(alarmProgress.toInt(), "${alarmIndex-1}/$alarmSum")
 
             if (alarmIndex < alarmSum - alarmReadNum) {
@@ -528,7 +528,7 @@ class BleCallback : BluetoothGattCallback() {
                     val sendBytes = startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)
                     BleHelper.alarmCommand = alarmHeadMsg + sendBytes.toHexString(false).trim()
                     BleHelper.addSendLinkedDeque(BleHelper.alarmCommand)
-                    "alarmIndex: $alarmIndex:$alarmReadNum:$alarmSum".logE("xysLog")
+                    "alarmIndex: $alarmIndex:$alarmReadNum:$alarmSum".logE("LogFlag")
                 }
                 alarmIndex = alarmSum.toLong()
             }
@@ -553,27 +553,27 @@ class BleCallback : BluetoothGattCallback() {
                 if (charaProp and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
                     read_UUID_chara = characteristic.uuid
                     read_UUID_service = bluetoothGattService.uuid
-                    "11read_chara=$read_UUID_chara----read_service=$read_UUID_service".logE("xysLog")
+                    "11read_chara=$read_UUID_chara----read_service=$read_UUID_service".logE("LogFlag")
                 }
                 if (charaProp and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
                     write_UUID_chara = characteristic.uuid
                     write_UUID_service = bluetoothGattService.uuid
-                    "22write_chara=$write_UUID_chara----write_service=$write_UUID_service".logE("xysLog")
+                    "22write_chara=$write_UUID_chara----write_service=$write_UUID_service".logE("LogFlag")
                 }
                 if (charaProp and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0) {
                     write_UUID_chara = characteristic.uuid
                     write_UUID_service = bluetoothGattService.uuid
-                    "33write_chara=$write_UUID_chara----write_service=$write_UUID_service".logE("xysLog")
+                    "33write_chara=$write_UUID_chara----write_service=$write_UUID_service".logE("LogFlag")
                 }
                 if (charaProp and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
                     notify_UUID_chara = characteristic.uuid
                     notify_UUID_service = bluetoothGattService.uuid
-                    "44notify_chara=$notify_UUID_chara----notify_service=$notify_UUID_service".logE("xysLog")
+                    "44notify_chara=$notify_UUID_chara----notify_service=$notify_UUID_service".logE("LogFlag")
                 }
                 if (charaProp and BluetoothGattCharacteristic.PROPERTY_INDICATE > 0) {
                     indicate_UUID_chara = characteristic.uuid
                     indicate_UUID_service = bluetoothGattService.uuid
-                    "55indicate_chara=$indicate_UUID_chara----indicate_service=$indicate_UUID_service".logE("xysLog")
+                    "55indicate_chara=$indicate_UUID_chara----indicate_service=$indicate_UUID_service".logE("LogFlag")
                 }
             }
         }

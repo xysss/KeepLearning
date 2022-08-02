@@ -25,7 +25,7 @@ class LogUtils private constructor() {
             if (!isLog || TextUtils.isEmpty(msg)) {
                 return
             }
-            Log.d(tag, msg?:"")
+            Log.e(tag, msg?:"")
         }
 
         fun debugInfo(msg: String?) {
@@ -65,7 +65,7 @@ class LogUtils private constructor() {
                     msg.substring(index, index + maxLength)
                 }
                 index += maxLength
-                Log.d(tag, sub.trim { it <= ' ' })
+                Log.e(tag, sub.trim { it <= ' ' })
             }
         }
 

@@ -27,7 +27,7 @@ class ThreeFragment : BaseFragment<SettingViewModel, FragmentThreeBinding>() {
     override fun initObserver() {
         super.initObserver()
         mViewModel.deviceData.observe(this){
-            //it.logE("xysLog")
+            //it.logE("LogFlag")
             mViewBinding.settingTextViewValue1.text = it.deviceHardwareVersion
             mViewBinding.settingTextViewValue2.text = it.deviceSoftwareVersion
             mViewBinding.settingTextViewValue3.text = it.deviceBattery.toString()

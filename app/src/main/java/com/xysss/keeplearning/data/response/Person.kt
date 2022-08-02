@@ -8,6 +8,6 @@ import com.xysss.mvvmhelper.ext.logE
  */
 class Person(val age:Int,val name:String) {
     fun print(){
-        "Person"+name + age + "岁了".logE("xysLog")
+        "Person"+name + age + "岁了".logE("LogFlag")
     }
 }

@@ -2,15 +2,17 @@ package com.xysss.keeplearning.ui.activity.gaode.collect
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
+import com.blankj.utilcode.util.ToastUtils
+import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.keeplearning.ui.activity.gaode.bean.LocationInfo
 import com.xysss.keeplearning.ui.activity.gaode.contract.ITripTrackCollection
 import com.xysss.keeplearning.ui.activity.gaode.database.TripDBHelper
 import com.xysss.mvvmhelper.base.appContext
+import com.xysss.mvvmhelper.ext.logE
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,10 +37,6 @@ class TripTrackCollection : ITripTrackCollection{
             : ExecutorService? = null
     private var isshowerror = true
 
-    init {
-        // 初始缓存集合
-    }
-
     companion object{
         private var mTripTrackCollection: TripTrackCollection? = null
         fun getInstance(): TripTrackCollection? {
@@ -61,8 +59,11 @@ class TripTrackCollection : ITripTrackCollection{
 
     // 开启定位服务
     private fun startLocation() {
-        Log.v("MYTAG", "startLocation start...")
+        "startLocation start...".logE(LogFlag)
         // 初始定位服务
+        if (mlocationClient == null) {
+            mlocationClient = AMapLocationClient(mContext)
+        }
         // 初始化定位参数
         val mLocationOption = AMapLocationClientOption()
         // 设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
@@ -77,6 +78,8 @@ class TripTrackCollection : ITripTrackCollection{
         // 在定位结束后，在合适的生命周期调用onDestroy()方法
         // 在单次定位情况下，定位无论成功与否，都无需调用stopLocation()方法移除请求，定位sdk内部会移除
         // 启动定位
+        mlocationClient?.startLocation()
+
         // 设置定位监听
         mlocationClient?.setLocationListener { amapLocation ->
             if (amapLocation != null && amapLocation.errorCode == 0) {
@@ -85,14 +88,13 @@ class TripTrackCollection : ITripTrackCollection{
                 // amapLocation.getLatitude();// 获取纬度
                 // amapLocation.getLongitude();// 获取经度
                 // amapLocation.getAccuracy();// 获取精度信息
-                mAMapLocationListener?.onLocationChanged(amapLocation)
+                mAMapLocationListener?.onLocationChanged(amapLocation)  // 显示系统小蓝点
                 if (mVectorThread == null) {
                     mVectorThread = Executors.newSingleThreadExecutor()
                 }
-                Log.d(
-                    "MYTAG",
-                    "lat:" + amapLocation.latitude + "lon:" + amapLocation.longitude
-                )
+
+                "lat: +${ amapLocation.latitude} lon: ${amapLocation.longitude}".logE(LogFlag)
+
                 // 避免阻塞UI主线程，开启一个单独线程来存入内存
                 mVectorThread?.execute {
                     val df = DecimalFormat("#.##")
@@ -102,29 +104,28 @@ class TripTrackCollection : ITripTrackCollection{
                 }
             } else {
                 // 显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
-                Log.d(
-                    "MYTAG", "location Error, ErrCode:" + amapLocation.errorCode + ", errInfo:"
-                            + amapLocation.errorInfo
-                )
+                "location Error, ErrCode: ${amapLocation.errorCode}  errInfo:${amapLocation.errorInfo}".logE(LogFlag)
                 if (isshowerror) {
                     isshowerror = false
-                    Toast.makeText(mContext, amapLocation.errorInfo, Toast.LENGTH_LONG).show()
+                    ToastUtils.showShort(amapLocation.errorInfo)
                 }
             }
         }
-        mlocationClient?.startLocation()
     }
 
     // 开启数据入库线程，五秒中入一次库
     @SuppressLint("SimpleDateFormat")
     private fun startCollect() {
-        Log.v("MYTAG", "startCollect start...")
+        "startCollect start...".logE(LogFlag)
+        if (mDataBaseThread == null) {
+            mDataBaseThread = Executors.newSingleThreadScheduledExecutor()
+        }
         mDataBaseThread?.scheduleWithFixedDelay({ // 取出缓存数据
             val stringBuffer = StringBuffer()
             for (i in mLocations.indices) {
                 val locationInfo: LocationInfo = mLocations[i]
                 stringBuffer.append(locationInfo.lat).append(",").append(locationInfo.lon)
-                    .append("|")
+                    .append("￥")
             }
             // 取完之后清空数据
             mLocations.clear()
@@ -136,7 +137,7 @@ class TripTrackCollection : ITripTrackCollection{
     //停止采集
     @SuppressLint("SimpleDateFormat")
     override fun stop() {
-        Log.v("MYTAG", "stop start...")
+        "stop start...".logE(LogFlag)
         if (mlocationClient != null) {
             mlocationClient?.stopLocation()
             mlocationClient = null
@@ -156,7 +157,7 @@ class TripTrackCollection : ITripTrackCollection{
         for (i in mLocations.indices) {
             val locationInfo: LocationInfo = mLocations[i]
             stringBuffer.append(locationInfo.lat).append(",").append(locationInfo.lon)
-                .append("|")
+                .append("￥")
         }
         // 取完之后清空数据
         mLocations.clear()
@@ -170,7 +171,7 @@ class TripTrackCollection : ITripTrackCollection{
 
 
     override fun destory() {
-        Log.v("MYTAG", "destory start...")
+        "destory start...".logE(LogFlag)
         stop()
     }
 

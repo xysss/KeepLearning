@@ -1,6 +1,7 @@
 package com.xysss.mvvmhelper.net.interception
 
 import android.util.Log
+import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.net.interception.logging.DefaultFormatPrinter
 import com.xysss.mvvmhelper.net.interception.logging.FormatPrinter
 import com.xysss.mvvmhelper.net.interception.logging.util.CharacterHandler.Companion.jsonFormat
@@ -15,7 +16,6 @@ import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.jvm.Throws
 
 /**
  * Author:bysd-2
@@ -53,7 +53,7 @@ class LogInterceptor : Interceptor {
         originalResponse = try {
             chain.proceed(request)
         } catch (e: Exception) {
-            Log.d("Http Error: %s", e.message?:"")
+            Log.e("Http Error: %s", e.message?:"")
             throw e
         }
         val t2 = if (logResponse) System.nanoTime() else 0

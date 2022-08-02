@@ -58,7 +58,7 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback {
 
     override fun realData(materialInfo: MaterialInfo) {
         _bleDate.postValue(materialInfo)
-        materialInfo.toString().logE("xysLog")
+        materialInfo.toString().logE("LogFlag")
     }
 
     override fun bleConnected(state:String) {

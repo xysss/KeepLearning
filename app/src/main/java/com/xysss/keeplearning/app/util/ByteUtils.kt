@@ -1,6 +1,8 @@
 package com.xysss.keeplearning.app.util
 
 import android.util.Log
+import com.xysss.keeplearning.app.ext.LogFlag
+import com.xysss.mvvmhelper.ext.logE
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -64,7 +66,7 @@ object ByteUtils {
             val pos = i * 2
             byteArrayResult[i] = (charToByte(hexChars[pos]).toInt().shl(4) or charToByte(hexChars[pos + 1]).toInt()).toByte()
         }
-        Log.d("TAG", "hexStringToBytes: "+ byteArrayResult.contentToString())
+        "hexStringToBytes: ${byteArrayResult.contentToString()}".logE(LogFlag)
         return byteArrayResult
     }
 

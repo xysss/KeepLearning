@@ -7,9 +7,13 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.text.TextUtils
-import android.util.Log
 import com.amap.api.maps.model.LatLng
+import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.mvvmhelper.base.appContext
+import com.xysss.mvvmhelper.ext.logE
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * 作者 : xys
@@ -19,8 +23,8 @@ import com.xysss.mvvmhelper.base.appContext
 class TripDBHelper(context: Context, name: String, version: Int) :
     SQLiteOpenHelper(context, name, null, version) {
 
-    private lateinit var mStringBuffer: StringBuffer
-    private lateinit var mContentValues: ContentValues // 要插入的数据包
+    private var mStringBuffer: StringBuffer?= null
+    private var mContentValues: ContentValues?= null // 要插入的数据包
 
     companion object {
         private var mTripDBHelper: TripDBHelper? = null
@@ -56,10 +60,13 @@ class TripDBHelper(context: Context, name: String, version: Int) :
      */
     @SuppressLint("Recycle")
     fun addTrack(trackid: String?, tracktime: String?, newLatLngs: String?) {
-        Log.v("MYTAG", "addTrack start...")
+        "addTrack start...".logE(LogFlag)
         if (TextUtils.isEmpty(newLatLngs)) {
-            Log.v("MYTAG", "Vector nodata")
+            "Vector nodata".logE(LogFlag)
             return
+        }
+        if (mStringBuffer == null) {
+            mStringBuffer = StringBuffer()
         }
         var mDatabase: SQLiteDatabase? = null
         try {
@@ -76,48 +83,58 @@ class TripDBHelper(context: Context, name: String, version: Int) :
             if (cursor != null && cursor.count > 0 && cursor.moveToFirst()) {
                 val latlngs = cursor.getString(cursor.getColumnIndex("latlngs"))
                 if (!TextUtils.isEmpty(latlngs)) {
-                    mStringBuffer.append(latlngs)
-                    Log.v("MYTAG", "old data:$mStringBuffer")
+                    mStringBuffer?.append(latlngs)
+                    "old data:$mStringBuffer".logE(LogFlag)
                 }
                 if (!TextUtils.isEmpty(newLatLngs)) {
-                    mStringBuffer.append(newLatLngs)
-                    Log.v("MYTAG", "new data:$mStringBuffer")
+                    mStringBuffer?.append(newLatLngs)
+                    "new data:$mStringBuffer".logE(LogFlag)
                 }
-                mContentValues.apply {
+                if (mContentValues == null) {
+                    mContentValues = ContentValues()
+                }
+                mContentValues?.apply {
                     clear()
                     put("trackid", trackid)
                     put("tracktime", tracktime)
                     put("latlngs", mStringBuffer.toString())
                 }
-                mContentValues.put("latlngs", mStringBuffer.toString())
+                mContentValues?.put("latlngs", mStringBuffer.toString())
                 mDatabase.update(TABLAE_NAME, mContentValues, "trackid = ?", arrayOf(trackid))
-                Log.v("MYTAG", "update data succ")
+                "update data succ".logE(LogFlag)
             } else {
-                mContentValues.apply {
+                if (mContentValues == null) {
+                    mContentValues = ContentValues()
+                }
+                mContentValues?.apply {
                     clear()
                     put("trackid", trackid)
                     put("tracktime", tracktime)
                     put("latlngs", mStringBuffer!!.append(newLatLngs).toString())
                 }
-                Log.v("MYTAG", "init data:$mStringBuffer")
+                "init data:$mStringBuffer".logE(LogFlag)
                 mDatabase.insert(TABLAE_NAME, null, mContentValues)
-                Log.v("MYTAG", "init data succ")
+                "init data succ".logE(LogFlag)
             }
         } catch (e: Exception) {
-            Log.v("MYTAG", "addTrack error:$e")
+            "addTrack error:$e".logE(LogFlag)
             e.printStackTrace()
         } finally {
             mDatabase?.close()
             if (!TextUtils.isEmpty(mStringBuffer.toString())) {
-                mStringBuffer.delete(0, mStringBuffer.toString().length)
+                mStringBuffer?.delete(0, mStringBuffer.toString().length)
             }
         }
-        Log.v("MYTAG", "addTrack end...")
+        "addTrack end...".logE(LogFlag)
+
+
+
+
     }
 
     @SuppressLint("Recycle")
     fun getTrack(trackid: String?): MutableList<LatLng?>? {
-        Log.v("MYTAG", "getTrack start...")
+        "getTrack start...".logE(LogFlag)
         var mDatabase: SQLiteDatabase? = null
         var listTrack: MutableList<LatLng?>? = null
         try {
@@ -131,11 +148,12 @@ class TripDBHelper(context: Context, name: String, version: Int) :
                 )
             }
             if (cursor != null && cursor.count > 0 && cursor.moveToFirst()) {
-                Log.v("MYTAG", "hava data...")
+                "hava data...".logE(LogFlag)
                 val latlngs = cursor.getString(cursor.getColumnIndex("latlngs"))
                 if (!TextUtils.isEmpty(latlngs)) {
                     listTrack = ArrayList()
-                    val lonlats = latlngs.split("\\|").toTypedArray()
+                    val delim = "￥"
+                    val lonlats = latlngs.split(delim).toTypedArray()
                     if (lonlats.isNotEmpty()) {
                         for (i in lonlats.indices) {
                             val lonlat = lonlats[i]

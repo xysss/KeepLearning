@@ -86,23 +86,23 @@ object BleHelper {
     @Synchronized
     fun addRecLinkedDeque(byte: Byte) {
         if (!recLinkedDeque.offer(byte)){
-            "recLinkedDeque空间已满".logE("xysLog")
+            "recLinkedDeque空间已满".logE("LogFlag")
         }
     }
 
     @Synchronized
     fun addSendLinkedDeque(sendMsg:String) {
         if (!sendLinkedDeque.offer(sendMsg)){
-            "sendLinkedDeque空间已满".logE("xysLog")
+            "sendLinkedDeque空间已满".logE("LogFlag")
         }
     }
 
     fun retryHistoryMessage() {
         if (synFlag==synRecord){
-            "synRecord:$recordCommand".logE("xysLog")
+            "synRecord:$recordCommand".logE("LogFlag")
             addSendLinkedDeque(recordCommand)
         }else if (synFlag==synAlarm){
-            "synAlarm:$alarmCommand".logE("xysLog")
+            "synAlarm:$alarmCommand".logE("LogFlag")
             addSendLinkedDeque(alarmCommand)
         }
     }

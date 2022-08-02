@@ -425,7 +425,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
     inner class HistoryTimerTask : TimerTask() {
         override fun run() {
 //            val id = Thread.currentThread().id
-//            "此时运行在${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("xysLog")
+//            "此时运行在${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("LogFlag")
             if (isRecOK) {
                 isRecOK = false
                 retryFlagCount = 0
@@ -434,14 +434,14 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                     if (retryFlagCount < 4) {  //超时最多连续重发3次
                         retryFlagCount++
                         BleHelper.retryHistoryMessage()
-                        "接收超时进行第 $retryFlagCount 次重发尝试".logE("xysLog")
+                        "接收超时进行第 $retryFlagCount 次重发尝试".logE("LogFlag")
                     } else {
                         retryFlagCount = 0
                         dismissProgressUI()
                         ToastUtils.showShort("数据接收错误,请重新尝试")
                         historyTask?.cancel()
                         mTimer?.cancel()
-                        "同步尝试超时".logE("xysLog")
+                        "同步尝试超时".logE("LogFlag")
                     }
                 }
             }

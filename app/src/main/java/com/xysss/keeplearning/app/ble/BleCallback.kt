@@ -38,8 +38,6 @@ class BleCallback : BluetoothGattCallback() {
     private var mVocIndex = 0
     private var beforeIsFF = false
 
-
-
     fun setUiCallback(uiCallback: UiCallback) {
         this.uiCallback = uiCallback
     }

@@ -14,18 +14,24 @@ import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdate
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.model.*
+import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.LogFlag
+import com.xysss.keeplearning.app.ext.scope
+import com.xysss.keeplearning.app.util.TimeTask
 import com.xysss.keeplearning.databinding.ActivityAmapTrackBinding
 import com.xysss.keeplearning.ui.activity.gaode.contract.ITripTrackCollection
 import com.xysss.keeplearning.ui.activity.gaode.database.TripDBHelper
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService
 import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
+import com.xysss.mvvmhelper.net.interception.logging.util.LogUtils.Companion.debugInfo
 import io.reactivex.functions.Consumer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,7 +41,10 @@ import java.util.*
  * 时间 : 2022-08-01 15:12
  * 描述 : 描述
  */
-class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(){
+class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(),
+    TripDBHelper.DrawMapCallBack{
+
+    private lateinit var tt : TimeTask<TimeTask.Task>
 
     var mTrackCollection: ITripTrackCollection?=null
     private lateinit var mMap: AMap
@@ -55,6 +64,19 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                 ToastUtils.showShort("没有相关权限")
             }
         })
+
+        tt = TimeTask(this, "abc", object : TimeTask.Task {
+            override fun exeTask() {
+                "exeTask>>>>>>>>>>>>".logE(LogFlag)
+            }
+            // 从API 19开始，最小执行时间是5S，如果小于5S，则设置无效，还是按照5S周期执行
+            override fun period(): Long {
+                return 10000L
+            }
+        })
+
+        TripDBHelper.getInstance()?.setDrawMapCallBack(this)
+
     }
 
     override fun onBindViewClick() {
@@ -85,9 +107,11 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     }
 
     private fun onShowClick() {
-        val trackid = SimpleDateFormat("yyyy-MM-dd").format(Date())
-        val track: MutableList<LatLng?>? = TripDBHelper.getInstance()?.getTrack(trackid)
-        showTrack(track)
+        scope.launch(Dispatchers.Main) {
+            val trackid = SimpleDateFormat("yyyy-MM-dd").format(Date())
+            val track: MutableList<LatLng?>? = TripDBHelper.getInstance()?.getTrack(trackid)
+            showTrack(track)
+        }
     }
 
     //启动轨迹信息收集服务
@@ -107,6 +131,8 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         super.onDestroy()
         // 在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mViewBinding.mMapView.onDestroy()
+        tt.onClose()
+        tt.startLooperTask()
     }
 
     override fun onResume() {
@@ -114,8 +140,6 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         // 在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
         mViewBinding.mMapView.onResume()
     }
-
-
 
     override fun onPause() {
         super.onPause()
@@ -151,10 +175,11 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         mMap.clear()
         mMap.addPolyline(polylineOptions)
 
+        val latLngBegin = LatLng(list[0]?.latitude ?:39.906901 , list[0]?.longitude ?: 116.397972)  //标记点
+        val markerBegin: Marker = mMap.addMarker(MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker"))
 
-        val latLng = LatLng(39.906901, 116.397972)  //标记点
-        val marker: Marker = mMap.addMarker(MarkerOptions().position(latLng).title("北京").snippet("DefaultMarker"))
-
+        val latLngEnd = LatLng(list[list.size-1]?.latitude ?:39.906901 , list[list.size-1]?.longitude ?: 116.397972)  //标记点
+        val markerEnd: Marker = mMap.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
         //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
         for (i in list.indices) {
             mBuilder.include(list[i])
@@ -170,6 +195,10 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
             }
             mMap.animateCamera(cameraUpdate)
         }, 500)
+    }
+
+    override fun realData(isRec: Boolean) {
+        onShowClick()
     }
 
 }

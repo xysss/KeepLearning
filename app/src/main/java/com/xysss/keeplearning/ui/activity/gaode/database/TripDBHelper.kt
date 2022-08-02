@@ -8,7 +8,9 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.text.TextUtils
 import com.amap.api.maps.model.LatLng
+import com.xysss.keeplearning.app.ble.BleCallback
 import com.xysss.keeplearning.app.ext.LogFlag
+import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
 import java.text.SimpleDateFormat
@@ -20,11 +22,15 @@ import kotlin.collections.ArrayList
  * 时间 : 2022-08-01 15:31
  * 描述 : 描述
  */
-class TripDBHelper(context: Context, name: String, version: Int) :
-    SQLiteOpenHelper(context, name, null, version) {
+class TripDBHelper(context: Context, name: String, version: Int) : SQLiteOpenHelper(context, name, null, version) {
 
     private var mStringBuffer: StringBuffer?= null
     private var mContentValues: ContentValues?= null // 要插入的数据包
+    private lateinit var drawMapCallBack: DrawMapCallBack
+
+    fun setDrawMapCallBack(drawMapCallBack: DrawMapCallBack) {
+        this.drawMapCallBack = drawMapCallBack
+    }
 
     companion object {
         private var mTripDBHelper: TripDBHelper? = null
@@ -127,8 +133,7 @@ class TripDBHelper(context: Context, name: String, version: Int) :
         }
         "addTrack end...".logE(LogFlag)
 
-
-
+        drawMapCallBack.realData(true)
 
     }
 
@@ -174,5 +179,9 @@ class TripDBHelper(context: Context, name: String, version: Int) :
             mDatabase?.close()
         }
         return listTrack
+    }
+
+    interface DrawMapCallBack {
+        fun realData(isRec :Boolean)
     }
 }

@@ -98,9 +98,9 @@ class TripTrackCollection : ITripTrackCollection{
                 // 避免阻塞UI主线程，开启一个单独线程来存入内存
                 mVectorThread?.execute {
                     val df = DecimalFormat("#.##")
-                    val latitudeAfter :Double= (amapLocation.latitude * 100.0).roundToInt() / 100.0
-                    val longitudeAfter :Double= (amapLocation.longitude * 100.0).roundToInt() / 100.0
-                    mLocations.add(LocationInfo(latitudeAfter, longitudeAfter))
+//                    val latitudeAfter :Double= (amapLocation.latitude * 100.0).roundToInt() / 100.0
+//                    val longitudeAfter :Double= (amapLocation.longitude * 100.0).roundToInt() / 100.0
+                    mLocations.add(LocationInfo(amapLocation.latitude, amapLocation.longitude))
                 }
             } else {
                 // 显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。

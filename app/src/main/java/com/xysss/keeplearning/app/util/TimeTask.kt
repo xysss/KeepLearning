@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.SystemClock
+import com.xysss.mvvmhelper.base.appContext
 
 /**
  * 作者 : xys
@@ -18,7 +19,7 @@ import android.os.SystemClock
 
 class TimeTask<T : TimeTask.Task?>(context: Context, actionName: String, task: T) {
 
-    private var mContext: Context?
+    private var mContext: Context= appContext
     private val mActionName: String
     private var mReceiver: TimeTaskReceiver? = null
     private val mTask: T?
@@ -46,13 +47,12 @@ class TimeTask<T : TimeTask.Task?>(context: Context, actionName: String, task: T
     }
 
     fun onClose() {
-        mContext!!.unregisterReceiver(mReceiver)
-        mContext = null
+        mContext.unregisterReceiver(mReceiver)
     }
 
     @SuppressLint("ObsoleteSdkInt")
     private fun configureAlarmManager(time: Long) {
-        val manager = mContext!!.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val manager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val pendIntent = pendingIntent
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {

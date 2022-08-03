@@ -14,7 +14,6 @@ import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdate
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.model.*
-import com.blankj.utilcode.util.LogUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.xysss.keeplearning.R
@@ -23,12 +22,12 @@ import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.keeplearning.app.ext.scope
 import com.xysss.keeplearning.app.util.TimeTask
 import com.xysss.keeplearning.databinding.ActivityAmapTrackBinding
+import com.xysss.keeplearning.ui.activity.gaode.collect.TripTrackCollection
 import com.xysss.keeplearning.ui.activity.gaode.contract.ITripTrackCollection
 import com.xysss.keeplearning.ui.activity.gaode.database.TripDBHelper
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService
 import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
-import com.xysss.mvvmhelper.net.interception.logging.util.LogUtils.Companion.debugInfo
 import io.reactivex.functions.Consumer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,12 +41,15 @@ import java.util.*
  * 描述 : 描述
  */
 class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(),
-    TripDBHelper.DrawMapCallBack{
+    TripDBHelper.DrawMapCallBack, TripTrackCollection.RealLocationCallBack {
 
-    private lateinit var tt : TimeTask<TimeTask.Task>
+    //private lateinit var tt : TimeTask<TimeTask.Task>
 
-    var mTrackCollection: ITripTrackCollection?=null
+    var mTrackCollection: ITripTrackCollection? = null
     private lateinit var mMap: AMap
+    private var isFirst=false
+    private var isEnd=false
+
     @SuppressLint("CheckResult")
     override fun initView(savedInstanceState: Bundle?) {
         // 在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
@@ -65,28 +67,30 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
             }
         })
 
-        tt = TimeTask(this, "abc", object : TimeTask.Task {
-            override fun exeTask() {
-                "exeTask>>>>>>>>>>>>".logE(LogFlag)
-            }
-            // 从API 19开始，最小执行时间是5S，如果小于5S，则设置无效，还是按照5S周期执行
-            override fun period(): Long {
-                return 10000L
-            }
-        })
+//        tt = TimeTask(this, "abc", object : TimeTask.Task {
+//            override fun exeTask() {
+//                "exeTask>>>>>>>>>>>>".logE(LogFlag)
+//            }
+//            // 从API 19开始，最小执行时间是5S，如果小于5S，则设置无效，还是按照5S周期执行
+//            override fun period(): Long {
+//                return 10000L
+//            }
+//        })
 
         TripDBHelper.getInstance()?.setDrawMapCallBack(this)
-
+        TripTrackCollection.getInstance()?.setRealLocationListener(this)
     }
 
     override fun onBindViewClick() {
-        setOnclickNoRepeat(mViewBinding.btnStart,mViewBinding.btnStop,mViewBinding.btnShow) {
+        setOnclickNoRepeat(mViewBinding.btnStart, mViewBinding.btnStop, mViewBinding.btnShow) {
             when (it.id) {
                 R.id.btn_start -> {
                     onStartClick()
+                    isFirst=true
                 }
                 R.id.btn_stop -> {
                     onStopClick()
+                    isEnd=true
                 }
                 R.id.btn_show -> {
                     onShowClick()
@@ -107,9 +111,9 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     }
 
     private fun onShowClick() {
-        scope.launch(Dispatchers.Main) {
+        scope.launch(Dispatchers.IO) {
             val trackid = SimpleDateFormat("yyyy-MM-dd").format(Date())
-            val track: MutableList<LatLng?>? = TripDBHelper.getInstance()?.getTrack(trackid)
+            val track: MutableList<LatLng>? = TripDBHelper.getInstance()?.getTrack(trackid)
             showTrack(track)
         }
     }
@@ -127,12 +131,110 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         }, Context.BIND_AUTO_CREATE)
     }
 
+    private fun getRouteWidth(): Float {
+        return 10f
+    }
+
+    private fun getDriveColor(num: Int): Int {
+        val colorNum: Int = if (num % 2 == 0) {
+            Color.parseColor("#2b9247")
+        } else {
+            Color.parseColor("#FF0000")
+        }
+        return colorNum
+    }
+
+    private fun drawMapLine(list: MutableList<LatLng>?) {
+        if (list == null || list.isEmpty()) {
+            return
+        }
+        val math = (Math.random() * 10).toInt()
+        val mBuilder = LatLngBounds.Builder()
+        val polylineOptions =
+            PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
+                .color(getDriveColor(math))
+                .width(getRouteWidth())
+                .addAll(list)
+        //mMap.clear()
+        mMap.addPolyline(polylineOptions)
+
+//        if (isFirst){
+//            val latLngBegin = LatLng(list[0].latitude, list[0].longitude)  //标记点
+//            val markerBegin: Marker = mMap.addMarker(
+//                MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker")
+//            )
+//        }
+//        if (isEnd){
+//            val latLngEnd = LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
+//            val markerEnd: Marker =
+//                mMap.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
+//        }
+
+        //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
+        for (i in list.indices) {
+            mBuilder.include(list[i])
+        }
+
+        val cameraUpdate: CameraUpdate
+        // 判断,区域点计算出来,的两个点相同,这样地图视角发生改变,SDK5.0.0会出现异常白屏(定位到海上了)
+        val northeast = mBuilder.build().northeast
+        cameraUpdate = if (northeast != null && northeast == mBuilder.build().southwest) {
+            CameraUpdateFactory.newLatLng(mBuilder.build().southwest)
+        } else {
+            CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 20)
+        }
+        mMap.animateCamera(cameraUpdate)
+    }
+
+    //轨迹展示
+    private fun showTrack(list: MutableList<LatLng>?) {
+        if (list == null || list.isEmpty()) {
+            return
+        }
+
+        val math = (Math.random() * 10).toInt()
+        val mBuilder = LatLngBounds.Builder()
+        val polylineOptions =
+            PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
+                .color(getDriveColor(math))
+                .width(getRouteWidth())
+                .addAll(list)
+        mMap.clear()
+        mMap.addPolyline(polylineOptions)
+
+        val latLngBegin = LatLng(list[0].latitude, list[0].longitude)  //标记点
+        val markerBegin: Marker = mMap.addMarker(MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker"))
+
+        val latLngEnd = LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
+        val markerEnd: Marker = mMap.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
+
+        //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
+        for (i in list.indices) {
+            mBuilder.include(list[i])
+        }
+
+        val cameraUpdate: CameraUpdate
+        // 判断,区域点计算出来,的两个点相同,这样地图视角发生改变,SDK5.0.0会出现异常白屏(定位到海上了)
+        val northeast = mBuilder.build().northeast
+        cameraUpdate = if (northeast != null && northeast == mBuilder.build().southwest) {
+            CameraUpdateFactory.newLatLng(mBuilder.build().southwest)
+        } else {
+            CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 20)
+        }
+        mMap.animateCamera(cameraUpdate)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // 在activity执行onSaveInstanceState时执行mMapView.onSaveInstanceState (outState)，保存地图当前的状态
+        mViewBinding.mMapView.onSaveInstanceState(outState)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         // 在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mViewBinding.mMapView.onDestroy()
-        tt.onClose()
-        tt.startLooperTask()
+        //tt.onClose()
     }
 
     override fun onResume() {
@@ -147,58 +249,11 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         mViewBinding.mMapView.onPause()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        // 在activity执行onSaveInstanceState时执行mMapView.onSaveInstanceState (outState)，保存地图当前的状态
-        mViewBinding.mMapView.onSaveInstanceState(outState)
-    }
-
-    private fun getRouteWidth(): Float {
-        return 24f
-    }
-
-    private fun getDriveColor(): Int {
-        return Color.parseColor("#D81B60")
-    }
-
-
-    //轨迹展示
-    private fun showTrack(list: MutableList<LatLng?>?) {
-        if (list == null || list.isEmpty()) {
-            return
-        }
-        val mBuilder = LatLngBounds.Builder()
-        val polylineOptions = PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
-                .color(getDriveColor())
-                .width(getRouteWidth())
-                .addAll(list)
-        mMap.clear()
-        mMap.addPolyline(polylineOptions)
-
-        val latLngBegin = LatLng(list[0]?.latitude ?:39.906901 , list[0]?.longitude ?: 116.397972)  //标记点
-        val markerBegin: Marker = mMap.addMarker(MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker"))
-
-        val latLngEnd = LatLng(list[list.size-1]?.latitude ?:39.906901 , list[list.size-1]?.longitude ?: 116.397972)  //标记点
-        val markerEnd: Marker = mMap.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
-        //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
-        for (i in list.indices) {
-            mBuilder.include(list[i])
-        }
-        Handler().postDelayed({
-            val cameraUpdate: CameraUpdate
-            // 判断,区域点计算出来,的两个点相同,这样地图视角发生改变,SDK5.0.0会出现异常白屏(定位到海上了)
-            val northeast = mBuilder.build().northeast
-            cameraUpdate = if (northeast != null && northeast == mBuilder.build().southwest) {
-                CameraUpdateFactory.newLatLng(mBuilder.build().southwest)
-            } else {
-                CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 20)
-            }
-            mMap.animateCamera(cameraUpdate)
-        }, 500)
+    override fun sendRealLocation(mlist: MutableList<LatLng>) {
+        drawMapLine(mlist)
     }
 
     override fun realData(isRec: Boolean) {
         onShowClick()
     }
-
 }

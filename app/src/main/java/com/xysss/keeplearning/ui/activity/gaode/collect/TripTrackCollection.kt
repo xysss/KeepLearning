@@ -2,10 +2,10 @@ package com.xysss.keeplearning.ui.activity.gaode.collect
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.widget.Toast
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
+import com.amap.api.maps.model.LatLng
 import com.blankj.utilcode.util.ToastUtils
 import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.keeplearning.ui.activity.gaode.bean.LocationInfo
@@ -13,14 +13,12 @@ import com.xysss.keeplearning.ui.activity.gaode.contract.ITripTrackCollection
 import com.xysss.keeplearning.ui.activity.gaode.database.TripDBHelper
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
-import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 /**
  * 作者 : xys
@@ -33,9 +31,17 @@ class TripTrackCollection : ITripTrackCollection{
     private var mAMapLocationListener: AMapLocationListener ? = null
     private var mLocations = Vector<LocationInfo>()
     private var mDataBaseThread: ScheduledExecutorService ? = null  // 入库线程
-    private var mVectorThread // 入缓存线程
-            : ExecutorService? = null
+    private var mVectorThread: ExecutorService? = null   // 入缓存线程
     private var isshowerror = true
+    private var latLngList= ArrayList<LatLng>()
+    private var testFlag:Double= 0.0
+
+
+    private lateinit var realLocationCallBack: RealLocationCallBack
+
+    fun setRealLocationListener(mListener: RealLocationCallBack) {
+        this.realLocationCallBack = mListener
+    }
 
     companion object{
         private var mTripTrackCollection: TripTrackCollection? = null
@@ -60,6 +66,7 @@ class TripTrackCollection : ITripTrackCollection{
     // 开启定位服务
     private fun startLocation() {
         "startLocation start...".logE(LogFlag)
+        ToastUtils.showShort("开始采集")
         // 初始定位服务
         if (mlocationClient == null) {
             mlocationClient = AMapLocationClient(mContext)
@@ -93,14 +100,44 @@ class TripTrackCollection : ITripTrackCollection{
                     mVectorThread = Executors.newSingleThreadExecutor()
                 }
 
-                "lat: +${ amapLocation.latitude} lon: ${amapLocation.longitude}".logE(LogFlag)
+                "lat: +${ amapLocation.latitude+testFlag} lon: ${amapLocation.longitude+testFlag}".logE(LogFlag)
+
+                testFlag += 0.00001
 
                 // 避免阻塞UI主线程，开启一个单独线程来存入内存
                 mVectorThread?.execute {
-                    val df = DecimalFormat("#.##")
+//                    val df = DecimalFormat("#.##")
 //                    val latitudeAfter :Double= (amapLocation.latitude * 100.0).roundToInt() / 100.0
 //                    val longitudeAfter :Double= (amapLocation.longitude * 100.0).roundToInt() / 100.0
-                    mLocations.add(LocationInfo(amapLocation.latitude, amapLocation.longitude))
+
+                    mLocations.add(LocationInfo(amapLocation.latitude+testFlag, amapLocation.longitude+testFlag))
+
+
+                    val Lat_A = 35.909736
+                    val Lon_A = 80.947266
+
+                    val Lat_B = 35.909736
+                    val Lon_B = 89.947266
+
+                    val Lat_C = 31.909736
+                    val Lon_C = 89.947266
+
+                    val Lat_D = 31.909736
+                    val Lon_D = 99.947266
+
+                    val A = LatLng(Lat_A, Lon_A)
+                    val B = LatLng(Lat_B, Lon_B)
+                    val C = LatLng(Lat_C, Lon_C)
+                    val D = LatLng(Lat_D, Lon_D)
+
+                    latLngList.add(LatLng(amapLocation.latitude+testFlag,amapLocation.longitude+testFlag))
+
+                    if(latLngList.size >1){
+                        realLocationCallBack.sendRealLocation(latLngList)
+                        val temp = LatLng(latLngList[1].latitude,latLngList[1].longitude)
+                        latLngList.clear()
+                        latLngList.add(temp)
+                    }
                 }
             } else {
                 // 显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
@@ -138,6 +175,7 @@ class TripTrackCollection : ITripTrackCollection{
     @SuppressLint("SimpleDateFormat")
     override fun stop() {
         "stop start...".logE(LogFlag)
+        ToastUtils.showShort("停止采集")
         if (mlocationClient != null) {
             mlocationClient?.stopLocation()
             mlocationClient = null
@@ -175,7 +213,7 @@ class TripTrackCollection : ITripTrackCollection{
         stop()
     }
 
-    fun setAMapLocationListener(AMapLocationListener: AMapLocationListener?) {
-        mAMapLocationListener = AMapLocationListener
+    interface RealLocationCallBack {
+        fun sendRealLocation(mlist: MutableList<LatLng>)
     }
 }

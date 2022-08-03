@@ -132,16 +132,15 @@ class TripDBHelper(context: Context, name: String, version: Int) : SQLiteOpenHel
             }
         }
         "addTrack end...".logE(LogFlag)
-
-        drawMapCallBack.realData(true)
+        //drawMapCallBack.realData(true)
 
     }
 
     @SuppressLint("Recycle")
-    fun getTrack(trackid: String?): MutableList<LatLng?>? {
+    fun getTrack(trackid: String?): MutableList<LatLng>? {
         "getTrack start...".logE(LogFlag)
         var mDatabase: SQLiteDatabase? = null
-        var listTrack: MutableList<LatLng?>? = null
+        var listTrack: MutableList<LatLng>? = null
         try {
             mDatabase = readableDatabase
             var cursor: Cursor? = null

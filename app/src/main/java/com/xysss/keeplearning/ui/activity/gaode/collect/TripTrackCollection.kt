@@ -112,24 +112,6 @@ class TripTrackCollection : ITripTrackCollection{
 
                     mLocations.add(LocationInfo(amapLocation.latitude+testFlag, amapLocation.longitude+testFlag))
 
-
-                    val Lat_A = 35.909736
-                    val Lon_A = 80.947266
-
-                    val Lat_B = 35.909736
-                    val Lon_B = 89.947266
-
-                    val Lat_C = 31.909736
-                    val Lon_C = 89.947266
-
-                    val Lat_D = 31.909736
-                    val Lon_D = 99.947266
-
-                    val A = LatLng(Lat_A, Lon_A)
-                    val B = LatLng(Lat_B, Lon_B)
-                    val C = LatLng(Lat_C, Lon_C)
-                    val D = LatLng(Lat_D, Lon_D)
-
                     latLngList.add(LatLng(amapLocation.latitude+testFlag,amapLocation.longitude+testFlag))
 
                     if(latLngList.size >1){

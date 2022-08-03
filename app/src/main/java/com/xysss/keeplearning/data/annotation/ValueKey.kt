@@ -40,4 +40,7 @@ object ValueKey {
     //MQTT
     const val recTopicValue = "recTopicValue" //接收主题
     const val sendTopicValue = "sendTopicValue" //发送主题
+
+    //轨迹数据数值
+    const val locationRecNum = "locationRecNum"
 }

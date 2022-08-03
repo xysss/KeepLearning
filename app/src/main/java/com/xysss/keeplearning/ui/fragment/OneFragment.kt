@@ -95,7 +95,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         }
     }
 
-    @SuppressLint("ResourceAsColor", "SetTextI18n")
+    @SuppressLint("ResourceAsColor", "SetTextI18n", "UseCompatLoadingForDrawables")
     override fun initObserver() {
         super.initObserver()
         mViewModel.bleDate.observe(this) {
@@ -109,10 +109,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             if (it == "已连接设备") {
                 mViewBinding.blueTv.setTextColor(Color.parseColor("#4BDAFF"))
                 mViewBinding.blueLinkImg.setImageDrawable(
-                    resources.getDrawable(
-                        R.drawable.connected_icon,
-                        null
-                    )
+                    resources.getDrawable(R.drawable.connected_icon, null)
                 )
 
                 dismissProgressUI()

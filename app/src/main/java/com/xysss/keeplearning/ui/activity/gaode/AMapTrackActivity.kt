@@ -19,8 +19,10 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.LogFlag
+import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.ext.scope
 import com.xysss.keeplearning.app.util.TimeTask
+import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.ActivityAmapTrackBinding
 import com.xysss.keeplearning.ui.activity.gaode.collect.TripTrackCollection
 import com.xysss.keeplearning.ui.activity.gaode.contract.ITripTrackCollection
@@ -135,8 +137,14 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         return 10f
     }
 
-    private fun getDriveColor(num: Int): Int {
-        val colorNum: Int = if (num % 2 == 0) {
+    private fun getDriveColor(): Int {
+
+        val math = (Math.random() * 10).toInt()
+
+        val locationRecNum=mmkv.getFloat(ValueKey.locationRecNum,0F)
+
+        "轨迹过程中收到的数据： $locationRecNum".logE(LogFlag)
+        val colorNum: Int = if (locationRecNum >0) {
             Color.parseColor("#2b9247")
         } else {
             Color.parseColor("#FF0000")
@@ -148,11 +156,10 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         if (list == null || list.isEmpty()) {
             return
         }
-        val math = (Math.random() * 10).toInt()
         val mBuilder = LatLngBounds.Builder()
         val polylineOptions =
             PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
-                .color(getDriveColor(math))
+                .color(getDriveColor())
                 .width(getRouteWidth())
                 .addAll(list)
         //mMap.clear()
@@ -192,11 +199,10 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
             return
         }
 
-        val math = (Math.random() * 10).toInt()
         val mBuilder = LatLngBounds.Builder()
         val polylineOptions =
             PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
-                .color(getDriveColor(math))
+                .color(getDriveColor())
                 .width(getRouteWidth())
                 .addAll(list)
         mMap.clear()

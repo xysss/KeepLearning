@@ -347,6 +347,9 @@ class BleCallback : BluetoothGattCallback() {
                     concentrationNum, concentrationState.toString(),
                     materialLibraryIndex, concentrationUnit, cfNum.toString(), name
                 )
+
+                mmkv.putFloat(ValueKey.locationRecNum,concentrationNum.toFloat())
+
                 uiCallback.realData(materialInfo)
 
                 delay(1000)

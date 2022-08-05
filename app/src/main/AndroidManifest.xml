@@ -37,6 +37,10 @@
         android:name="android.permission.READ_LOGS"
         tools:ignore="ProtectedPermissions" /> <!-- Arms 配置 -->
     <meta-data
+        android:name="android.webkit.WebView.EnableSafeBrowsing"
+        android:value="true" />
+
+    <meta-data
         android:name="com.amap.api.v2.apikey"
         android:value="14d725d8750fd214e06be136605ebb82"/>
     <meta-data
@@ -74,6 +78,7 @@
 
         <activity
             android:name="com.xysss.keeplearning.ui.activity.gaode.AMapTrackActivity"
+            android:launchMode="singleTop"
             android:exported="true" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.DemoActivity"
@@ -125,7 +130,7 @@
         <activity
             android:name="com.xysss.keeplearning.ui.activity.LinkBleBlueToothActivity"
             android:label="蓝牙界面"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.BleDemoKotlin" />
         <activity
@@ -144,9 +149,7 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <meta-data
-            android:name="android.webkit.WebView.EnableSafeBrowsing"
-            android:value="true" />
+
     </application>
 
 </manifest>

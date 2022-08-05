@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
+import androidx.core.content.ContextCompat
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdate
 import com.amap.api.maps.CameraUpdateFactory
@@ -28,6 +29,7 @@ import com.xysss.keeplearning.ui.activity.gaode.collect.TripTrackCollection
 import com.xysss.keeplearning.ui.activity.gaode.contract.ITripTrackCollection
 import com.xysss.keeplearning.ui.activity.gaode.database.TripDBHelper
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService
+import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
 import io.reactivex.functions.Consumer
@@ -145,9 +147,9 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
         "轨迹过程中收到的数据： $locationRecNum".logE(LogFlag)
         val colorNum: Int = if (locationRecNum >0) {
-            Color.parseColor("#2b9247")
+            ContextCompat.getColor(appContext,R.color.colorRed)
         } else {
-            Color.parseColor("#FF0000")
+            ContextCompat.getColor(appContext,R.color.green)
         }
         return colorNum
     }

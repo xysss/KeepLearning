@@ -146,10 +146,15 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         val locationRecNum=mmkv.getFloat(ValueKey.locationRecNum,0F)
 
         "轨迹过程中收到的数据： $locationRecNum".logE(LogFlag)
-        val colorNum: Int = if (locationRecNum >0) {
-            ContextCompat.getColor(appContext,R.color.colorRed)
-        } else {
-            ContextCompat.getColor(appContext,R.color.green)
+        var colorNum =0
+        if (locationRecNum == 0F) {
+            colorNum=ContextCompat.getColor(appContext,R.color.green)
+        }
+        else if(locationRecNum > 5 && locationRecNum <10){
+            colorNum=ContextCompat.getColor(appContext,R.color.colorOrange)
+        }
+        else if(locationRecNum >10){
+            colorNum=ContextCompat.getColor(appContext,R.color.colorRed)
         }
         return colorNum
     }

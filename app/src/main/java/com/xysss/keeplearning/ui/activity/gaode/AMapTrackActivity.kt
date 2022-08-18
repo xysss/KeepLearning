@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
 import android.os.IBinder
 import androidx.core.content.ContextCompat
 import com.amap.api.maps.AMap
@@ -22,7 +21,6 @@ import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.ext.scope
-import com.xysss.keeplearning.app.util.TimeTask
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.ActivityAmapTrackBinding
 import com.xysss.keeplearning.ui.activity.gaode.collect.TripTrackCollection
@@ -37,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 
 /**
@@ -53,6 +52,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     private lateinit var mMap: AMap
     private var isFirst=false
     private var isEnd=false
+    private var colorHashMap = HashMap<Int,Int>()
 
     @SuppressLint("CheckResult")
     override fun initView(savedInstanceState: Bundle?) {
@@ -83,6 +83,35 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
         TripDBHelper.getInstance()?.setDrawMapCallBack(this)
         TripTrackCollection.getInstance()?.setRealLocationListener(this)
+
+        if(colorHashMap.isEmpty()){
+            for (i in 0..255){
+                if (i<32){
+                    colorHashMap[i] = Color.rgb(128+i*4, 0, 0)
+                }
+                if (i==32){
+                    colorHashMap[i] = Color.rgb(255, 0, 0)
+                }
+                if (i in 33..95){
+                    colorHashMap[i] = Color.rgb(255, (i-32)*4, 0)
+                }
+                if (i in 96..159){
+                    colorHashMap[i] = Color.rgb(254-4*(i-96), 255, 2+(4*(i-96)))
+                }
+                if (i==160){
+                    colorHashMap[i] = Color.rgb(0, 252, 255)
+                }
+                if (i in 161..223){
+                    colorHashMap[i] = Color.rgb(0, 248-4*(i-161), 255)
+                }
+                if (i==224){
+                    colorHashMap[i] = Color.rgb(0, 0, 252)
+                }
+                if (i in 225..255){
+                    colorHashMap[i] = Color.rgb(0, 0, 248-4*(i-225))
+                }
+            }
+        }
     }
 
     override fun onBindViewClick() {
@@ -140,24 +169,44 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     }
 
     private fun getDriveColor(): Int {
+        val locationRecNum = mmkv.getFloat(ValueKey.locationRecNum, 0F)
+        var colorNum: Int=0
+        if (locationRecNum<50){
+            val y=locationRecNum.toInt()*255/50
+            colorNum=colorHashMap[y] ?: 0
+//            colorNum=Color.parseColor(toHexEncoding(colorHashMap[y] ?: 0))
 
-        val math = (Math.random() * 10).toInt()
-
-        val locationRecNum=mmkv.getFloat(ValueKey.locationRecNum,0F)
-
-        "轨迹过程中收到的数据： $locationRecNum".logE(LogFlag)
-        var colorNum =0
-        if (locationRecNum == 0F) {
-            colorNum=ContextCompat.getColor(appContext,R.color.green)
+//            ("轨迹过程中收到的数据： $locationRecNum   y:$y " + "颜色：${ContextCompat.getColor(appContext,R.color.red)}  " +
+//                    "colorHashMap[y]: ${colorHashMap[y] ?: 0}"+
+//                    " toHexEncoding(colorNum) : ${toHexEncoding(Color.parseColor(toHexEncoding(colorHashMap[y] ?: 0)))}  ").logE(LogFlag)
+        }else{
+            colorNum=ContextCompat.getColor(appContext,R.color.black)
         }
-        else if(locationRecNum > 5 && locationRecNum <10){
-            colorNum=ContextCompat.getColor(appContext,R.color.colorOrange)
-        }
-        else if(locationRecNum >10){
-            colorNum=ContextCompat.getColor(appContext,R.color.colorRed)
-        }
-        return colorNum
+         return colorNum
     }
+
+    private fun toHexEncoding(color :Int): String {
+        val sb = StringBuffer()
+        var R :String= Integer.toHexString(Color.red(color))
+        var G = Integer.toHexString(Color.green(color))
+        var B = Integer.toHexString(Color.blue(color))
+        if (R.length == 1){
+            R= "0$R"
+        }
+        if (G.length == 1){
+            G= "0$G"
+        }
+        if (B.length == 1){
+            B= "0$B"
+        }
+        sb.append("#")
+        sb.append(R.uppercase(Locale.getDefault()))
+        sb.append(G.uppercase(Locale.getDefault()))
+        sb.append(B.uppercase(Locale.getDefault()))
+        return sb.toString()
+    }
+
+
 
     private fun drawMapLine(list: MutableList<LatLng>?) {
         if (list == null || list.isEmpty()) {

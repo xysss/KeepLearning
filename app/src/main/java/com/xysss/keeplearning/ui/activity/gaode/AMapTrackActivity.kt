@@ -43,8 +43,7 @@ import kotlin.collections.HashMap
  * 时间 : 2022-08-01 15:12
  * 描述 : 描述
  */
-class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(),
-    TripDBHelper.DrawMapCallBack, TripTrackCollection.RealLocationCallBack {
+class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(), TripTrackCollection.RealLocationCallBack {
 
     //private lateinit var tt : TimeTask<TimeTask.Task>
 
@@ -54,13 +53,25 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     private var isEnd=false
     private var colorHashMap = HashMap<Int,Int>()
 
+    private val connection = object : ServiceConnection {
+        //与服务绑定成功的时候自动回调
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            mTrackCollection = service as ITripTrackCollection
+        }
+        //崩溃被杀掉的时候回调
+        override fun onServiceDisconnected(name: ComponentName?) {
+        }
+    }
+
     @SuppressLint("CheckResult")
     override fun initView(savedInstanceState: Bundle?) {
         // 在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         mViewBinding.mMapView.onCreate(savedInstanceState)
         mMap = mViewBinding.mMapView.map
         mMap.uiSettings.isZoomControlsEnabled = false
+
         startTrackCollectService()
+
         RxPermissions(this).request(
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -81,7 +92,6 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 //            }
 //        })
 
-        TripDBHelper.getInstance()?.setDrawMapCallBack(this)
         TripTrackCollection.getInstance()?.setRealLocationListener(this)
 
         if(colorHashMap.isEmpty()){
@@ -153,15 +163,8 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
     //启动轨迹信息收集服务
     private fun startTrackCollectService() {
-        val intent = Intent(this, TrackCollectService::class.java)
-        startService(intent)
-        bindService(intent, object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName, service: IBinder) {
-                mTrackCollection = service as ITripTrackCollection
-            }
-
-            override fun onServiceDisconnected(name: ComponentName) {}
-        }, Context.BIND_AUTO_CREATE)
+        val intentService = Intent(this, TrackCollectService::class.java)
+        bindService(intentService, connection, BIND_AUTO_CREATE)
     }
 
     private fun getRouteWidth(): Float {
@@ -297,6 +300,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         // 在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mViewBinding.mMapView.onDestroy()
         //tt.onClose()
+        unbindService(connection)
     }
 
     override fun onResume() {
@@ -313,9 +317,5 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
     override fun sendRealLocation(mlist: MutableList<LatLng>) {
         drawMapLine(mlist)
-    }
-
-    override fun realData(isRec: Boolean) {
-        onShowClick()
     }
 }

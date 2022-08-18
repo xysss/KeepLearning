@@ -26,11 +26,6 @@ class TripDBHelper(context: Context, name: String, version: Int) : SQLiteOpenHel
 
     private var mStringBuffer: StringBuffer?= null
     private var mContentValues: ContentValues?= null // 要插入的数据包
-    private lateinit var drawMapCallBack: DrawMapCallBack
-
-    fun setDrawMapCallBack(drawMapCallBack: DrawMapCallBack) {
-        this.drawMapCallBack = drawMapCallBack
-    }
 
     companion object {
         private var mTripDBHelper: TripDBHelper? = null
@@ -132,7 +127,6 @@ class TripDBHelper(context: Context, name: String, version: Int) : SQLiteOpenHel
             }
         }
         "addTrack end...".logE(LogFlag)
-        //drawMapCallBack.realData(true)
 
     }
 
@@ -178,9 +172,5 @@ class TripDBHelper(context: Context, name: String, version: Int) : SQLiteOpenHel
             mDatabase?.close()
         }
         return listTrack
-    }
-
-    interface DrawMapCallBack {
-        fun realData(isRec :Boolean)
     }
 }

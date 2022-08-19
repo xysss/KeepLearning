@@ -97,28 +97,28 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         if(colorHashMap.isEmpty()){
             for (i in 0..255){
                 if (i<32){
-                    colorHashMap[i] = Color.rgb(128+i*4, 0, 0)
+                    colorHashMap[i] = Color.rgb(0, 0, 128+i*4)
                 }
                 if (i==32){
-                    colorHashMap[i] = Color.rgb(255, 0, 0)
+                    colorHashMap[i] = Color.rgb(0, 0, 255)
                 }
                 if (i in 33..95){
-                    colorHashMap[i] = Color.rgb(255, (i-32)*4, 0)
+                    colorHashMap[i] = Color.rgb(0, (i-32)*4, 255)
                 }
                 if (i in 96..159){
-                    colorHashMap[i] = Color.rgb(254-4*(i-96), 255, 2+(4*(i-96)))
+                    colorHashMap[i] = Color.rgb(2+(4*(i-96)), 255, 254-4*(i-96))
                 }
                 if (i==160){
-                    colorHashMap[i] = Color.rgb(0, 252, 255)
+                    colorHashMap[i] = Color.rgb(255, 252, 0)
                 }
                 if (i in 161..223){
-                    colorHashMap[i] = Color.rgb(0, 248-4*(i-161), 255)
+                    colorHashMap[i] = Color.rgb(255, 248-4*(i-161), 0)
                 }
                 if (i==224){
-                    colorHashMap[i] = Color.rgb(0, 0, 252)
+                    colorHashMap[i] = Color.rgb(252, 0, 0)
                 }
                 if (i in 225..255){
-                    colorHashMap[i] = Color.rgb(0, 0, 248-4*(i-225))
+                    colorHashMap[i] = Color.rgb(248-4*(i-225), 0, 0)
                 }
             }
         }
@@ -168,20 +168,18 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     }
 
     private fun getRouteWidth(): Float {
-        return 10f
+        return 20f
     }
 
     private fun getDriveColor(): Int {
         val locationRecNum = mmkv.getFloat(ValueKey.locationRecNum, 0F)
         var colorNum: Int=0
-        if (locationRecNum<50){
+        if (locationRecNum<=50){
             val y=locationRecNum.toInt()*255/50
             colorNum=colorHashMap[y] ?: 0
 //            colorNum=Color.parseColor(toHexEncoding(colorHashMap[y] ?: 0))
 
-//            ("轨迹过程中收到的数据： $locationRecNum   y:$y " + "颜色：${ContextCompat.getColor(appContext,R.color.red)}  " +
-//                    "colorHashMap[y]: ${colorHashMap[y] ?: 0}"+
-//                    " toHexEncoding(colorNum) : ${toHexEncoding(Color.parseColor(toHexEncoding(colorHashMap[y] ?: 0)))}  ").logE(LogFlag)
+            ("轨迹过程中收到的数据： $locationRecNum   颜色y:$y ").logE(LogFlag)
         }else{
             colorNum=ContextCompat.getColor(appContext,R.color.black)
         }

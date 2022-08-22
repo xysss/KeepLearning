@@ -78,7 +78,7 @@
 
         <activity
             android:name="com.xysss.keeplearning.ui.activity.gaode.AMapTrackActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:exported="true" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.DemoActivity"
@@ -102,7 +102,7 @@
         <activity
             android:name="com.xysss.keeplearning.ui.activity.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTop"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.TestActivity"
@@ -130,7 +130,7 @@
         <activity
             android:name="com.xysss.keeplearning.ui.activity.LinkBleBlueToothActivity"
             android:label="蓝牙界面"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.BleDemoKotlin" />
         <activity

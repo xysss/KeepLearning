@@ -12,6 +12,7 @@ import com.blankj.utilcode.util.ToastUtils
 import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.ext.scope
+import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.ui.activity.MainActivity
 import com.xysss.keeplearning.ui.activity.gaode.database.TripDBHelper
@@ -40,14 +41,20 @@ class AMapViewModel : BaseViewModel(), TrackCollectService.RealLocationCallBack 
 
 
     @SuppressLint("StaticFieldLeak")
-    private lateinit var mService: TrackCollectService
+    private lateinit var mapService: TrackCollectService
+    @SuppressLint("StaticFieldLeak")
+    private lateinit var mqttService: MQTTService
 
-    fun putService(service: TrackCollectService) {
-        mService = service
+    fun putMapService(service: TrackCollectService) {
+        mapService = service
+    }
+
+    fun putMqttService(service: MQTTService) {
+        mqttService = service
     }
 
     fun setRealLocationListener() {
-        mService.setRealLocationListener(this)
+        mapService.setRealLocationListener(this)
     }
 
     fun getDriveColor(): Int {

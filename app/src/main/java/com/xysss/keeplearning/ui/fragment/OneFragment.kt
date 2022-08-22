@@ -64,6 +64,14 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             val mBinder = service as MQTTService.MyBinder
             mService = mBinder.service
             mViewModel.putService(mService)
+
+            if (mmkv.getString(ValueKey.deviceId,"")!=""){
+                if (!isConnectMqtt){
+                    recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
+                    sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
+                    mService.connectMqtt(appContext)
+                }
+            }
         }
 
         //崩溃被杀掉的时候回调
@@ -86,6 +94,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         requestDataLauncher.launch(intentBle)
         //请求权限
         requestCameraPermissions()
+
     }
 
     override fun onResume() {
@@ -162,7 +171,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
     }
 
     override fun onDestroyView() {
-        appContext.unbindService(connection)
         super.onDestroyView()
     }
 
@@ -206,22 +214,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                         stopTest()
                 }
                 R.id.toServiceBackImg -> {
-
                     toStartActivity(AMapTrackActivity::class.java)
-
-                    if (mmkv.getString(ValueKey.deviceId,"")!=""){
-                        recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
-                        sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
-
-                        if (isConnectMqtt){
-                            mViewBinding.servicesTex.text="开启上传"
-                            mService.mpttDisconnect()
-                        }else{
-                            mViewBinding.servicesTex.text="关闭上传"
-                            mService.connectMqtt(appContext)
-                        }
-                    }
-
                 }
                 R.id.synRecordBackgroundImg -> {
                     synMessage(1)
@@ -340,7 +333,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
     }
 
     private fun stopTest() {
-        isStopReqRealMsg = true
+        isRealTimeModel = false
         isClickStart = true
         mViewBinding.testText.text = "开始"
         mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.drawable.start_icon, null))
@@ -355,7 +348,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
     private fun startTest() {
         //切换实时数据模式
         BleHelper.synFlag = "实时数据模式"
-        isStopReqRealMsg = false
+        isRealTimeModel = true
         isClickStart = false
         mViewBinding.testText.text = "停止"
         mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.drawable.pause_icon, null))
@@ -400,6 +393,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         realDataTask?.cancel()
         historyTask?.cancel()
         mTimer?.cancel()
+        appContext.unbindService(connection)
         super.onDestroy()
     }
 

@@ -112,9 +112,9 @@
     <ImageView
         android:id="@+id/toServiceBackImg"
         android:layout_width="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="20dp"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="4dp"
         android:src="@drawable/to_service_background"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/materialName" />
@@ -135,7 +135,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="48dp"
         android:layout_marginTop="14dp"
-        android:text="开启上传"
+        android:text="    巡测"
         android:textSize="20sp"
         android:textColor="@color/color_995"
         app:layout_constraintLeft_toLeftOf="parent"

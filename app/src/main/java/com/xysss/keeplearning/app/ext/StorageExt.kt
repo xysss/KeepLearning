@@ -64,9 +64,11 @@ val matterIndexMsg=ByteArray(4)
 val recLinkedDeque= LinkedBlockingQueue<Byte>()  //默认情况下，该阻塞队列的大小为Integer.MAX_VALUE，由于这个数值特别大
 val sendLinkedDeque=LinkedBlockingQueue<String>(1000)
 
-var isStopReqRealMsg=false
+var isRealTimeModel=false
 
 var isConnectMqtt=false
+
+var isPollingModel=false
 
 val mmkv: MMKV by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
     MMKV.mmkvWithID(ValueKey.MMKV_APP_KEY)

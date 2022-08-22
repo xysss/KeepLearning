@@ -46,6 +46,7 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
             ToastUtils.showShort("终于有网了!")
         } else {
             ToastUtils.showShort("网络无连接!")
+
         }
     }
 

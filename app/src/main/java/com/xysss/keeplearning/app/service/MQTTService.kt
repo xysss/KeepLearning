@@ -1,6 +1,9 @@
 package com.xysss.keeplearning.app.service
 
-import android.app.*
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.bluetooth.BluetoothGatt
 import android.content.Context
 import android.content.Intent
@@ -12,6 +15,10 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import com.blankj.utilcode.util.ToastUtils
 import com.swallowsonny.convertextlibrary.toHexString
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.ext.*
@@ -19,6 +26,8 @@ import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.ui.activity.MainActivity
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
+import com.xysss.mvvmhelper.net.manager.NetState
+import com.xysss.mvvmhelper.net.manager.NetworkStateManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.eclipse.paho.android.service.MqttAndroidClient
@@ -26,7 +35,7 @@ import org.eclipse.paho.client.mqttv3.*
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 
 
-class MQTTService : Service(){
+class MQTTService : Service(), LifecycleOwner {
 
     private val userName = "LTAIN7ty7dgzvLtS" //用户名
     private val password = "PvErZ94s5FMlnc67jqAIK29QJsg=" //密码
@@ -35,7 +44,7 @@ class MQTTService : Service(){
     private val clientId = "GID_308PRD@@@20210708_4G"
     private var mqttClient: MqttAndroidClient?=null
     private val mBinder = MyBinder()
-
+    private var mLifecycleRegistry =  LifecycleRegistry(this)
     //Gatt
     private lateinit var gatt: BluetoothGatt
 
@@ -74,6 +83,25 @@ class MQTTService : Service(){
             .setContentIntent(pi)
             .build()
         startForeground(1,notification)
+
+        //网络监听
+        NetworkStateManager.instance.mNetworkStateCallback.observe(this){
+            onNetworkStateChanged(it)
+        }
+    }
+
+    /**
+     * 示例，在Activity/Fragment中如果想监听网络变化，可重写onNetworkStateChanged该方法
+     */
+    private fun onNetworkStateChanged(netState: NetState) {
+        if (netState.isSuccess) {
+            ToastUtils.showShort("终于有网了!Service")
+            "终于有网了!Service".logE(LogFlag)
+        } else {
+            isConnectMqtt=false
+            ToastUtils.showShort("网络无连接!Service")
+            "网络无连接!Service".logE(LogFlag)
+        }
     }
 
     override fun onBind(intent: Intent): IBinder {
@@ -185,7 +213,7 @@ class MQTTService : Service(){
     }
 
     //断开MQTT连接
-    fun mpttDisconnect() {
+    fun mqttDisconnect() {
         try {
             mqttClient?.disconnect(null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
@@ -246,9 +274,13 @@ class MQTTService : Service(){
     }
 
     override fun unbindService(conn: ServiceConnection) {
-        mpttDisconnect()
+        mqttDisconnect()
         gatt.disconnect()
         gatt.close()
         super.unbindService(conn)
+    }
+
+    override fun getLifecycle(): Lifecycle {
+        return mLifecycleRegistry
     }
 }

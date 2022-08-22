@@ -155,8 +155,11 @@ class BleCallback : BluetoothGattCallback() {
      */
     override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
         scope.launch(Dispatchers.IO){
-            if (isConnectMqtt)
-                uiCallback.mqttSendMsg(characteristic.value)
+            if (isConnectMqtt){
+                if (!isPollingModel){
+                    uiCallback.mqttSendMsg(characteristic.value)
+                }
+            }
         }
         "收到数据：${characteristic.value.size}长度: ${characteristic.value.toHexString()}".logE(LogFlag)
         scope.launch(Dispatchers.IO){
@@ -248,39 +251,22 @@ class BleCallback : BluetoothGattCallback() {
 
     private suspend fun analyseMessage(mBytes: ByteArray?) {
         mBytes?.let {
-            when (it[4]) {
-                //设备信息
-                ByteUtils.Msg80 -> {
-                    scope.launch(Dispatchers.IO) {
-                        dealMsg80(it)
-                    }
+            scope.launch(Dispatchers.IO) {
+                when (it[4]) {
+                    //设备信息
+                    ByteUtils.Msg80 -> dealMsg80(it)
+                    //实时数据
+                    ByteUtils.Msg90 -> dealMsg90(it)
+                    //历史记录
+                    ByteUtils.Msg81 -> dealMsg81(it)
+                    //物质信息
+                    ByteUtils.MsgA1 -> dealMsgA1(it)
+                    //物质库信息
+                    ByteUtils.MsgA0 -> dealMsgA0(it)
+                    else -> it[4].toInt().logE("LogFlag")
                 }
-                //实时数据
-                ByteUtils.Msg90 -> {
-                    scope.launch(Dispatchers.IO) {
-                            dealMsg90(it)
-                        }
-                }
-                //历史记录
-                ByteUtils.Msg81 -> {
-                    scope.launch(Dispatchers.IO) {
-                        dealMsg81(it)
-                    }
-                }
-                //物质信息
-                ByteUtils.MsgA1 -> {
-                    scope.launch(Dispatchers.IO) {
-                        dealMsgA1(it)
-                    }
-                }
-                //物质库信息
-                ByteUtils.MsgA0 -> {
-                    scope.launch(Dispatchers.IO) {
-                        dealMsgA0(it)
-                    }
-                }
-                else -> it[4].toInt().logE("LogFlag")
             }
+
         }
     }
 
@@ -353,7 +339,7 @@ class BleCallback : BluetoothGattCallback() {
                 uiCallback.realData(materialInfo)
 
                 delay(1000)
-                if (!isStopReqRealMsg) {
+                if (isRealTimeModel) {
                     BleHelper.addSendLinkedDeque(reqRealTimeDataMsg)
                 }
             }

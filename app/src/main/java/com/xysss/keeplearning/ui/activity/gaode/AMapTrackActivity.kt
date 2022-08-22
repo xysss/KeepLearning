@@ -16,6 +16,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.*
+import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.ActivityAmapTrackBinding
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService
@@ -37,24 +38,23 @@ import kotlinx.coroutines.launch
 class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>() {
 
     //private lateinit var tt : TimeTask<TimeTask.Task>
-    private lateinit var mService: TrackCollectService
+    private lateinit var mapService: TrackCollectService
+    private lateinit var mqttService: MQTTService
+
     private var isBeginning = false
     private var isStart = false
     private var yourChoice = 0
 
-
-    private lateinit var intentService: Intent
-
-    private val connection = object : ServiceConnection {
+    private val mapConnection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val mBinder = service as DataBinder
-            mService = mBinder.service
-            mViewModel.putService(mService)
+            mapService = mBinder.service
+            mViewModel.putMapService(mapService)
 
             //mViewModel.setRealLocationListener()
 
-            mService.setRealLocationListener(object : RealLocationCallBack {
+            mapService.setRealLocationListener(object : RealLocationCallBack {
                 override fun sendRealLocation(mlist: MutableList<LatLng>) {
                     drawMapLine(mlist)
                 }
@@ -63,15 +63,40 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
         //崩溃被杀掉的时候回调
         override fun onServiceDisconnected(name: ComponentName?) {
-            mService.stop()
+            mapService.stop()
         }
     }
+
+
+    private val mqttConnection = object : ServiceConnection {
+        //与服务绑定成功的时候自动回调
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val mBinder = service as MQTTService.MyBinder
+            mqttService = mBinder.service
+            mViewModel.putMqttService(mqttService)
+
+            if (mmkv.getString(ValueKey.deviceId,"")!=""){
+                if (!isConnectMqtt){
+                    recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
+                    sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
+                    mqttService.connectMqtt(appContext)
+                }
+            }
+        }
+
+        //崩溃被杀掉的时候回调
+        override fun onServiceDisconnected(name: ComponentName?) {
+        }
+    }
+
+
 
     @SuppressLint("CheckResult")
     override fun initView(savedInstanceState: Bundle?) {
         mToolbar.initBack(getString(R.string.bottom_title_navigation)) {
             finish()
         }
+        isPollingModel=true
         // 在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         mViewBinding.mMapView.onCreate(savedInstanceState)
         mViewBinding.mMapView.map.uiSettings.isZoomControlsEnabled = false
@@ -193,17 +218,20 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
     private fun onStartClick() {
         "onStartClick thread: ${Thread.currentThread().id}".logE(LogFlag)
-        mService.start()
+        mapService.start()
     }
 
     private fun onStopClick() {
-        mService.stop()
+        mapService.stop()
     }
 
-    //启动轨迹信息收集服务
+    //绑定服务
     private fun startTrackCollectService() {
-        intentService = Intent(this, TrackCollectService::class.java)
-        bindService(intentService, connection, BIND_AUTO_CREATE)
+        val intentService = Intent(appContext, TrackCollectService::class.java)
+        bindService(intentService, mapConnection, BIND_AUTO_CREATE)
+
+        val intentMqttService = Intent(appContext, MQTTService::class.java)
+        bindService(intentMqttService, mqttConnection, BIND_AUTO_CREATE)
     }
 
     private fun drawMapLine(list: MutableList<LatLng>?) {
@@ -301,11 +329,12 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
     override fun onDestroy() {
         super.onDestroy()
+        isPollingModel=false
         // 在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mViewBinding.mMapView.onDestroy()
         //tt.onClose()
-        unbindService(connection)
-        stopService(intentService)
+        unbindService(mapConnection)
+        unbindService(mqttConnection)
     }
 
     override fun onResume() {

@@ -15,18 +15,18 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.LogFlag
+import com.xysss.keeplearning.app.ext.initBack
 import com.xysss.keeplearning.app.ext.isMainThread
 import com.xysss.keeplearning.app.ext.scope
 import com.xysss.keeplearning.databinding.ActivityAmapTrackBinding
-import com.xysss.keeplearning.ui.activity.gaode.collect.TripTrackCollection
-import com.xysss.keeplearning.ui.activity.gaode.contract.ITripTrackCollection
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService
+import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService.DataBinder
+import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService.RealLocationCallBack
 import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
 import io.reactivex.functions.Consumer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
 
 
 /**
@@ -34,27 +34,41 @@ import java.lang.ref.WeakReference
  * 时间 : 2022-08-01 15:12
  * 描述 : 描述
  */
-class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(), TripTrackCollection.RealLocationCallBack {
+class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(){
 
     //private lateinit var tt : TimeTask<TimeTask.Task>
+    private lateinit var mService: TrackCollectService
+    private var isBeginning=false
+    private var isStart=false
 
-    var mTrackCollection: ITripTrackCollection? = null
-    private var isFirst=false
-    private var isEnd=false
-    var mactivity: WeakReference<AMapTrackActivity> = WeakReference<AMapTrackActivity>(this)
+    private lateinit var intentService :Intent
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            mTrackCollection = service as ITripTrackCollection
+            val mBinder = service as DataBinder
+            mService = mBinder.service
+            mViewModel.putService(mService)
+
+            //mViewModel.setRealLocationListener()
+
+            mService.setRealLocationListener(object : RealLocationCallBack {
+                override fun sendRealLocation(mlist: MutableList<LatLng>) {
+                    drawMapLine(mlist)
+                }
+            })
         }
         //崩溃被杀掉的时候回调
         override fun onServiceDisconnected(name: ComponentName?) {
+            mService.stop()
         }
     }
 
     @SuppressLint("CheckResult")
     override fun initView(savedInstanceState: Bundle?) {
+        mToolbar.initBack(getString(R.string.bottom_title_navigation)) {
+            finish()
+        }
         // 在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         mViewBinding.mMapView.onCreate(savedInstanceState)
         mViewBinding.mMapView.map.uiSettings.isZoomControlsEnabled = false
@@ -81,9 +95,6 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
         startTrackCollectService()
 
-        //mViewModel.setRealLocationListener()
-        TripTrackCollection.getInstance()?.setRealLocationListener(this)
-
         mViewModel.initColorMap()
     }
 
@@ -102,7 +113,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 //                val id = Thread.currentThread().id
 //            "此时运行在1${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("LogFlag")
 //            }
-            scope.launch(Dispatchers.Main) {
+            scope.launch(Dispatchers.IO) {
                 drawMapLine(it)
                 val id = Thread.currentThread().id
                 "此时运行在2${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("LogFlag")
@@ -114,12 +125,13 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         setOnclickNoRepeat(mViewBinding.btnStart, mViewBinding.btnStop, mViewBinding.btnShow) {
             when (it.id) {
                 R.id.btn_start -> {
+                    isBeginning=true
+                    isStart=true
                     onStartClick()
-                    isFirst=true
                 }
                 R.id.btn_stop -> {
-                    onStopClick()
-                    isEnd=true
+                    isBeginning=false
+                    isStart=true
                 }
                 R.id.btn_show -> {
                     mViewModel.onShowClick()
@@ -130,18 +142,16 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
     private fun onStartClick() {
         "thread: ${Thread.currentThread().id}".logE(LogFlag)
-        // mTrackCollection = TripTrackCollection.getInstance(this);
-        // mTrackCollection.start();
-        mTrackCollection?.start()
+        mService.start()
     }
 
     private fun onStopClick() {
-        mTrackCollection?.stop()
+        mService.stop()
     }
 
     //启动轨迹信息收集服务
     private fun startTrackCollectService() {
-        val intentService = Intent(this, TrackCollectService::class.java)
+        intentService = Intent(this, TrackCollectService::class.java)
         bindService(intentService, connection, BIND_AUTO_CREATE)
     }
 
@@ -152,24 +162,26 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         val mBuilder = LatLngBounds.Builder()
         val polylineOptions =
             PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
-                .color(mViewModel.getDriveColor())
+                .color(mViewModel.getDriveColor(10))
                 .width(mViewModel.getRouteWidth())
                 .addAll(list)
         //mMap.clear()
         mViewBinding.mMapView.map.addPolyline(polylineOptions)
+        if (isStart){
+            if (isBeginning){
+                val latLngBegin = LatLng(list[0].latitude, list[0].longitude)  //标记点
+                val markerBegin: Marker = mViewBinding.mMapView.map.addMarker(
+                    MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker")
+                )
+            } else{
+                val latLngEnd = LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
+                val markerEnd: Marker =
+                    mViewBinding.mMapView.map.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
 
-//        if (isFirst){
-//            val latLngBegin = LatLng(list[0].latitude, list[0].longitude)  //标记点
-//            val markerBegin: Marker = mMap.addMarker(
-//                MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker")
-//            )
-//        }
-//        if (isEnd){
-//            val latLngEnd = LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
-//            val markerEnd: Marker =
-//                mMap.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
-//        }
-
+                onStopClick()
+            }
+            isStart=false
+        }
         //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
         for (i in list.indices) {
             mBuilder.include(list[i])
@@ -195,7 +207,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         val mBuilder = LatLngBounds.Builder()
         val polylineOptions =
             PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
-                .color(mViewModel.getDriveColor())
+                .color(mViewModel.getDriveColor(10))
                 .width(mViewModel.getRouteWidth())
                 .addAll(list)
         mViewBinding.mMapView.map.clear()
@@ -234,8 +246,8 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         // 在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mViewBinding.mMapView.onDestroy()
         //tt.onClose()
-        mTrackCollection?.stop()
         unbindService(connection)
+        stopService(intentService)
     }
 
     override fun onResume() {
@@ -250,7 +262,8 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         mViewBinding.mMapView.onPause()
     }
 
-    override fun sendRealLocation(mlist: MutableList<LatLng>) {
-        drawMapLine(mlist)
+    override fun onBackPressed() {
+        "按下返回按键".logE(LogFlag)
+        super.onBackPressed()
     }
 }

@@ -78,7 +78,7 @@
 
         <activity
             android:name="com.xysss.keeplearning.ui.activity.gaode.AMapTrackActivity"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:exported="true" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.DemoActivity"
@@ -130,7 +130,7 @@
         <activity
             android:name="com.xysss.keeplearning.ui.activity.LinkBleBlueToothActivity"
             android:label="蓝牙界面"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.BleDemoKotlin" />
         <activity

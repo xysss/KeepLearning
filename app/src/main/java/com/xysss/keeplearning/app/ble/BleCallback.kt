@@ -158,7 +158,7 @@ class BleCallback : BluetoothGattCallback() {
             if (isConnectMqtt)
                 uiCallback.mqttSendMsg(characteristic.value)
         }
-        "收到数据：${characteristic.value.size}长度: ${characteristic.value.toHexString()}".logE("LogFlag")
+        "收到数据：${characteristic.value.size}长度: ${characteristic.value.toHexString()}".logE(LogFlag)
         scope.launch(Dispatchers.IO){
             for (byte in characteristic.value)
                 BleHelper.addRecLinkedDeque(byte)

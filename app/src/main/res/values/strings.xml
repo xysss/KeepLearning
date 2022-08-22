@@ -5,6 +5,7 @@
     <string name="bottom_title_paper">历史</string>
     <string name="bottom_title_report">设备信息</string>
     <string name="bottom_title_user">个人中心</string>
+    <string name="bottom_title_navigation">走航</string>
 
     <string name="bottom_read_concentrationUnit">浓度单位:</string>
     <string name="bottom_read_concentrationNum">浓度值:</string>

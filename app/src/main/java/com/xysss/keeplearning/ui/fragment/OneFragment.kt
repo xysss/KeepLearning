@@ -209,18 +209,18 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
 
                     toStartActivity(AMapTrackActivity::class.java)
 
-//                    if (mmkv.getString(ValueKey.deviceId,"")!=""){
-//                        recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
-//                        sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
-//
-//                        if (isConnectMqtt){
-//                            mViewBinding.servicesTex.text="开启上传"
-//                            mService.mpttDisconnect()
-//                        }else{
-//                            mViewBinding.servicesTex.text="关闭上传"
-//                            mService.connectMqtt(appContext)
-//                        }
-//                    }
+                    if (mmkv.getString(ValueKey.deviceId,"")!=""){
+                        recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
+                        sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
+
+                        if (isConnectMqtt){
+                            mViewBinding.servicesTex.text="开启上传"
+                            mService.mpttDisconnect()
+                        }else{
+                            mViewBinding.servicesTex.text="关闭上传"
+                            mService.connectMqtt(appContext)
+                        }
+                    }
 
                 }
                 R.id.synRecordBackgroundImg -> {

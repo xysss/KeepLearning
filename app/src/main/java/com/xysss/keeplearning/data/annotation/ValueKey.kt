@@ -43,4 +43,7 @@ object ValueKey {
 
     //轨迹数据数值
     const val locationRecNum = "locationRecNum"
+
+    //ppm选择值
+    const val ppmValue = "ppmValue"
 }

@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import androidx.appcompat.app.AlertDialog
 import com.amap.api.maps.CameraUpdate
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.model.*
@@ -14,14 +15,13 @@ import com.blankj.utilcode.util.ToastUtils
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
-import com.xysss.keeplearning.app.ext.LogFlag
-import com.xysss.keeplearning.app.ext.initBack
-import com.xysss.keeplearning.app.ext.isMainThread
-import com.xysss.keeplearning.app.ext.scope
+import com.xysss.keeplearning.app.ext.*
+import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.ActivityAmapTrackBinding
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService.DataBinder
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService.RealLocationCallBack
+import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
 import io.reactivex.functions.Consumer
@@ -34,14 +34,16 @@ import kotlinx.coroutines.launch
  * 时间 : 2022-08-01 15:12
  * 描述 : 描述
  */
-class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(){
+class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>() {
 
     //private lateinit var tt : TimeTask<TimeTask.Task>
     private lateinit var mService: TrackCollectService
-    private var isBeginning=false
-    private var isStart=false
+    private var isBeginning = false
+    private var isStart = false
+    private var yourChoice = 0
 
-    private lateinit var intentService :Intent
+
+    private lateinit var intentService: Intent
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
@@ -58,6 +60,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                 }
             })
         }
+
         //崩溃被杀掉的时候回调
         override fun onServiceDisconnected(name: ComponentName?) {
             mService.stop()
@@ -101,10 +104,10 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     override fun initObserver() {
         super.initObserver()
 
-        mViewModel.track.observe(this){
+        mViewModel.track.observe(this) {
             showTrack(it)
         }
-        mViewModel.mRealTimeList.observe(this){
+        mViewModel.mRealTimeList.observe(this) {
 //            Thread {
 //                drawMapLine(it)
 //            }
@@ -125,23 +128,71 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         setOnclickNoRepeat(mViewBinding.btnStart, mViewBinding.btnStop, mViewBinding.btnShow) {
             when (it.id) {
                 R.id.btn_start -> {
-                    isBeginning=true
-                    isStart=true
-                    onStartClick()
+                    isBeginning = true
+                    isStart = true
+                    if (mmkv.getInt(ValueKey.ppmValue, 0)==0){
+                        ToastUtils.showShort("请先设置ppm参数")
+                    }else
+                        onStartClick()
                 }
                 R.id.btn_stop -> {
-                    isBeginning=false
-                    isStart=true
+                    isBeginning = false
+                    isStart = true
                 }
                 R.id.btn_show -> {
-                    mViewModel.onShowClick()
+                    showSingleChoiceDialog()
+                    //mViewModel.onShowClick()
                 }
             }
         }
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private fun showSingleChoiceDialog() {
+        val lastPpmValue: Int = when (mmkv.getInt(ValueKey.ppmValue, 0)) {
+            5 -> {
+                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.test1, null))
+                0
+            }
+            10 ->{
+                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.test2, null))
+                1
+            }
+            else -> {
+                0
+            }
+        }
+        val items = arrayOf("5ppm", "10ppm")
+        yourChoice = -1
+        val singleChoiceDialog = AlertDialog.Builder(this)
+        singleChoiceDialog.setTitle("请选择")
+        // 第二个参数是默认选项，此处设置
+        singleChoiceDialog.setSingleChoiceItems(items, lastPpmValue) { _, which ->
+            yourChoice = which
+        }
+        singleChoiceDialog.setPositiveButton("确定") { _, _ ->
+            if (yourChoice != -1) {
+                ToastUtils.showShort("你选择了" + items[yourChoice])
+                when (yourChoice) {
+                    0 -> {
+                        mmkv.putInt(ValueKey.ppmValue, 5)
+                        mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.test1, null))
+                    }
+                    1 -> {
+                        mmkv.putInt(ValueKey.ppmValue, 10)
+                        mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.test2, null))
+                    }
+                    else ->{
+                        mmkv.putInt(ValueKey.ppmValue, 0)
+                    }
+                }
+            }
+        }
+        singleChoiceDialog.show()
+    }
+
     private fun onStartClick() {
-        "thread: ${Thread.currentThread().id}".logE(LogFlag)
+        "onStartClick thread: ${Thread.currentThread().id}".logE(LogFlag)
         mService.start()
     }
 
@@ -162,25 +213,28 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         val mBuilder = LatLngBounds.Builder()
         val polylineOptions =
             PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
-                .color(mViewModel.getDriveColor(10))
+                .color(mViewModel.getDriveColor())
                 .width(mViewModel.getRouteWidth())
                 .addAll(list)
         //mMap.clear()
         mViewBinding.mMapView.map.addPolyline(polylineOptions)
-        if (isStart){
-            if (isBeginning){
+        if (isStart) {
+            if (isBeginning) {
                 val latLngBegin = LatLng(list[0].latitude, list[0].longitude)  //标记点
                 val markerBegin: Marker = mViewBinding.mMapView.map.addMarker(
                     MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker")
                 )
-            } else{
-                val latLngEnd = LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
+            } else {
+                val latLngEnd =
+                    LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
                 val markerEnd: Marker =
-                    mViewBinding.mMapView.map.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
+                    mViewBinding.mMapView.map.addMarker(
+                        MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker")
+                    )
 
                 onStopClick()
             }
-            isStart=false
+            isStart = false
         }
         //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
         for (i in list.indices) {
@@ -207,17 +261,21 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         val mBuilder = LatLngBounds.Builder()
         val polylineOptions =
             PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
-                .color(mViewModel.getDriveColor(10))
+                .color(mViewModel.getDriveColor())
                 .width(mViewModel.getRouteWidth())
                 .addAll(list)
         mViewBinding.mMapView.map.clear()
         mViewBinding.mMapView.map.addPolyline(polylineOptions)
 
         val latLngBegin = LatLng(list[0].latitude, list[0].longitude)  //标记点
-        val markerBegin: Marker = mViewBinding.mMapView.map.addMarker(MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker"))
+        val markerBegin: Marker = mViewBinding.mMapView.map.addMarker(
+            MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker")
+        )
 
         val latLngEnd = LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
-        val markerEnd: Marker = mViewBinding.mMapView.map.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
+        val markerEnd: Marker = mViewBinding.mMapView.map.addMarker(
+            MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker")
+        )
 
         //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
         for (i in list.indices) {

@@ -3,14 +3,10 @@ package com.xysss.keeplearning.ui.activity.gaode
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
-import androidx.core.content.ContextCompat
-import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdate
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.model.*
@@ -19,23 +15,18 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.LogFlag
-import com.xysss.keeplearning.app.ext.mmkv
+import com.xysss.keeplearning.app.ext.isMainThread
 import com.xysss.keeplearning.app.ext.scope
-import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.ActivityAmapTrackBinding
 import com.xysss.keeplearning.ui.activity.gaode.collect.TripTrackCollection
 import com.xysss.keeplearning.ui.activity.gaode.contract.ITripTrackCollection
-import com.xysss.keeplearning.ui.activity.gaode.database.TripDBHelper
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService
-import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
 import io.reactivex.functions.Consumer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.HashMap
+import java.lang.ref.WeakReference
 
 
 /**
@@ -48,10 +39,9 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     //private lateinit var tt : TimeTask<TimeTask.Task>
 
     var mTrackCollection: ITripTrackCollection? = null
-    private lateinit var mMap: AMap
     private var isFirst=false
     private var isEnd=false
-    private var colorHashMap = HashMap<Int,Int>()
+    var mactivity: WeakReference<AMapTrackActivity> = WeakReference<AMapTrackActivity>(this)
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
@@ -67,10 +57,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     override fun initView(savedInstanceState: Bundle?) {
         // 在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         mViewBinding.mMapView.onCreate(savedInstanceState)
-        mMap = mViewBinding.mMapView.map
-        mMap.uiSettings.isZoomControlsEnabled = false
-
-        startTrackCollectService()
+        mViewBinding.mMapView.map.uiSettings.isZoomControlsEnabled = false
 
         RxPermissions(this).request(
             Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -92,34 +79,33 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 //            }
 //        })
 
+        startTrackCollectService()
+
+        //mViewModel.setRealLocationListener()
         TripTrackCollection.getInstance()?.setRealLocationListener(this)
 
-        if(colorHashMap.isEmpty()){
-            for (i in 0..255){
-                if (i<32){
-                    colorHashMap[i] = Color.rgb(0, 0, 128+i*4)
-                }
-                if (i==32){
-                    colorHashMap[i] = Color.rgb(0, 0, 255)
-                }
-                if (i in 33..95){
-                    colorHashMap[i] = Color.rgb(0, (i-32)*4, 255)
-                }
-                if (i in 96..159){
-                    colorHashMap[i] = Color.rgb(2+(4*(i-96)), 255, 254-4*(i-96))
-                }
-                if (i==160){
-                    colorHashMap[i] = Color.rgb(255, 252, 0)
-                }
-                if (i in 161..223){
-                    colorHashMap[i] = Color.rgb(255, 248-4*(i-161), 0)
-                }
-                if (i==224){
-                    colorHashMap[i] = Color.rgb(252, 0, 0)
-                }
-                if (i in 225..255){
-                    colorHashMap[i] = Color.rgb(248-4*(i-225), 0, 0)
-                }
+        mViewModel.initColorMap()
+    }
+
+    override fun initObserver() {
+        super.initObserver()
+
+        mViewModel.track.observe(this){
+            showTrack(it)
+        }
+        mViewModel.mRealTimeList.observe(this){
+//            Thread {
+//                drawMapLine(it)
+//            }
+//            scope.launch(Dispatchers.IO) {
+//                drawMapLine(it)
+//                val id = Thread.currentThread().id
+//            "此时运行在1${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("LogFlag")
+//            }
+            scope.launch(Dispatchers.Main) {
+                drawMapLine(it)
+                val id = Thread.currentThread().id
+                "此时运行在2${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("LogFlag")
             }
         }
     }
@@ -136,7 +122,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                     isEnd=true
                 }
                 R.id.btn_show -> {
-                    onShowClick()
+                    mViewModel.onShowClick()
                 }
             }
         }
@@ -153,61 +139,11 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         mTrackCollection?.stop()
     }
 
-    private fun onShowClick() {
-        scope.launch(Dispatchers.IO) {
-            val trackid = SimpleDateFormat("yyyy-MM-dd").format(Date())
-            val track: MutableList<LatLng>? = TripDBHelper.getInstance()?.getTrack(trackid)
-            showTrack(track)
-        }
-    }
-
     //启动轨迹信息收集服务
     private fun startTrackCollectService() {
         val intentService = Intent(this, TrackCollectService::class.java)
         bindService(intentService, connection, BIND_AUTO_CREATE)
     }
-
-    private fun getRouteWidth(): Float {
-        return 20f
-    }
-
-    private fun getDriveColor(): Int {
-        val locationRecNum = mmkv.getFloat(ValueKey.locationRecNum, 0F)
-        var colorNum: Int=0
-        if (locationRecNum<=50){
-            val y=locationRecNum.toInt()*255/50
-            colorNum=colorHashMap[y] ?: 0
-//            colorNum=Color.parseColor(toHexEncoding(colorHashMap[y] ?: 0))
-
-            ("轨迹过程中收到的数据： $locationRecNum   颜色y:$y ").logE(LogFlag)
-        }else{
-            colorNum=ContextCompat.getColor(appContext,R.color.black)
-        }
-         return colorNum
-    }
-
-    private fun toHexEncoding(color :Int): String {
-        val sb = StringBuffer()
-        var R :String= Integer.toHexString(Color.red(color))
-        var G = Integer.toHexString(Color.green(color))
-        var B = Integer.toHexString(Color.blue(color))
-        if (R.length == 1){
-            R= "0$R"
-        }
-        if (G.length == 1){
-            G= "0$G"
-        }
-        if (B.length == 1){
-            B= "0$B"
-        }
-        sb.append("#")
-        sb.append(R.uppercase(Locale.getDefault()))
-        sb.append(G.uppercase(Locale.getDefault()))
-        sb.append(B.uppercase(Locale.getDefault()))
-        return sb.toString()
-    }
-
-
 
     private fun drawMapLine(list: MutableList<LatLng>?) {
         if (list == null || list.isEmpty()) {
@@ -216,11 +152,11 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         val mBuilder = LatLngBounds.Builder()
         val polylineOptions =
             PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
-                .color(getDriveColor())
-                .width(getRouteWidth())
+                .color(mViewModel.getDriveColor())
+                .width(mViewModel.getRouteWidth())
                 .addAll(list)
         //mMap.clear()
-        mMap.addPolyline(polylineOptions)
+        mViewBinding.mMapView.map.addPolyline(polylineOptions)
 
 //        if (isFirst){
 //            val latLngBegin = LatLng(list[0].latitude, list[0].longitude)  //标记点
@@ -247,7 +183,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         } else {
             CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 20)
         }
-        mMap.animateCamera(cameraUpdate)
+        mViewBinding.mMapView.map.animateCamera(cameraUpdate)
     }
 
     //轨迹展示
@@ -259,17 +195,17 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         val mBuilder = LatLngBounds.Builder()
         val polylineOptions =
             PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
-                .color(getDriveColor())
-                .width(getRouteWidth())
+                .color(mViewModel.getDriveColor())
+                .width(mViewModel.getRouteWidth())
                 .addAll(list)
-        mMap.clear()
-        mMap.addPolyline(polylineOptions)
+        mViewBinding.mMapView.map.clear()
+        mViewBinding.mMapView.map.addPolyline(polylineOptions)
 
         val latLngBegin = LatLng(list[0].latitude, list[0].longitude)  //标记点
-        val markerBegin: Marker = mMap.addMarker(MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker"))
+        val markerBegin: Marker = mViewBinding.mMapView.map.addMarker(MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker"))
 
         val latLngEnd = LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
-        val markerEnd: Marker = mMap.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
+        val markerEnd: Marker = mViewBinding.mMapView.map.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
 
         //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
         for (i in list.indices) {
@@ -284,7 +220,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         } else {
             CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 20)
         }
-        mMap.animateCamera(cameraUpdate)
+        mViewBinding.mMapView.map.animateCamera(cameraUpdate)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -298,6 +234,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         // 在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mViewBinding.mMapView.onDestroy()
         //tt.onClose()
+        mTrackCollection?.stop()
         unbindService(connection)
     }
 

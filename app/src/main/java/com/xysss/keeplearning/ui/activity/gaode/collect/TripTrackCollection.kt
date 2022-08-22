@@ -31,7 +31,7 @@ class TripTrackCollection : ITripTrackCollection{
     private var mAMapLocationListener: AMapLocationListener ? = null
     private var mLocations = Vector<LocationInfo>()
     private var mDataBaseThread: ScheduledExecutorService ? = null  // 入库线程
-    private var mVectorThread: ExecutorService? = null   // 入缓存线程
+    var mVectorThread: ExecutorService? = null   // 入缓存线程
     private var isshowerror = true
     private var latLngList= ArrayList<LatLng>()
     private var testFlag:Double= 0.0

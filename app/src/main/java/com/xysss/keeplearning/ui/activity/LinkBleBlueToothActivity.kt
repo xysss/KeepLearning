@@ -33,6 +33,7 @@ import com.xysss.mvvmhelper.base.appContext
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat
 import no.nordicsemi.android.support.v18.scanner.ScanCallback
 import no.nordicsemi.android.support.v18.scanner.ScanResult
+import java.lang.ref.WeakReference
 
 class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLinkBluetoothBinding>() {
     //默认蓝牙适配器
@@ -49,12 +50,12 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
     private var isScanNullNameDevice = false
     //当前扫描设备是否过滤设备信号值强度低于目标值的设备
     private var rssi = -100
+    var mactivity: WeakReference<LinkBleBlueToothActivity> = WeakReference<LinkBleBlueToothActivity>(this)
     //注册开启蓝牙  注意在onCreate之前注册
     private val activityResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) ToastUtils.showShort(if (defaultAdapter.isEnabled) "蓝牙已打开" else "蓝牙未打开")
         }
-
     //扫描结果回调
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
@@ -332,7 +333,7 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
         isScanning = true
         addressList.clear()
         mList.clear()
-        BluetoothLeScannerCompat.getScanner().startScan(scanCallback)
+        BluetoothLeScannerCompat.getScanner().startScan(mactivity.get()!!.scanCallback)
         mViewBinding.progressBar.visibility = View.VISIBLE
         mViewBinding.fabAdd.text = "扫描中"
     }
@@ -353,7 +354,10 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
     }
 
     override fun onDestroy() {
-        stopScan()
         super.onDestroy()
+    }
+    override fun onPause() {
+        stopScan()
+        super.onPause()
     }
 }

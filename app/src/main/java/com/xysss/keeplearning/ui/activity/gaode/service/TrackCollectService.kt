@@ -11,7 +11,8 @@ import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
 import com.amap.api.maps.model.LatLng
 import com.blankj.utilcode.util.ToastUtils
-import com.xysss.keeplearning.app.ext.LogFlag
+import com.xysss.keeplearning.app.ext.*
+import com.xysss.keeplearning.app.room.Track
 import com.xysss.keeplearning.ui.activity.gaode.bean.LocationInfo
 import com.xysss.keeplearning.ui.activity.gaode.database.TripDBHelper
 import com.xysss.mvvmhelper.base.appContext
@@ -34,7 +35,7 @@ class TrackCollectService : Service(){
     private val mBinder = DataBinder()
 
     private var mContext: Context = appContext
-    private var mlocationClient: AMapLocationClient? = null
+    private var mLocationClient: AMapLocationClient? = null
     private var mAMapLocationListener: AMapLocationListener? = null
     private var mLocations = Vector<LocationInfo>()
     private var mDataBaseThread: ScheduledExecutorService? = null  // 入库线程
@@ -83,8 +84,8 @@ class TrackCollectService : Service(){
         "startLocation start...".logE(LogFlag)
         ToastUtils.showShort("开始采集")
         // 初始定位服务
-        if (mlocationClient == null) {
-            mlocationClient = AMapLocationClient(mContext)
+        if (mLocationClient == null) {
+            mLocationClient = AMapLocationClient(mContext)
         }
         // 初始化定位参数
         val mLocationOption = AMapLocationClientOption()
@@ -93,17 +94,17 @@ class TrackCollectService : Service(){
         // 设置定位间隔,单位毫秒,默认为2000ms
         mLocationOption.interval = 2000
         // 设置定位参数
-        mlocationClient?.setLocationOption(mLocationOption)
+        mLocationClient?.setLocationOption(mLocationOption)
         mLocationOption.isOnceLocation = false // 是否定位一次
         // 此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，
         // 注意设置合适的定位时间的间隔（最小间隔支持为1000ms），并且在合适时间调用stopLocation()方法来取消定位请求
         // 在定位结束后，在合适的生命周期调用onDestroy()方法
         // 在单次定位情况下，定位无论成功与否，都无需调用stopLocation()方法移除请求，定位sdk内部会移除
         // 启动定位
-        mlocationClient?.startLocation()
+        mLocationClient?.startLocation()
 
         // 设置定位监听
-        mlocationClient?.setLocationListener { amapLocation ->
+        mLocationClient?.setLocationListener { amapLocation ->
             if (amapLocation != null && amapLocation.errorCode == 0) {
                 // 定位成功回调信息，设置相关消息
                 // amapLocation.getLocationType();// 获取当前定位结果来源，如网络定位结果，详见定位类型表
@@ -127,7 +128,9 @@ class TrackCollectService : Service(){
 //                    val latitudeAfter :Double= (amapLocation.latitude * 100.0).roundToInt() / 100.0
 //                    val longitudeAfter :Double= (amapLocation.longitude * 100.0).roundToInt() / 100.0
 
-                    mLocations.add(LocationInfo(amapLocation.latitude+testFlag, amapLocation.longitude+testFlag))
+                    val trackTime=System.currentTimeMillis()
+
+                    mLocations.add(LocationInfo(amapLocation.latitude+testFlag,amapLocation.longitude+testFlag,trackTime,concentrationValue,ppm,cf))
 
                     latLngList.add(LatLng(amapLocation.latitude+testFlag,amapLocation.longitude+testFlag))
 
@@ -154,32 +157,45 @@ class TrackCollectService : Service(){
     // 开启数据入库线程，五秒中入一次库
     @SuppressLint("SimpleDateFormat")
     private fun startCollect() {
-        "startCollect start...".logE(LogFlag)
         if (mDataBaseThread == null) {
             mDataBaseThread = Executors.newSingleThreadScheduledExecutor()
         }
         mDataBaseThread?.scheduleWithFixedDelay({ // 取出缓存数据
-            val stringBuffer = StringBuffer()
-            for (i in mLocations.indices) {
-                val locationInfo: LocationInfo = mLocations[i]
-                stringBuffer.append(locationInfo.lat).append(",").append(locationInfo.lon)
-                    .append("￥")
-            }
-            // 取完之后清空数据
-            mLocations.clear()
-            val trackid = SimpleDateFormat("yyyy-MM-dd").format(Date())
-            TripDBHelper.getInstance()?.addTrack(trackid, trackid, stringBuffer.toString())
+            saveData()
         }, (1000 * 20).toLong(), (1000 * 20).toLong(), TimeUnit.MILLISECONDS)
+    }
+
+    fun saveData(){
+        val timeStringBuffer = StringBuffer()
+        val concentrationValueStringBuffer = StringBuffer()
+        val ppmStringBuffer = StringBuffer()
+        val cfStringBuffer = StringBuffer()
+        val longitudeLatitudeStringBuffer = StringBuffer()
+
+        for (i in mLocations.indices) {
+            val locationInfo: LocationInfo = mLocations[i]
+            timeStringBuffer.append(locationInfo.time).append(delim)
+            concentrationValueStringBuffer.append(locationInfo.concentrationValue).append(delim)
+            ppmStringBuffer.append(locationInfo.ppm).append(delim)
+            cfStringBuffer.append(locationInfo.cf).append(delim)
+            longitudeLatitudeStringBuffer.append(locationInfo.lat).append(",").append(locationInfo.lon).append(delim)
+        }
+        // 取完之后清空数据
+        mLocations.clear()
+
+        val track = Track(trackBeginTime,trackEndTime,timeStringBuffer.toString(),concentrationValueStringBuffer.toString(),ppmStringBuffer.toString(),
+            cfStringBuffer.toString(),longitudeLatitudeStringBuffer.toString())
+
+        TripDBHelper.getInstance()?.addTrack(track)
     }
 
     //停止采集
     @SuppressLint("SimpleDateFormat")
     fun stop() {
-        "stop start...".logE(LogFlag)
         ToastUtils.showShort("停止采集")
-        if (mlocationClient != null) {
-            mlocationClient?.stopLocation()
-            mlocationClient = null
+        if (mLocationClient != null) {
+            mLocationClient?.stopLocation()
+            mLocationClient = null
         }
         // 关闭Vector线程
         if (mVectorThread != null) {
@@ -192,16 +208,7 @@ class TrackCollectService : Service(){
             mDataBaseThread = null
         }
         // 定期任务关闭后，需要把最后的数据同步到数据库
-        val stringBuffer = StringBuffer()
-        for (i in mLocations.indices) {
-            val locationInfo: LocationInfo = mLocations[i]
-            stringBuffer.append(locationInfo.lat).append(",").append(locationInfo.lon)
-                .append("￥")
-        }
-        // 取完之后清空数据
-        mLocations.clear()
-        val trackid = SimpleDateFormat("yyyy-MM-dd").format(Date())
-        TripDBHelper.getInstance()?.addTrack(trackid, trackid, stringBuffer.toString())
+        saveData()
     }
 
     interface RealLocationCallBack {

@@ -30,8 +30,8 @@ class BleCallback : BluetoothGattCallback() {
     private val transcodingBytesList = ArrayList<Byte>()
     private lateinit var uiCallback: UiCallback
     private lateinit var afterBytes: ByteArray
-    private var recordArrayList=ArrayList<Record>()
-    private var alarmArrayList=ArrayList<Alarm>()
+    private var recordArrayList = ArrayList<Record>()
+    private var alarmArrayList = ArrayList<Alarm>()
     private val newLengthBytes = ByteArray(2)
     private var newLength = 0
     private var newIndex = -1
@@ -114,7 +114,7 @@ class BleCallback : BluetoothGattCallback() {
                     delay(500)
                     BleHelper.addSendLinkedDeque(reqDeviceMsg)  //请求设备信息
                 }
-            } else{
+            } else {
                 uiCallback.bleConnected("未连接设备")
                 "通知开启失败".logE(LogFlag)
             }
@@ -162,14 +162,14 @@ class BleCallback : BluetoothGattCallback() {
             }
         }
         "收到数据：${characteristic.value.size}长度: ${characteristic.value.toHexString()}".logE(LogFlag)
-        scope.launch(Dispatchers.IO){
+        scope.launch(Dispatchers.IO) {
             for (byte in characteristic.value)
                 BleHelper.addRecLinkedDeque(byte)
         }
     }
 
-    private suspend fun startSendMessage(){
-        while (true){
+    private suspend fun startSendMessage() {
+        while (true) {
             sendLinkedDeque.poll()?.let {
                 delay(500)
                 BleHelper.sendBlueToothMsg(it)
@@ -334,7 +334,9 @@ class BleCallback : BluetoothGattCallback() {
                     materialLibraryIndex, concentrationUnit, cfNum.toString(), name
                 )
 
-                mmkv.putFloat(ValueKey.locationRecNum,concentrationNum.toFloat())
+                concentrationValue = concentrationNum.toFloat()
+                ppm = it[19].toInt()
+                cf = cfNum
 
                 uiCallback.realData(materialInfo)
 
@@ -361,7 +363,7 @@ class BleCallback : BluetoothGattCallback() {
                         val firstIndex = 16 + i * 48
                         if (firstIndex + 44 < it.size && dataNum > 0) {
                             val mTimestamp = it.readByteArrayBE(firstIndex, 4).readUInt32LE()
-                            val mDateStr = ByteUtils.getDateTime((mTimestamp-28800)*1000)
+                            val mDateStr = ByteUtils.getDateTime((mTimestamp - 28800) * 1000)
                             val mReserve = it.readByteArrayBE(firstIndex + 4, 4).readInt32LE()
                             val mPpm = it.readByteArrayBE(firstIndex + 8, 4).readFloatLE()
                             val mPpmStr = ByteUtils.getNoMoreThanTwoDigits(mPpm)
@@ -375,8 +377,20 @@ class BleCallback : BluetoothGattCallback() {
                             val mUserId = it.readByteArrayBE(firstIndex + 40, 4).readInt32LE()
                             val mPlaceId = it.readByteArrayBE(firstIndex + 44, 4).readInt32LE()
 
-                            val dataRecord=Record(mDateStr,mReserve.toString(),mPpmStr,mCF.toString(),mVocIndex, mAlarm.toString(),
-                                mHi.toString(), mLo.toString(),mTwa.toString(),mStel.toString(),mUserId.toString(),mPlaceId.toString())
+                            val dataRecord = Record(
+                                mDateStr,
+                                mReserve.toString(),
+                                mPpmStr,
+                                mCF.toString(),
+                                mVocIndex,
+                                mAlarm.toString(),
+                                mHi.toString(),
+                                mLo.toString(),
+                                mTwa.toString(),
+                                mStel.toString(),
+                                mUserId.toString(),
+                                mPlaceId.toString()
+                            )
                             //存储数据
                             Repository.insertRecord(dataRecord)
                             //保存文件
@@ -415,7 +429,12 @@ class BleCallback : BluetoothGattCallback() {
                             val mType = it.readByteArrayBE(firstIndex + 8, 4).readInt32LE()
                             val mValue = it.readByteArrayBE(firstIndex + 12, 4).readInt32LE()
                             //val alarmRecord=Alarm("123","alarm","mType","mValue")
-                            val alarmRecord=Alarm(dateTimeStr,mAlarm.toString(),mType.toString(),mValue.toString())
+                            val alarmRecord = Alarm(
+                                dateTimeStr,
+                                mAlarm.toString(),
+                                mType.toString(),
+                                mValue.toString()
+                            )
                             alarmArrayList.add(alarmRecord)
                         }
                     }
@@ -469,7 +488,7 @@ class BleCallback : BluetoothGattCallback() {
 
         val recordProgress = recordIndex * 100 / recordSum
         "recordIndex: $recordIndex recordSum: $recordSum progress: $recordProgress".logE("LogFlag")
-        uiCallback.synProgress(recordProgress.toInt(), "${recordIndex-1}/$recordSum")
+        uiCallback.synProgress(recordProgress.toInt(), "${recordIndex - 1}/$recordSum")
 
         if (recordIndex < recordSum - recordReadNum) {
             val sendBytes = startIndexByteArray0100.writeInt32LE(recordIndex) + readNumByteArray0100.writeInt32LE(recordReadNum)
@@ -502,7 +521,7 @@ class BleCallback : BluetoothGattCallback() {
 
             val alarmProgress = alarmIndex * 100 / alarmSum
             "alarmIndex: $alarmIndex alarmSum: $alarmSum progress: $alarmProgress".logE("LogFlag")
-            uiCallback.synProgress(alarmProgress.toInt(), "${alarmIndex-1}/$alarmSum")
+            uiCallback.synProgress(alarmProgress.toInt(), "${alarmIndex - 1}/$alarmSum")
 
             if (alarmIndex < alarmSum - alarmReadNum) {
                 val sendBytes = startIndexByteArray0100.writeInt32LE(alarmIndex) + readNumByteArray0100.writeInt32LE(alarmReadNum)

@@ -1,28 +1,22 @@
 package com.xysss.keeplearning.ui.activity.gaode
 
 import android.annotation.SuppressLint
-import android.content.DialogInterface
 import android.graphics.Color
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.amap.api.maps.model.*
-import com.blankj.utilcode.util.ToastUtils
+import com.amap.api.maps.model.LatLng
 import com.xysss.keeplearning.app.ext.LogFlag
+import com.xysss.keeplearning.app.ext.concentrationValue
 import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.ext.scope
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.data.annotation.ValueKey
-import com.xysss.keeplearning.ui.activity.MainActivity
 import com.xysss.keeplearning.ui.activity.gaode.database.TripDBHelper
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService
 import com.xysss.mvvmhelper.base.BaseViewModel
-import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -59,13 +53,12 @@ class AMapViewModel : BaseViewModel(), TrackCollectService.RealLocationCallBack 
 
     fun getDriveColor(): Int {
         val ppmValue = mmkv.getInt(ValueKey.ppmValue, 0)
-        val locationRecNum = mmkv.getFloat(ValueKey.locationRecNum, 0F)
         val colorNum: Int
-        if (locationRecNum <= ppmValue) {
-            val y = (locationRecNum * 255 / ppmValue).toInt()
+        if (concentrationValue <= ppmValue) {
+            val y = (concentrationValue * 255 / ppmValue).toInt()
             colorNum = colorHashMap[y] ?: 0
 //            colorNum=Color.parseColor(toHexEncoding(colorHashMap[y] ?: 0))
-            ("巡测轨迹过程中收到的数据： $locationRecNum   颜色y:$y ").logE(LogFlag)
+            ("巡测轨迹过程中收到的数据： $concentrationValue   颜色y:$y ").logE(LogFlag)
         } else {
             colorNum = colorHashMap[255] ?: 0
             //colorNum= ContextCompat.getColor(appContext, R.color.red)
@@ -79,8 +72,8 @@ class AMapViewModel : BaseViewModel(), TrackCollectService.RealLocationCallBack 
 
     fun onShowClick() {
         scope.launch(Dispatchers.IO) {
-            val trackId = SimpleDateFormat("yyyy-MM-dd").format(Date())
-            _track.postValue(TripDBHelper.getInstance()?.getTrack(trackId))
+            val time = System.currentTimeMillis()
+            _track.postValue(TripDBHelper.getInstance()?.getTrack(time))
         }
     }
 

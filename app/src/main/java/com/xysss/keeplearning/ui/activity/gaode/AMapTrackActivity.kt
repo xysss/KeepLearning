@@ -89,8 +89,6 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         }
     }
 
-
-
     @SuppressLint("CheckResult")
     override fun initView(savedInstanceState: Bundle?) {
         mToolbar.initBack(getString(R.string.bottom_title_navigation)) {
@@ -153,12 +151,11 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         setOnclickNoRepeat(mViewBinding.btnStart, mViewBinding.btnStop, mViewBinding.btnShow) {
             when (it.id) {
                 R.id.btn_start -> {
-                    isBeginning = true
-                    isStart = true
-                    if (mmkv.getInt(ValueKey.ppmValue, 0)==0){
-                        ToastUtils.showShort("请先设置ppm参数")
-                    }else
-                        onStartClick()
+                    onStartClick()
+//                    if (mmkv.getInt(ValueKey.ppmValue, 0)==0){
+//                        ToastUtils.showShort("请先设置ppm参数")
+//                    }else
+//                        onStartClick()
                 }
                 R.id.btn_stop -> {
                     isBeginning = false
@@ -176,14 +173,15 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     private fun showSingleChoiceDialog() {
         val lastPpmValue: Int = when (mmkv.getInt(ValueKey.ppmValue, 0)) {
             5 -> {
-                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.test1, null))
+                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.five_ppm_icon, null))
                 0
             }
             10 ->{
-                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.test2, null))
+                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
                 1
             }
             else -> {
+                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.five_ppm_icon, null))
                 0
             }
         }
@@ -201,11 +199,11 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                 when (yourChoice) {
                     0 -> {
                         mmkv.putInt(ValueKey.ppmValue, 5)
-                        mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.test1, null))
+                        mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.five_ppm_icon, null))
                     }
                     1 -> {
                         mmkv.putInt(ValueKey.ppmValue, 10)
-                        mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.test2, null))
+                        mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
                     }
                     else ->{
                         mmkv.putInt(ValueKey.ppmValue, 0)
@@ -217,11 +215,14 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     }
 
     private fun onStartClick() {
-        "onStartClick thread: ${Thread.currentThread().id}".logE(LogFlag)
+        isBeginning = true
+        isStart = true
+        trackBeginTime = System.currentTimeMillis()
         mapService.start()
     }
 
     private fun onStopClick() {
+        trackEndTime = System.currentTimeMillis()
         mapService.stop()
     }
 
@@ -234,6 +235,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         bindService(intentMqttService, mqttConnection, BIND_AUTO_CREATE)
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun drawMapLine(list: MutableList<LatLng>?) {
         if (list == null || list.isEmpty()) {
             return
@@ -253,13 +255,8 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                     MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker")
                 )
             } else {
-                val latLngEnd =
-                    LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
-                val markerEnd: Marker =
-                    mViewBinding.mMapView.map.addMarker(
-                        MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker")
-                    )
-
+                val latLngEnd = LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
+                val markerEnd: Marker = mViewBinding.mMapView.map.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
                 onStopClick()
             }
             isStart = false

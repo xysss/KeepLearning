@@ -17,6 +17,8 @@ import com.xysss.keeplearning.data.repository.Repository
 import com.xysss.keeplearning.ui.activity.gaode.bean.LocationInfo
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -123,25 +125,17 @@ class TrackCollectService : Service(){
                     mVectorThread = Executors.newSingleThreadExecutor()
                 }
 
-                "lat: +${ amapLocation.latitude+testFlag} lon: ${amapLocation.longitude+testFlag}".logE(
-                    LogFlag
-                )
-
                 testFlag += 0.00001
 
                 // 避免阻塞UI主线程，开启一个单独线程来存入内存
                 mVectorThread?.execute {
-//                    val df = DecimalFormat("#.##")
-//                    val latitudeAfter :Double= (amapLocation.latitude * 100.0).roundToInt() / 100.0
-//                    val longitudeAfter :Double= (amapLocation.longitude * 100.0).roundToInt() / 100.0
-
                     val trackTime=System.currentTimeMillis()
+                    val longitude = BigDecimal(amapLocation.longitude + testFlag).setScale(5, RoundingMode.FLOOR)
+                    val latitude = BigDecimal(amapLocation.latitude + testFlag).setScale(5, RoundingMode.FLOOR)
 
-                    //val latitude="%.2f".format(amapLocation.latitude)
-                    //val longitude="%.2f".format(amapLocation.longitude)
+                    "lat: +$latitude lon: $longitude".logE(LogFlag)
 
-                    mLocations.add(LocationInfo(amapLocation.latitude+testFlag,amapLocation.longitude+testFlag,trackTime,concentrationValue,ppm,cf))
-
+                    mLocations.add(LocationInfo(latitude.toDouble(),longitude.toDouble(),trackTime,concentrationValue,ppm,cf))
                     latLngList.add(LatLng(amapLocation.latitude+testFlag,amapLocation.longitude+testFlag))
 
                     if(latLngList.size >1){

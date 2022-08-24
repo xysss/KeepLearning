@@ -89,7 +89,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         }
     }
 
-    @SuppressLint("CheckResult")
+    @SuppressLint("CheckResult", "UseCompatLoadingForDrawables")
     override fun initView(savedInstanceState: Bundle?) {
         mToolbar.initBack(getString(R.string.bottom_title_navigation)) {
             finish()
@@ -147,15 +147,24 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         }
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onBindViewClick() {
         setOnclickNoRepeat(mViewBinding.btnStart, mViewBinding.btnStop, mViewBinding.btnShow) {
             when (it.id) {
                 R.id.btn_start -> {
-                    onStartClick()
-//                    if (mmkv.getInt(ValueKey.ppmValue, 0)==0){
-//                        ToastUtils.showShort("请先设置ppm参数")
-//                    }else
-//                        onStartClick()
+                    when (mmkv.getInt(ValueKey.ppmValue, 0)) {
+                        5 -> {
+                            mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.five_ppm_icon, null))
+                            onStartClick()
+                        }
+                        10 -> {
+                            mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
+                            onStartClick()
+                        }
+                        else -> {
+                            ToastUtils.showShort("请先设置ppm参数")
+                        }
+                    }
                 }
                 R.id.btn_stop -> {
                     isBeginning = false
@@ -173,16 +182,19 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     private fun showSingleChoiceDialog() {
         val lastPpmValue: Int = when (mmkv.getInt(ValueKey.ppmValue, 0)) {
             5 -> {
+                mmkv.putInt(ValueKey.ppmValue, 5)
                 mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.five_ppm_icon, null))
                 0
             }
             10 ->{
+                mmkv.putInt(ValueKey.ppmValue, 10)
                 mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
                 1
             }
             else -> {
-                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.five_ppm_icon, null))
-                0
+                mmkv.putInt(ValueKey.ppmValue, 10)
+                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
+                1
             }
         }
         val items = arrayOf("5ppm", "10ppm")
@@ -206,7 +218,8 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                         mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
                     }
                     else ->{
-                        mmkv.putInt(ValueKey.ppmValue, 0)
+                        mmkv.putInt(ValueKey.ppmValue, 10)
+                        mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
                     }
                 }
             }

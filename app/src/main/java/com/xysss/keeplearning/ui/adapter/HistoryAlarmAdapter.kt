@@ -12,14 +12,10 @@ import com.xysss.keeplearning.app.room.Alarm
  * 描述 : 描述
  */
 
-class HistoryAlarmAdapter(data: ArrayList<Any>) :
-    BaseQuickAdapter<Any, BaseViewHolder>(R.layout.history_item_alarm, data), LoadMoreModule {
+class HistoryAlarmAdapter(data: ArrayList<Any>) : BaseQuickAdapter<Any, BaseViewHolder>(R.layout.history_item_alarm, data), LoadMoreModule {
 
     override fun convert(holder: BaseViewHolder, item: Any) {
         val itemAlarm = item as Alarm
-        when (itemAlarm.type) {
-
-        }
         holder.setText(R.id.itemAlarmId, itemAlarm.id.toString() + ".")
         holder.setText(R.id.itemAlarmValue, itemAlarm.value)
         holder.setText(R.id.itemAlarmTime, itemAlarm.timestamp)

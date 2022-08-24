@@ -41,8 +41,8 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     private lateinit var mapService: TrackCollectService
     private lateinit var mqttService: MQTTService
 
-    private var isBeginning = false
-    private var isStart = false
+    private var isBeginning = false  //是否正在检测
+    private var isStart = false  //是否开始检测
     private var yourChoice = 0
 
     private val mapConnection = object : ServiceConnection {
@@ -167,8 +167,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                     }
                 }
                 R.id.btn_stop -> {
-                    isBeginning = false
-                    isStart = true
+                    setEndState()
                 }
                 R.id.btn_show -> {
                     showSingleChoiceDialog()
@@ -176,6 +175,18 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                 }
             }
         }
+    }
+
+    fun setEndState(){
+        isBeginning = false
+        isStart = true
+        trackEndTime = System.currentTimeMillis()
+    }
+
+    private fun setStartState(){
+        isBeginning = true
+        isStart = true
+        trackBeginTime = System.currentTimeMillis()
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -228,14 +239,11 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     }
 
     private fun onStartClick() {
-        isBeginning = true
-        isStart = true
-        trackBeginTime = System.currentTimeMillis()
+        setStartState()
         mapService.start()
     }
 
     private fun onStopClick() {
-        trackEndTime = System.currentTimeMillis()
         mapService.stop()
     }
 
@@ -340,6 +348,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     override fun onDestroy() {
         super.onDestroy()
         isPollingModel=false
+        setEndState()
         // 在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mViewBinding.mMapView.onDestroy()
         //tt.onClose()

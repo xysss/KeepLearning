@@ -21,6 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue
 val dataRecordDao = AppDatabase.getDatabase().dataRecordDao()
 val dataAlarmDao = AppDatabase.getDatabase().dataAlarmDao()
 val dataMatterDao = AppDatabase.getDatabase().dataMatterDao()
+val dataSurveyDao = AppDatabase.getDatabase().dataSurveyDao()
 
 val job = Job()
 val scope = CoroutineScope(job)
@@ -68,7 +69,7 @@ var isRealTimeModel = false
 
 var isConnectMqtt = false
 
-var isPollingModel = false
+var isPollingModel = false  //是否巡航模式
 
 val mmkv: MMKV by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
     MMKV.mmkvWithID(ValueKey.MMKV_APP_KEY)
@@ -79,20 +80,7 @@ fun isMainThread(): Boolean {
 }
 
 const val delim = "￥"
-
-//数据库相关
-const val mDBName = "cruise.db"
-const val version = 1
-const val tableName = "track"
-
-const val tableTrackIdName = "trackId"
-const val tableTrackBeginTimeName = "trackBeginTime"
-const val tableTrackEndTimeName = "trackEndTime"
-const val tableTrackTimeName = "trackTime"
-const val tableTrackConcentrationValueName = "trackConcentrationValue"
-const val tableTrackPpmName = "trackPpm"
-const val tableTrackCfName = "trackCf"
-const val tableTrackLongitudeLatitudeName = "trackLongitudeLatitude"
+const val cutOff = ","
 
 //巡测实时数据
 var trackBeginTime = 0L

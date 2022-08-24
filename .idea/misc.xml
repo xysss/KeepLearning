@@ -89,6 +89,7 @@
         <entry key="app/src/main/res/layout/fragment_four.xml" value="0.246875" />
         <entry key="app/src/main/res/layout/fragment_history_alarm.xml" value="0.1527384624700375" />
         <entry key="app/src/main/res/layout/fragment_history_record.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_history_survey.xml" value="0.36302083333333335" />
         <entry key="app/src/main/res/layout/fragment_one.xml" value="0.278942593755224" />
         <entry key="app/src/main/res/layout/fragment_room.xml" value="0.21666666666666667" />
         <entry key="app/src/main/res/layout/fragment_test.xml" value="0.20364583333333333" />
@@ -96,6 +97,7 @@
         <entry key="app/src/main/res/layout/fragment_two.xml" value="0.23792505739486977" />
         <entry key="app/src/main/res/layout/history_item_alarm.xml" value="0.37284321146113686" />
         <entry key="app/src/main/res/layout/history_item_record.xml" value="0.33918101360636776" />
+        <entry key="app/src/main/res/layout/history_item_survey.xml" value="0.36302083333333335" />
         <entry key="app/src/main/res/layout/history_item_test.xml" value="0.26145833333333335" />
         <entry key="app/src/main/res/layout/include_list.xml" value="0.20364583333333333" />
         <entry key="app/src/main/res/layout/include_recyclerview.xml" value="0.26614583333333336" />

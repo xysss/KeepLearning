@@ -3,9 +3,11 @@ package com.xysss.keeplearning.data.repository
 import com.xysss.keeplearning.app.ext.dataAlarmDao
 import com.xysss.keeplearning.app.ext.dataMatterDao
 import com.xysss.keeplearning.app.ext.dataRecordDao
+import com.xysss.keeplearning.app.ext.dataSurveyDao
 import com.xysss.keeplearning.app.room.Alarm
 import com.xysss.keeplearning.app.room.Matter
 import com.xysss.keeplearning.app.room.Record
+import com.xysss.keeplearning.app.room.Survey
 import com.xysss.keeplearning.data.response.JoinResult
 
 /**
@@ -76,6 +78,36 @@ object Repository {
     fun forgetMatterIsExist(index:Int):Int{
         return dataMatterDao.forgetMatterIsExist(index)
     }
+
+    @Synchronized
+    fun insertSurvey(survey: Survey):Long{
+        return dataSurveyDao.insertSurvey(survey)
+    }
+    @Synchronized
+    fun insertSurveyList(surveyList:ArrayList<Survey>):List<Long>{
+        return dataSurveyDao.insertSurveyList(surveyList)
+    }
+    @Synchronized
+    fun getSurveyList(size:Int,index: Int): List<Survey>{
+        return dataSurveyDao.loadLimitSurvey(size, index)
+    }
+    @Synchronized
+    fun getSurveyByBeginTime(beginTime:Long): Survey{
+        return dataSurveyDao.getSurveyByBeginTime(beginTime)
+    }
+    @Synchronized
+    fun forgetSurveyIsExist(time :Long):Int{
+        return dataSurveyDao.forgetSurveyIsExist(time)
+    }
+    @Synchronized
+    fun deleteAllSurvey(){
+        return dataSurveyDao.deleteAllSurvey()
+    }
+    @Synchronized
+    fun updateSurvey(newSurvey: Survey){
+        return dataSurveyDao.updateSurvey(newSurvey)
+    }
+
 
 //    fun getUser(userId: String): LiveData<User> {
 //        val liveData = MutableLiveData<User>()

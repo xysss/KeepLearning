@@ -11,7 +11,6 @@ import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.ext.scope
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.data.annotation.ValueKey
-import com.xysss.keeplearning.ui.activity.gaode.database.TripDBHelper
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService
 import com.xysss.mvvmhelper.base.BaseViewModel
 import com.xysss.mvvmhelper.ext.logE
@@ -71,10 +70,6 @@ class AMapViewModel : BaseViewModel(), TrackCollectService.RealLocationCallBack 
     }
 
     fun onShowClick() {
-        scope.launch(Dispatchers.IO) {
-            val time = System.currentTimeMillis()
-            _track.postValue(TripDBHelper.getInstance()?.getTrack(time))
-        }
     }
 
     fun initColorMap() {

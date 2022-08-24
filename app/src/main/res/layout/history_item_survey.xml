@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_todo_cardview"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginRight="8dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/color_8FF"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="4dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_height="wrap_content">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:orientation="horizontal">
+
+
+                <TextView
+                    android:id="@+id/itemSurveyId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:lines="1"
+                    android:maxLength="10"
+                    android:textColor="@color/colorBlack333"
+                    android:textSize="13sp"
+                    tools:text="1" />
+
+                <TextView
+                    android:id="@+id/itemSurveyBeginTimeTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:lines="1"
+                    android:maxLength="10"
+                    android:textColor="@color/black"
+                    android:textSize="13sp"
+                    tools:text="开始时间:" />
+
+                <TextView
+                    android:id="@+id/itemSurveyEndTimeTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="left"
+                    android:textColor="@color/colorBlack333"
+                    android:textSize="13sp"
+                    tools:text="结束时间：" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="15dp"
+                android:orientation="horizontal"
+                android:textColor="@color/colorBlack333"
+                android:textSize="13sp">
+
+                <TextView
+                    android:id="@+id/itemSurveyBeginTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="2022-08-24 17：04：21"
+                    android:textColor="@color/colorBlack333"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/itemSurveyEndTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="2022-08-25 17：04：21"
+                    android:textColor="@color/colorBlack333"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

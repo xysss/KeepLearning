@@ -16,12 +16,13 @@ import com.xysss.keeplearning.viewmodel.HistoryTreeViewModel
  */
 
 class TwoFragment : BaseFragment<HistoryTreeViewModel, FragmentTwoBinding>() {
-    var titleData= arrayListOf("数据记录","报警记录")
+    var titleData= arrayListOf("数据记录","报警记录","巡航记录")
     //fragment集合
     private var fragments: ArrayList<Fragment> = arrayListOf()
     init {
         fragments.add(HistoryRecordFragment())
         fragments.add(HistoryAlarmFragment())
+        fragments.add(HistorySurveyFragment())
     }
     override fun initView(savedInstanceState: Bundle?) {
         mViewBinding.customTwoToolbar.setCenterTitle(R.string.bottom_title_paper)

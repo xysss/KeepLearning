@@ -1,5 +1,6 @@
 package com.xysss.keeplearning.app.util
 
+import android.annotation.SuppressLint
 import android.util.Log
 import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.mvvmhelper.ext.logE
@@ -77,8 +78,9 @@ object ByteUtils {
         return format.format(number)
     }
 
+    @SuppressLint("SimpleDateFormat")
     fun getDateTime(times: Long): String {
-        return SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(times)
+        return SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(times)
     }
 
     /**

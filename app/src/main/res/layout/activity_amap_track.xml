@@ -22,29 +22,27 @@
         />
 
     <Button
-        android:id="@+id/btn_start"
+        android:id="@+id/btn_surVey"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="开始"
         android:layout_alignParentBottom="true"
-        android:layout_margin="20dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="80dp"
+
         />
-    <Button
-        android:id="@+id/btn_stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="结束"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="20dp"
-        android:layout_toRightOf="@+id/btn_start"
-        />
+
     <Button
         android:id="@+id/btn_show"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="设置"
         android:layout_alignParentBottom="true"
-        android:layout_margin="20dp"
-        android:layout_toRightOf="@+id/btn_stop"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="80dp"
         />
 </RelativeLayout>

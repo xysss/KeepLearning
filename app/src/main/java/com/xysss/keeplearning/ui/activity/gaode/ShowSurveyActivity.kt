@@ -49,28 +49,14 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
         }
     }
 
-    private fun getDriveColor(): Int {
-        val colorNum: Int
-        if (surveyHistoryConValue <= surveyHistoryMaxConValue) {
-            val y = (surveyHistoryConValue * 255 / surveyHistoryMaxConValue).toInt()
-            colorNum = colorHashMap[y] ?: 0
-//            colorNum=Color.parseColor(toHexEncoding(colorHashMap[y] ?: 0))
-            ("巡测历史数据： $surveyHistoryConValue   颜色y:$y ").logE(LogFlag)
-        } else {
-            colorNum = colorHashMap[255] ?: 0
-            //colorNum= ContextCompat.getColor(appContext, R.color.red)
-        }
-        return colorNum
-    }
-
     private fun getTrack(beginTime: Long){
         if (beginTime!=0L) {
             val surveySlq = Repository.getSurveyByBeginTime(beginTime)
-            val latlngs = surveySlq.longitudeLatitude
-            val conValue = surveySlq.concentrationValue
+            val latlngs = surveySlq.longitudeLatitude.trim()
+            val conValue = surveySlq.concentrationValue.trim()
 
             if (conValue.isNotEmpty()){
-                sqlConValueList = conValue.split(delim).toTypedArray().toList() as ArrayList<String>
+                sqlConValueList = conValue.split(delim).toList() as ArrayList<String>
             }
             if (latlngs.isNotEmpty()) {
                 val lonlats = latlngs.split(delim).toTypedArray()
@@ -90,27 +76,35 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
             }
         }
 
-        surveyHistoryMaxConValue = Collections.max(sqlConValueList).toFloat()
+        for (i in 0 until sqlConValueList.size){
+            if (sqlConValueList[i].isNotEmpty()) {
+                if (sqlConValueList[i].toFloat()>surveyHistoryMaxConValue){
+                    surveyHistoryMaxConValue=sqlConValueList[i].toFloat()
+                }
+            }
+        }
+        //surveyHistoryMaxConValue = Collections.max(sqlConValueList).toFloat()
 
-        "surveyHistoryMaxConValue: $surveyHistoryMaxConValue".logE(LogFlag)
+        "巡测 MaxConValue: $surveyHistoryMaxConValue".logE(LogFlag)
         toDealData()
     }
 
     private fun toDealData(){
         for (i in 0 until sqlLatLngList.size){
             drawList.add(sqlLatLngList[i])
-            surveyHistoryConValue = sqlConValueList[i].toFloat()
-
+            if(sqlConValueList[i].isNotEmpty()){
+                surveyHistoryConValue = sqlConValueList[i].toFloat()
+            }
             if(drawList.size >1){
                 when(i){
                     1->{
-                        drawMapLine(drawList,1) //起点
+                        drawHistoryMapLine(drawList,1) //起点
                     }
                     sqlLatLngList.size-1->{
-                        drawMapLine(drawList,2)  //终点
+                        drawHistoryMapLine(drawList,2)  //终点
                     }
                     else->{
-                        drawMapLine(drawList,0)  //中间点
+                        drawHistoryMapLine(drawList,0)  //中间点
                     }
                 }
 
@@ -123,13 +117,13 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
     }
 
     @SuppressLint("SimpleDateFormat")
-    private fun drawMapLine(list: MutableList<LatLng>?,flag:Int) {
+    private fun drawHistoryMapLine(list: MutableList<LatLng>?,flag:Int) {
         if (list == null || list.isEmpty()) {
             return
         }
         val mBuilder = LatLngBounds.Builder()
         val polylineOptions = PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
-                .color(getDriveColor())
+                .color(getHisToryDriveColor())
                 .width(getRouteWidth())
                 .addAll(list)
         //mMap.clear()
@@ -159,6 +153,20 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
             CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 20)
         }
         mViewBinding.mMapView.map.animateCamera(cameraUpdate)
+    }
+
+    private fun getHisToryDriveColor(): Int {
+        val colorNum: Int
+        if (surveyHistoryConValue <= surveyHistoryMaxConValue) {
+            val y = (surveyHistoryConValue * 255 / surveyHistoryMaxConValue).toInt()
+            colorNum = colorHashMap[y] ?: 0
+//            colorNum=Color.parseColor(toHexEncoding(colorHashMap[y] ?: 0))
+            ("巡测历史数据： $surveyHistoryConValue   颜色y:$y ").logE(LogFlag)
+        } else {
+            colorNum = colorHashMap[255] ?: 0
+            //colorNum= ContextCompat.getColor(appContext, R.color.red)
+        }
+        return colorNum
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

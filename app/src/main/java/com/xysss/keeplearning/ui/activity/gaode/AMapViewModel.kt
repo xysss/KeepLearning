@@ -40,26 +40,25 @@ class AMapViewModel : BaseViewModel(), TrackCollectService.RealLocationCallBack 
         mqttService = service
     }
 
-    fun setRealLocationListener() {
+    fun setViewModelRealLocationListener() {
         mapService.setRealLocationListener(this)
     }
 
     fun getDriveColor(): Int {
         val ppmValue = mmkv.getInt(ValueKey.ppmValue, 0)
         val colorNum: Int
+        var y: Int=0
         if (concentrationValue <= ppmValue) {
-            val y = (concentrationValue * 255 / ppmValue).toInt()
+            y = (concentrationValue * 255 / ppmValue).toInt()
             colorNum = colorHashMap[y] ?: 0
 //            colorNum=Color.parseColor(toHexEncoding(colorHashMap[y] ?: 0))
-            ("巡测轨迹过程中收到的数据： $concentrationValue   颜色y:$y ").logE(LogFlag)
         } else {
             colorNum = colorHashMap[255] ?: 0
+            y=255
             //colorNum= ContextCompat.getColor(appContext, R.color.red)
         }
+        ("巡测实时数据： $concentrationValue   颜色y:$y ").logE(LogFlag)
         return colorNum
-    }
-
-    fun onShowClick() {
     }
 
     override fun sendRealLocation(mlist: MutableList<LatLng>) {

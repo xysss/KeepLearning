@@ -186,8 +186,8 @@ class TrackCollectService : Service(){
         // 取完之后清空数据
         mLocations.clear()
 
-        val track = Survey(trackBeginTime,trackEndTime,timeStringBuffer.toString(),concentrationValueStringBuffer.toString(),ppmStringBuffer.toString(),
-            cfStringBuffer.toString(),longitudeLatitudeStringBuffer.toString())
+        val track = Survey(trackBeginTime,trackEndTime,timeStringBuffer.toString().trim(),concentrationValueStringBuffer.toString().trim(),
+            ppmStringBuffer.toString().trim(), cfStringBuffer.toString().trim(),longitudeLatitudeStringBuffer.toString().trim())
 
         addTrack(track)
     }
@@ -284,22 +284,22 @@ class TrackCollectService : Service(){
                 newSurvey = Survey(
                     track.beginTime,
                     track.endTime,
-                    mTimeStringBuffer.toString(),
-                    mConcentrationValueStringBuffer.toString(),
-                    mPpmStringBuffer.toString(),
-                    mCfStringBuffer.toString(),
-                    mLongitudeLatitudeStringBuffer.toString()
+                    mTimeStringBuffer.toString().trim(),
+                    mConcentrationValueStringBuffer.toString().trim(),
+                    mPpmStringBuffer.toString().trim(),
+                    mCfStringBuffer.toString().trim(),
+                    mLongitudeLatitudeStringBuffer.toString().trim()
                 )
                 Repository.updateSurvey(newSurvey)
             }else{
                 newSurvey = Survey(
                     track.beginTime,
                     track.endTime,
-                    mTimeStringBuffer.append(track.time).toString(),
-                    mConcentrationValueStringBuffer.append(track.concentrationValue).toString(),
-                    mPpmStringBuffer.append(track.ppm).toString(),
-                    mCfStringBuffer.append(track.cf).toString(),
-                    mLongitudeLatitudeStringBuffer.append(track.longitudeLatitude).toString()
+                    mTimeStringBuffer.append(track.time).toString().trim(),
+                    mConcentrationValueStringBuffer.append(track.concentrationValue).toString().trim(),
+                    mPpmStringBuffer.append(track.ppm).toString().trim(),
+                    mCfStringBuffer.append(track.cf).toString().trim(),
+                    mLongitudeLatitudeStringBuffer.append(track.longitudeLatitude).toString().trim()
                 )
                 Repository.insertSurvey(newSurvey)
             }

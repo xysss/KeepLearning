@@ -53,7 +53,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
             mapService = mBinder.service
             mViewModel.putMapService(mapService)
 
-            //mViewModel.setRealLocationListener()
+            //mViewModel.setViewModelRealLocationListener()
 
             mapService.setRealLocationListener(object : RealLocationCallBack {
                 override fun sendRealLocation(mlist: MutableList<LatLng>) {
@@ -126,16 +126,8 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     override fun initObserver() {
         super.initObserver()
         mViewModel.mRealTimeList.observe(this) {
-//            Thread {
-//                drawMapLine(it)
-//            }
-//            scope.launch(Dispatchers.IO) {
-//                drawMapLine(it)
-//                val id = Thread.currentThread().id
-//            "此时运行在1${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("LogFlag")
-//            }
             scope.launch(Dispatchers.IO) {
-                drawMapLine(it)
+                //drawMapLine(it)
                 val id = Thread.currentThread().id
                 "此时运行在2${if (isMainThread()) "主线程" else "子线程"}中   线程号：$id".logE("LogFlag")
             }
@@ -144,26 +136,24 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onBindViewClick() {
-        setOnclickNoRepeat(mViewBinding.btnStart, mViewBinding.btnStop, mViewBinding.btnShow) {
+        setOnclickNoRepeat(mViewBinding.btnSurVey, mViewBinding.btnShow) {
             when (it.id) {
-                R.id.btn_start -> {
+                R.id.btn_surVey -> {
                     when (mmkv.getInt(ValueKey.ppmValue, 0)) {
                         5 -> {
                             mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.five_ppm_icon, null))
-                            onStartClick()
+                            surVeyClick()
                         }
                         10 -> {
                             mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
-                            onStartClick()
+                            surVeyClick()
                         }
                         else -> {
                             ToastUtils.showShort("请先设置ppm参数")
                         }
                     }
                 }
-                R.id.btn_stop -> {
-                    setEndState()
-                }
+
                 R.id.btn_show -> {
                     showSingleChoiceDialog()
                     //mViewModel.onShowClick()
@@ -172,13 +162,24 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         }
     }
 
-    fun setEndState(){
+    private fun surVeyClick() {
+        if (isBeginning){
+            setEndState()
+        }else {
+            setStartState()
+            mapService.start()
+        }
+    }
+
+    private fun setEndState(){
+        mViewBinding.btnSurVey.text="开始"
         isBeginning = false
         isStart = true
         trackEndTime = System.currentTimeMillis()
     }
 
     private fun setStartState(){
+        mViewBinding.btnSurVey.text="结束"
         isBeginning = true
         isStart = true
         trackBeginTime = System.currentTimeMillis()
@@ -231,11 +232,6 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
             }
         }
         singleChoiceDialog.show()
-    }
-
-    private fun onStartClick() {
-        setStartState()
-        mapService.start()
     }
 
     private fun onStopClick() {

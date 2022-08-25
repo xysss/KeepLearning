@@ -25,6 +25,7 @@ import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService.Real
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
+import getRouteWidth
 import io.reactivex.functions.Consumer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -67,7 +68,6 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         }
     }
 
-
     private val mqttConnection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -91,8 +91,9 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
     @SuppressLint("CheckResult", "UseCompatLoadingForDrawables")
     override fun initView(savedInstanceState: Bundle?) {
-        mToolbar.initBack(getString(R.string.bottom_title_navigation)) {
-            finish()
+        mToolbar.initBack(getString(R.string.map_track_activity_title)) {
+            ToastUtils.showShort("请点击结束按钮")
+            //finish()
         }
         isPollingModel=true
         // 在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
@@ -120,16 +121,10 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 //        })
 
         startTrackCollectService()
-
-        mViewModel.initColorMap()
     }
 
     override fun initObserver() {
         super.initObserver()
-
-        mViewModel.track.observe(this) {
-            showTrack(it)
-        }
         mViewModel.mRealTimeList.observe(this) {
 //            Thread {
 //                drawMapLine(it)
@@ -245,6 +240,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
     private fun onStopClick() {
         mapService.stop()
+        finish()
     }
 
     //绑定服务
@@ -262,10 +258,9 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
             return
         }
         val mBuilder = LatLngBounds.Builder()
-        val polylineOptions =
-            PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
+        val polylineOptions = PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
                 .color(mViewModel.getDriveColor())
-                .width(mViewModel.getRouteWidth())
+                .width(getRouteWidth())
                 .addAll(list)
         //mMap.clear()
         mViewBinding.mMapView.map.addPolyline(polylineOptions)
@@ -298,47 +293,6 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         mViewBinding.mMapView.map.animateCamera(cameraUpdate)
     }
 
-    //轨迹展示
-    private fun showTrack(list: MutableList<LatLng>?) {
-        if (list == null || list.isEmpty()) {
-            return
-        }
-
-        val mBuilder = LatLngBounds.Builder()
-        val polylineOptions =
-            PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
-                .color(mViewModel.getDriveColor())
-                .width(mViewModel.getRouteWidth())
-                .addAll(list)
-        mViewBinding.mMapView.map.clear()
-        mViewBinding.mMapView.map.addPolyline(polylineOptions)
-
-        val latLngBegin = LatLng(list[0].latitude, list[0].longitude)  //标记点
-        val markerBegin: Marker = mViewBinding.mMapView.map.addMarker(
-            MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker")
-        )
-
-        val latLngEnd = LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
-        val markerEnd: Marker = mViewBinding.mMapView.map.addMarker(
-            MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker")
-        )
-
-        //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
-        for (i in list.indices) {
-            mBuilder.include(list[i])
-        }
-
-        val cameraUpdate: CameraUpdate
-        // 判断,区域点计算出来,的两个点相同,这样地图视角发生改变,SDK5.0.0会出现异常白屏(定位到海上了)
-        val northeast = mBuilder.build().northeast
-        cameraUpdate = if (northeast != null && northeast == mBuilder.build().southwest) {
-            CameraUpdateFactory.newLatLng(mBuilder.build().southwest)
-        } else {
-            CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 20)
-        }
-        mViewBinding.mMapView.map.animateCamera(cameraUpdate)
-    }
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         // 在activity执行onSaveInstanceState时执行mMapView.onSaveInstanceState (outState)，保存地图当前的状态
@@ -354,6 +308,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         //tt.onClose()
         unbindService(mapConnection)
         unbindService(mqttConnection)
+        "AmapTrackActivity onDestory".logE(LogFlag)
     }
 
     override fun onResume() {
@@ -369,7 +324,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     }
 
     override fun onBackPressed() {
-        "按下返回按键".logE(LogFlag)
-        super.onBackPressed()
+        ToastUtils.showShort("请点击结束按钮")
+        //super.onBackPressed()
     }
 }

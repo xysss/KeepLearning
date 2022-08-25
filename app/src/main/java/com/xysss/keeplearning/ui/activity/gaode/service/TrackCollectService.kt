@@ -67,7 +67,6 @@ class TrackCollectService : Service(){
 
     override fun onDestroy() {
         super.onDestroy()
-        stop()
     }
 
     inner class DataBinder : Binder(){
@@ -324,38 +323,6 @@ class TrackCollectService : Service(){
                 mLongitudeLatitudeStringBuffer.delete(0, mLongitudeLatitudeStringBuffer.toString().length)
             }
         }
-    }
-
-    fun getTrack(beginTime: Long): MutableList<LatLng> {
-        val latLngList = ArrayList<LatLng>()
-        val conValueList : ArrayList<String>
-        if (beginTime!=0L) {
-            val surveySlq = Repository.getSurveyByBeginTime(beginTime)
-            val latlngs = surveySlq.longitudeLatitude
-            val conValue = surveySlq.concentrationValue
-
-            if (conValue.isNotEmpty()){
-                conValueList = conValue.split(delim).toTypedArray().toList() as ArrayList<String>
-            }
-
-            if (latlngs.isNotEmpty()) {
-                val lonlats = latlngs.split(delim).toTypedArray()
-                if (lonlats.isNotEmpty()) {
-                    for (i in lonlats.indices) {
-                        val lonlat = lonlats[i]
-                        val split = lonlat.split(cutOff).toTypedArray()
-                        if (split.isNotEmpty()) {
-                            try {
-                                latLngList.add(LatLng(split[0].toDouble(), split[1].toDouble()))
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return latLngList
     }
 
 }

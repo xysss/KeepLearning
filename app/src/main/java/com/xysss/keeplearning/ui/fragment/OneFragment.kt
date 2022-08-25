@@ -13,6 +13,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.blankj.utilcode.util.ServiceUtils.bindService
 import com.blankj.utilcode.util.ToastUtils
@@ -52,7 +53,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
     private val send10Msg = "55000a0910000100"  //读取实时数据
     private val send20Msg = "55000a0920000100"  //读取物质库信息
     private val send21Msg = "55000D0921000401000000"  //读取物质条目信息
-    private var isClickStart = true
+    private var isChecking = false
     private var mTimer: Timer? = null
     private var historyTask: HistoryTimerTask? = null
     private var realDataTask: RealTimeDataTimerTask? = null
@@ -208,12 +209,14 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                     requestDataLauncher.launch(intentBle)
                 }
                 R.id.testBackgroundImg -> {
-                    if (isClickStart)
+                    if (!isChecking)
                         startTest()
                     else
                         stopTest()
                 }
                 R.id.toServiceBackImg -> {
+                    if (!isChecking)
+                        startTest()
                     toStartActivity(AMapTrackActivity::class.java)
                 }
                 R.id.synRecordBackgroundImg -> {
@@ -334,7 +337,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
 
     private fun stopTest() {
         isRealTimeModel = false
-        isClickStart = true
+        isChecking = false
         mViewBinding.testText.text = "开始"
         mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.drawable.start_icon, null))
 
@@ -349,7 +352,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         //切换实时数据模式
         BleHelper.synFlag = "实时数据模式"
         isRealTimeModel = true
-        isClickStart = false
+        isChecking = true
         mViewBinding.testText.text = "停止"
         mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.drawable.pause_icon, null))
         //展示进度条
@@ -408,6 +411,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                     realDataTask?.cancel()
                     mTimer?.cancel()
                     stopTest()
+
+                    ToastUtils.showShort("重连成功！")
+                    startTest()
                 }
             }
         }

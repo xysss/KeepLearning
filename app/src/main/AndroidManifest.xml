@@ -81,6 +81,10 @@
             android:launchMode="singleInstance"
             android:exported="true" />
         <activity
+            android:name="com.xysss.keeplearning.ui.activity.gaode.ShowSurveyActivity"
+            android:launchMode="singleInstance"
+            android:exported="true" />
+        <activity
             android:name="com.xysss.keeplearning.ui.activity.DemoActivity"
             android:exported="true" />
         <activity

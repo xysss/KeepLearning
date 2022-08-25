@@ -6,6 +6,7 @@ import com.xysss.keeplearning.app.room.AppDatabase
 import com.xysss.keeplearning.data.annotation.ValueKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import java.util.HashMap
 import java.util.concurrent.LinkedBlockingQueue
 
 /**
@@ -91,3 +92,12 @@ var trackTime = 0L
 var concentrationValue: Float = 0F
 var ppm: Int = 0
 var cf: Float = 0F
+
+const val intentFlag ="beginTime"
+
+var colorHashMap = HashMap<Int, Int>()
+
+//巡航历史数据
+var surveyHistoryConValue : Float = 0F
+//巡航最大数值
+var surveyHistoryMaxConValue : Float = 0F

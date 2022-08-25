@@ -5,10 +5,7 @@ import android.graphics.Color
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.amap.api.maps.model.LatLng
-import com.xysss.keeplearning.app.ext.LogFlag
-import com.xysss.keeplearning.app.ext.concentrationValue
-import com.xysss.keeplearning.app.ext.mmkv
-import com.xysss.keeplearning.app.ext.scope
+import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService
@@ -26,10 +23,7 @@ import java.util.*
  */
 class AMapViewModel : BaseViewModel(), TrackCollectService.RealLocationCallBack {
 
-    var colorHashMap = HashMap<Int, Int>()
-    val track: LiveData<MutableList<LatLng>> get() = _track
     val mRealTimeList: LiveData<MutableList<LatLng>> get() = _mRealTimeList
-    private val _track = MutableLiveData<MutableList<LatLng>>()
     private val _mRealTimeList = MutableLiveData<MutableList<LatLng>>()
 
 
@@ -65,42 +59,7 @@ class AMapViewModel : BaseViewModel(), TrackCollectService.RealLocationCallBack 
         return colorNum
     }
 
-    fun getRouteWidth(): Float {
-        return 20f
-    }
-
     fun onShowClick() {
-    }
-
-    fun initColorMap() {
-        if (colorHashMap.isEmpty()) {
-            for (i in 0..255) {
-                if (i < 32) {
-                    colorHashMap[i] = Color.rgb(0, 0, 128 + i * 4)
-                }
-                if (i == 32) {
-                    colorHashMap[i] = Color.rgb(0, 0, 255)
-                }
-                if (i in 33..95) {
-                    colorHashMap[i] = Color.rgb(0, (i - 32) * 4, 255)
-                }
-                if (i in 96..159) {
-                    colorHashMap[i] = Color.rgb(2 + (4 * (i - 96)), 255, 254 - 4 * (i - 96))
-                }
-                if (i == 160) {
-                    colorHashMap[i] = Color.rgb(255, 252, 0)
-                }
-                if (i in 161..223) {
-                    colorHashMap[i] = Color.rgb(255, 248 - 4 * (i - 161), 0)
-                }
-                if (i == 224) {
-                    colorHashMap[i] = Color.rgb(252, 0, 0)
-                }
-                if (i in 225..255) {
-                    colorHashMap[i] = Color.rgb(248 - 4 * (i - 225), 0, 0)
-                }
-            }
-        }
     }
 
     override fun sendRealLocation(mlist: MutableList<LatLng>) {

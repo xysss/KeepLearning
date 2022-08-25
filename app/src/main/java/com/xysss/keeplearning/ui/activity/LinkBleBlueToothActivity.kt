@@ -360,4 +360,8 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
         stopScan()
         super.onPause()
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
 }

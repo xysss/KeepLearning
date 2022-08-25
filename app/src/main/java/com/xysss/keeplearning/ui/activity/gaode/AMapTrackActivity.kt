@@ -236,7 +236,6 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
 
     private fun onStopClick() {
         mapService.stop()
-        finish()
     }
 
     //绑定服务

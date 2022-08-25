@@ -66,6 +66,8 @@ val matterIndexMsg = ByteArray(4)
 val recLinkedDeque = LinkedBlockingQueue<Byte>()  //默认情况下，该阻塞队列的大小为Integer.MAX_VALUE，由于这个数值特别大
 val sendLinkedDeque = LinkedBlockingQueue<String>(1000)
 
+var isBleReady=false
+
 var isRealTimeModel = false
 
 var isConnectMqtt = false

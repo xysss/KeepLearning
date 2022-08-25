@@ -117,20 +117,15 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         mViewModel.bleState.observe(this) {
             mViewBinding.blueTv.text = it
             if (it == "已连接设备") {
+                isBleReady=true
                 mViewBinding.blueTv.setTextColor(Color.parseColor("#4BDAFF"))
-                mViewBinding.blueLinkImg.setImageDrawable(
-                    resources.getDrawable(R.drawable.connected_icon, null)
-                )
+                mViewBinding.blueLinkImg.setImageDrawable(resources.getDrawable(R.drawable.connected_icon, null))
 
                 dismissProgressUI()
             } else if (it == "未连接设备") {
+                isBleReady=true
                 mViewBinding.blueTv.setTextColor(Color.parseColor("#FFFFFFFF"))
-                mViewBinding.blueLinkImg.setImageDrawable(
-                    resources.getDrawable(
-                        R.drawable.no_connected_icon,
-                        null
-                    )
-                )
+                mViewBinding.blueLinkImg.setImageDrawable(resources.getDrawable(R.drawable.no_connected_icon, null))
             }
         }
 
@@ -209,21 +204,38 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                     requestDataLauncher.launch(intentBle)
                 }
                 R.id.testBackgroundImg -> {
-                    if (!isChecking)
-                        startTest()
-                    else
-                        stopTest()
+                    if (isBleReady){
+                        if (!isChecking)
+                            startTest()
+                        else
+                            stopTest()
+                    }else{
+                        ToastUtils.showShort("请先连接蓝牙")
+                    }
+
                 }
                 R.id.toServiceBackImg -> {
-                    if (!isChecking)
-                        startTest()
-                    toStartActivity(AMapTrackActivity::class.java)
+                    if (isBleReady){
+                        if (!isChecking)
+                            startTest()
+                        toStartActivity(AMapTrackActivity::class.java)
+                    }else{
+                        ToastUtils.showShort("请先连接蓝牙")
+                    }
                 }
                 R.id.synRecordBackgroundImg -> {
-                    synMessage(1)
+                    if (isBleReady){
+                        synMessage(1)
+                    }else{
+                        ToastUtils.showShort("请先连接蓝牙")
+                    }
                 }
                 R.id.synAlarmBackgroundImg -> {
-                    synMessage(2)
+                    if (isBleReady){
+                        synMessage(2)
+                    }else{
+                        ToastUtils.showShort("请先连接蓝牙")
+                    }
                 }
 
                 //以下为demo按钮

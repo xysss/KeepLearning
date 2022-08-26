@@ -86,6 +86,18 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
         //surveyHistoryMaxConValue = Collections.max(sqlConValueList).toFloat()
 
         "巡测 MaxConValue: $surveyHistoryMaxConValue".logE(LogFlag)
+
+        scope.launch(Dispatchers.Main) {
+            if (surveyHistoryMaxConValue.toInt()!=0){
+                mViewBinding.surveyMaxValue.text = surveyHistoryMaxConValue.toInt().toString()
+                mViewBinding.surveyAvgValue.text = (surveyHistoryMaxConValue/2).toInt().toString()
+                mViewBinding.surveyMinValue.text = 0.toString()
+            }else{
+                mViewBinding.surveyMaxValue.text = "max"
+                mViewBinding.surveyAvgValue.text = ""
+                mViewBinding.surveyMinValue.text = 0.toString()
+            }
+        }
         toDealData()
     }
 

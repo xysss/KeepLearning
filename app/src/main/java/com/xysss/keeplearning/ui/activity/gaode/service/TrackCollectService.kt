@@ -17,6 +17,8 @@ import com.xysss.keeplearning.data.repository.Repository
 import com.xysss.keeplearning.ui.activity.gaode.bean.LocationInfo
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -50,7 +52,6 @@ class TrackCollectService : Service(){
     private var mCfStringBuffer = StringBuffer()
     private var mLongitudeLatitudeStringBuffer = StringBuffer()
     private var isStored=0
-
     private lateinit var newSurvey: Survey
 
     override fun onBind(intent: Intent?): IBinder {
@@ -168,26 +169,22 @@ class TrackCollectService : Service(){
         }, (1000 * 20).toLong(), (1000 * 20).toLong(), TimeUnit.MILLISECONDS)
     }
 
-    fun saveData(){
-        val timeStringBuffer = StringBuffer()
-        val concentrationValueStringBuffer = StringBuffer()
-        val ppmStringBuffer = StringBuffer()
-        val cfStringBuffer = StringBuffer()
-        val longitudeLatitudeStringBuffer = StringBuffer()
-
+    private fun saveData(){
         for (i in mLocations.indices) {
             val locationInfo: LocationInfo = mLocations[i]
-            timeStringBuffer.append(locationInfo.time).append(delim)
-            concentrationValueStringBuffer.append(locationInfo.concentrationValue).append(delim)
-            ppmStringBuffer.append(locationInfo.ppm).append(delim)
-            cfStringBuffer.append(locationInfo.cf).append(delim)
-            longitudeLatitudeStringBuffer.append(locationInfo.lat).append(cutOff).append(locationInfo.lon).append(delim)
+            mTimeStringBuffer.append(locationInfo.time).append(delim)
+            mConcentrationValueStringBuffer.append(locationInfo.concentrationValue).append(delim)
+            mPpmStringBuffer.append(locationInfo.ppm).append(delim)
+            mCfStringBuffer.append(locationInfo.cf).append(delim)
+            mLongitudeLatitudeStringBuffer.append(locationInfo.lat).append(cutOff).append(locationInfo.lon).append(delim)
         }
         // 取完之后清空数据
         mLocations.clear()
 
-        val track = Survey(trackBeginTime,trackEndTime,timeStringBuffer.toString().trim(),concentrationValueStringBuffer.toString().trim(),
-            ppmStringBuffer.toString().trim(), cfStringBuffer.toString().trim(),longitudeLatitudeStringBuffer.toString().trim())
+        val track = Survey(trackBeginTime,trackEndTime,mTimeStringBuffer.toString().trim(),mConcentrationValueStringBuffer.toString().trim(),
+            mPpmStringBuffer.toString().trim(), mCfStringBuffer.toString().trim(),mLongitudeLatitudeStringBuffer.toString().trim())
+
+        clearBuffer()
 
         addTrack(track)
     }
@@ -211,7 +208,10 @@ class TrackCollectService : Service(){
             mDataBaseThread = null
         }
         // 定期任务关闭后，需要把最后的数据同步到数据库
-        saveData()
+        scope.launch(Dispatchers.IO) {
+            saveData()
+            "巡测：Repository stop ".logE(LogFlag)
+        }
     }
 
     interface RealLocationCallBack {
@@ -230,67 +230,55 @@ class TrackCollectService : Service(){
             // 如果之前存储过
             if (isStored==1){
                 val surveySlq = Repository.getSurveyByBeginTime(track.beginTime)
-
                 //time
                 if (!TextUtils.isEmpty(surveySlq.time)) {
                     mTimeStringBuffer.append( surveySlq.time)
-                    "mTime old data:$mTimeStringBuffer".logE(LogFlag)
                 }
                 if (!TextUtils.isEmpty(track.time)) {
                     mTimeStringBuffer.append(track.time)
-                    "mTime new data:$mTimeStringBuffer".logE(LogFlag)
                 }
-
                 //convalue
                 if (!TextUtils.isEmpty(surveySlq.concentrationValue)) {
                     mConcentrationValueStringBuffer.append(surveySlq.concentrationValue)
-                    "conValue old data:$mConcentrationValueStringBuffer".logE(LogFlag)
                 }
                 if (!TextUtils.isEmpty(track.concentrationValue)) {
                     mConcentrationValueStringBuffer.append(track.concentrationValue)
-                    "conValue new data:$mConcentrationValueStringBuffer".logE(LogFlag)
                 }
-
                 //ppmValue
                 if (!TextUtils.isEmpty(surveySlq.ppm)) {
                     mPpmStringBuffer.append(surveySlq.ppm)
-                    "ppmValue old data:$mPpmStringBuffer".logE(LogFlag)
                 }
                 if (!TextUtils.isEmpty(track.ppm)) {
                     mPpmStringBuffer.append(track.ppm)
-                    "ppmValue new data:$mPpmStringBuffer".logE(LogFlag)
                 }
 
                 //cfValue
                 if (!TextUtils.isEmpty(surveySlq.cf)) {
                     mCfStringBuffer.append(surveySlq.cf)
-                    "cfValue old data:$mCfStringBuffer".logE(LogFlag)
                 }
                 if (!TextUtils.isEmpty(track.cf)) {
                     mCfStringBuffer.append(track.cf)
-                    "cfValue new data:$mCfStringBuffer".logE(LogFlag)
                 }
-
                 //lnglats
                 if (!TextUtils.isEmpty(surveySlq.longitudeLatitude)) {
                     mLongitudeLatitudeStringBuffer.append(surveySlq.longitudeLatitude)
-                    "latlngs old data:$mLongitudeLatitudeStringBuffer".logE(LogFlag)
                 }
                 if (!TextUtils.isEmpty(track.longitudeLatitude)) {
                     mLongitudeLatitudeStringBuffer.append(track.longitudeLatitude)
-                    "latlngs new data:$mLongitudeLatitudeStringBuffer".logE(LogFlag)
+                    "latlngs  data buffer new: ${mLongitudeLatitudeStringBuffer.length}".logE(LogFlag)
                 }
 
-                newSurvey = Survey(
-                    track.beginTime,
-                    track.endTime,
-                    mTimeStringBuffer.toString().trim(),
-                    mConcentrationValueStringBuffer.toString().trim(),
-                    mPpmStringBuffer.toString().trim(),
-                    mCfStringBuffer.toString().trim(),
-                    mLongitudeLatitudeStringBuffer.toString().trim()
-                )
+                newSurvey.apply {
+                    beginTime = track.beginTime
+                    endTime=track.endTime
+                    newSurvey.time=mTimeStringBuffer.toString().trim()
+                    newSurvey.concentrationValue=mConcentrationValueStringBuffer.toString().trim()
+                    newSurvey.ppm=mPpmStringBuffer.toString().trim()
+                    newSurvey.cf=mCfStringBuffer.toString().trim()
+                    newSurvey.longitudeLatitude=mLongitudeLatitudeStringBuffer.toString().trim()
+                }
                 Repository.updateSurvey(newSurvey)
+                "巡测：Repository updateSurvey".logE(LogFlag)
             }else{
                 newSurvey = Survey(
                     track.beginTime,
@@ -301,28 +289,32 @@ class TrackCollectService : Service(){
                     mCfStringBuffer.append(track.cf).toString().trim(),
                     mLongitudeLatitudeStringBuffer.append(track.longitudeLatitude).toString().trim()
                 )
-                Repository.insertSurvey(newSurvey)
+                newSurvey.id=Repository.insertSurvey(newSurvey)
+                "巡测：Repository insertSurvey".logE(LogFlag)
             }
         } catch (e: Exception) {
             "addTrack error:$e".logE(LogFlag)
             e.printStackTrace()
         } finally {
-            if (!TextUtils.isEmpty(mTimeStringBuffer.toString())) {
-                mTimeStringBuffer.delete(0, mTimeStringBuffer.toString().length)
-            }
-            if (!TextUtils.isEmpty(mConcentrationValueStringBuffer.toString())) {
-                mConcentrationValueStringBuffer.delete(0, mConcentrationValueStringBuffer.toString().length)
-            }
-            if (!TextUtils.isEmpty(mPpmStringBuffer.toString())) {
-                mPpmStringBuffer.delete(0, mPpmStringBuffer.toString().length)
-            }
-            if (!TextUtils.isEmpty(mCfStringBuffer.toString())) {
-                mCfStringBuffer.delete(0, mCfStringBuffer.toString().length)
-            }
-            if (!TextUtils.isEmpty(mLongitudeLatitudeStringBuffer.toString())) {
-                mLongitudeLatitudeStringBuffer.delete(0, mLongitudeLatitudeStringBuffer.toString().length)
-            }
+            clearBuffer()
         }
     }
 
+    private fun clearBuffer(){
+        if (!TextUtils.isEmpty(mTimeStringBuffer.toString())) {
+            mTimeStringBuffer.delete(0, mTimeStringBuffer.toString().length)
+        }
+        if (!TextUtils.isEmpty(mConcentrationValueStringBuffer.toString())) {
+            mConcentrationValueStringBuffer.delete(0, mConcentrationValueStringBuffer.toString().length)
+        }
+        if (!TextUtils.isEmpty(mPpmStringBuffer.toString())) {
+            mPpmStringBuffer.delete(0, mPpmStringBuffer.toString().length)
+        }
+        if (!TextUtils.isEmpty(mCfStringBuffer.toString())) {
+            mCfStringBuffer.delete(0, mCfStringBuffer.toString().length)
+        }
+        if (!TextUtils.isEmpty(mLongitudeLatitudeStringBuffer.toString())) {
+            mLongitudeLatitudeStringBuffer.delete(0, mLongitudeLatitudeStringBuffer.toString().length)
+        }
+    }
 }

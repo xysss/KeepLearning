@@ -53,7 +53,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
     private val send10Msg = "55000a0910000100"  //读取实时数据
     private val send20Msg = "55000a0920000100"  //读取物质库信息
     private val send21Msg = "55000D0921000401000000"  //读取物质条目信息
-    private var isChecking = false
+    private var isRealing = false
     private var mTimer: Timer? = null
     private var historyTask: HistoryTimerTask? = null
     private var realDataTask: RealTimeDataTimerTask? = null
@@ -147,11 +147,11 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
     }
 
     /**
-     * 请求相机权限
+     * 请求权限
      */
     @SuppressLint("CheckResult")
     private fun requestCameraPermissions() {
-        ToastUtils.showShort("请求相机权限")
+        ToastUtils.showShort("请求权限")
         //请求打开相机权限
         val rxPermissions = RxPermissions(requireActivity())
         rxPermissions.request(
@@ -205,7 +205,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                 }
                 R.id.testBackgroundImg -> {
                     if (isBleReady){
-                        if (!isChecking)
+                        if (!isRealing)
                             startTest()
                         else
                             stopTest()
@@ -214,10 +214,10 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                     }
 
                 }
+                //进入巡测模式
                 R.id.toServiceBackImg -> {
                     if (isBleReady){
-                        if (!isChecking)
-                            startTest()
+                        if (!isRealing) startTest()
                         toStartActivity(AMapTrackActivity::class.java)
                     }else{
                         ToastUtils.showShort("请先连接蓝牙")
@@ -349,7 +349,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
 
     private fun stopTest() {
         isRealTimeModel = false
-        isChecking = false
+        isRealing = false
         mViewBinding.testText.text = "开始"
         mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.drawable.start_icon, null))
 
@@ -364,7 +364,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         //切换实时数据模式
         BleHelper.synFlag = "实时数据模式"
         isRealTimeModel = true
-        isChecking = true
+        isRealing = true
         mViewBinding.testText.text = "停止"
         mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.drawable.pause_icon, null))
         //展示进度条

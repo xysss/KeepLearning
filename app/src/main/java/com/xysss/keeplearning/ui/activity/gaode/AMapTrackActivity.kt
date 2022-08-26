@@ -42,9 +42,9 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     private lateinit var mapService: TrackCollectService
     private lateinit var mqttService: MQTTService
 
-    private var isBeginning = false  //是否正在检测
-    private var isStart = false  //是否开始检测
-    private var yourChoice = 0
+    private var isDrawPoint = false  //是否要画起点和终点
+    private var isSurveying = false  //是否巡测中
+    private var ppmChoice = -1
 
     private val mapConnection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
@@ -92,8 +92,11 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     @SuppressLint("CheckResult", "UseCompatLoadingForDrawables")
     override fun initView(savedInstanceState: Bundle?) {
         mToolbar.initBack(getString(R.string.map_track_activity_title)) {
-            ToastUtils.showShort("请点击结束按钮")
-            //finish()
+            if (isSurveying){
+                ToastUtils.showShort("请点击结束按钮")
+            }else{
+                finish()
+            }
         }
         isPollingModel=true
         // 在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
@@ -163,7 +166,8 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     }
 
     private fun surVeyClick() {
-        if (isBeginning){
+        isDrawPoint = true
+        if (isSurveying){
             setEndState()
         }else {
             setStartState()
@@ -171,18 +175,16 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         }
     }
 
-    private fun setEndState(){
-        mViewBinding.btnSurVey.text="开始"
-        isBeginning = false
-        isStart = true
-        trackEndTime = System.currentTimeMillis()
-    }
-
     private fun setStartState(){
         mViewBinding.btnSurVey.text="结束"
-        isBeginning = true
-        isStart = true
+        isSurveying = true
         trackBeginTime = System.currentTimeMillis()
+    }
+
+    private fun setEndState(){
+        mViewBinding.btnSurVey.text="开始"
+        isSurveying = false
+        trackEndTime = System.currentTimeMillis()
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -205,17 +207,16 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
             }
         }
         val items = arrayOf("5ppm", "10ppm")
-        yourChoice = -1
         val singleChoiceDialog = AlertDialog.Builder(this)
         singleChoiceDialog.setTitle("请选择")
         // 第二个参数是默认选项，此处设置
         singleChoiceDialog.setSingleChoiceItems(items, lastPpmValue) { _, which ->
-            yourChoice = which
+            ppmChoice = which
         }
         singleChoiceDialog.setPositiveButton("确定") { _, _ ->
-            if (yourChoice != -1) {
-                ToastUtils.showShort("你选择了" + items[yourChoice])
-                when (yourChoice) {
+            if (ppmChoice != -1) {
+                ToastUtils.showShort("你选择了" + items[ppmChoice])
+                when (ppmChoice) {
                     0 -> {
                         mmkv.putInt(ValueKey.ppmValue, 5)
                         mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.five_ppm_icon, null))
@@ -259,8 +260,8 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                 .addAll(list)
         //mMap.clear()
         mViewBinding.mMapView.map.addPolyline(polylineOptions)
-        if (isStart) {
-            if (isBeginning) {
+        if (isDrawPoint){
+            if (isSurveying) {
                 val latLngBegin = LatLng(list[0].latitude, list[0].longitude)  //标记点
                 val markerBegin: Marker = mViewBinding.mMapView.map.addMarker(
                     MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker")
@@ -270,7 +271,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                 val markerEnd: Marker = mViewBinding.mMapView.map.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
                 onStopClick()
             }
-            isStart = false
+            isDrawPoint=false
         }
         //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
         for (i in list.indices) {
@@ -297,7 +298,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     override fun onDestroy() {
         super.onDestroy()
         isPollingModel=false
-        setEndState()
+        //setEndState()
         // 在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mViewBinding.mMapView.onDestroy()
         //tt.onClose()
@@ -319,7 +320,10 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     }
 
     override fun onBackPressed() {
-        ToastUtils.showShort("请点击结束按钮")
-        //super.onBackPressed()
+        if (isSurveying){
+            ToastUtils.showShort("请点击结束按钮")
+        }else{
+            super.onBackPressed()
+        }
     }
 }

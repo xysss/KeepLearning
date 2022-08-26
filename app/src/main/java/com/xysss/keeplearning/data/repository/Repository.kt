@@ -104,7 +104,7 @@ object Repository {
         return dataSurveyDao.deleteAllSurvey()
     }
     @Synchronized
-    fun updateSurvey(newSurvey: Survey){
+    fun updateSurvey(newSurvey: Survey) {
         return dataSurveyDao.updateSurvey(newSurvey)
     }
 

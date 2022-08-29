@@ -17,6 +17,8 @@ import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.service.MQTTService
+import com.xysss.keeplearning.app.util.ByteUtils
+import com.xysss.keeplearning.app.util.Crc8
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.ActivityAmapTrackBinding
 import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService
@@ -182,12 +184,40 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
         mViewBinding.btnSurVey.text="结束"
         isSurveying = true
         trackBeginTime = System.currentTimeMillis()
+        scope.launch(Dispatchers.IO) {
+            val mByte : ByteArray = byteArrayOf(
+                0x55.toByte(),
+                0x00.toByte(),
+                0x0A.toByte(),
+                0x09.toByte(),
+                0x0C.toByte(),
+                0x00.toByte(),
+                0x01.toByte(),
+                0x00.toByte(),
+            )
+            val startSurveyByte=mByte + Crc8.cal_crc8_t(mByte,mByte.size) + ByteUtils.FRAME_END
+            mqttService.publish(startSurveyByte)
+        }
     }
 
     private fun setEndState(){
         mViewBinding.btnSurVey.text="开始"
         isSurveying = false
         trackEndTime = System.currentTimeMillis()
+        scope.launch(Dispatchers.IO) {
+            val mByte : ByteArray = byteArrayOf(
+                0x55.toByte(),
+                0x00.toByte(),
+                0x0A.toByte(),
+                0x09.toByte(),
+                0x0D.toByte(),
+                0x00.toByte(),
+                0x01.toByte(),
+                0x00.toByte(),
+            )
+            val endSurveyByte=mByte + Crc8.cal_crc8_t(mByte,mByte.size) + ByteUtils.FRAME_END
+            mqttService.publish(endSurveyByte)
+        }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

@@ -29,6 +29,10 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
     private var sqlConValueList = ArrayList<String>()
     private var drawList= ArrayList<LatLng>()
     private var mBeginTime:Long = 0
+    //巡航最大数值
+    var surveyHistoryMaxConValue : Float = 0F
+    //巡航历史数据
+    var surveyHistoryConValue : Float = 0F
 
     override fun initView(savedInstanceState: Bundle?) {
 
@@ -76,6 +80,7 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
             }
         }
 
+        surveyHistoryMaxConValue=0F
         for (i in 0 until sqlConValueList.size){
             if (sqlConValueList[i].isNotEmpty()) {
                 if (sqlConValueList[i].toFloat()>surveyHistoryMaxConValue){
@@ -99,7 +104,14 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
         for (i in 0 until sqlLatLngList.size){
             drawList.add(sqlLatLngList[i])
             if(sqlConValueList[i].isNotEmpty()){
-                surveyHistoryConValue = sqlConValueList[i].toFloat()
+                if (i==1){
+                    if (surveyHistoryConValue<sqlConValueList[i].toFloat()){
+                        surveyHistoryConValue = sqlConValueList[i].toFloat()
+                    }
+                }
+                else{
+                    surveyHistoryConValue = sqlConValueList[i].toFloat()
+                }
             }
             if(drawList.size >1){
                 when(i){

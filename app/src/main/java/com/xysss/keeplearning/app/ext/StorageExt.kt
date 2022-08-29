@@ -99,7 +99,4 @@ const val intentFlag ="beginTime"
 
 var colorHashMap = HashMap<Int, Int>()
 
-//巡航历史数据
-var surveyHistoryConValue : Float = 0F
-//巡航最大数值
-var surveyHistoryMaxConValue : Float = 0F
+

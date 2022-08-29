@@ -235,11 +235,12 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                 }
 
                 R.id.synRecordBackgroundImg -> {
-                    if (isBleReady){
-                        synMessage(3)
-                    }else{
-                        ToastUtils.showShort("请先连接蓝牙")
-                    }
+                    synMessage(3)
+//                    if (isBleReady){
+//                        synMessage(3)
+//                    }else{
+//                        ToastUtils.showShort("请先连接蓝牙")
+//                    }
                 }
                 R.id.synAlarmBackgroundImg -> {
                     if (isBleReady){
@@ -355,6 +356,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                         val surveyList = Repository.loadAllSurvey()
                         if (surveyList.isNotEmpty()) {
                             for (i in surveyList.indices){
+                                "mqtt : item :$i, 一共： ${surveyList.size}".logE(LogFlag)
                                 subpackage(getHistorySurveyByte(surveyList[i]))
                             }
                         } else {
@@ -373,15 +375,16 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
 
     private suspend fun subpackage(byteArray: ByteArray){
         if (byteArray.size>1024){
-            var mList=ByteArray(1024)
+            val mList=ByteArray(1024)
             var j=0
-            for (i in 0 until byteArray.size-1){
+            for (i in byteArray.indices){
                 mList[j]=byteArray[i]
                 j++
-                if (i==1024){
+                if (i%1023==0){
                     mService.publish(mList)
+                    "mqtt : ${byteArray.size}  $i, $j, ${mList.size}".logE(LogFlag)
                     j=0
-                    delay(500)
+                    delay(200)
                 }
             }
             if (mList.isNotEmpty()) mService.publish(mList)

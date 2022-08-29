@@ -21,7 +21,7 @@ import java.util.*
  * 时间 : 2022-08-01 15:16
  * 描述 : 描述
  */
-class AMapViewModel : BaseViewModel(), TrackCollectService.RealLocationCallBack {
+class AMapViewModel : BaseViewModel() {
 
     val mRealTimeList: LiveData<MutableList<LatLng>> get() = _mRealTimeList
     private val _mRealTimeList = MutableLiveData<MutableList<LatLng>>()
@@ -40,16 +40,16 @@ class AMapViewModel : BaseViewModel(), TrackCollectService.RealLocationCallBack 
         mqttService = service
     }
 
-    fun setViewModelRealLocationListener() {
-        mapService.setRealLocationListener(this)
-    }
+//    fun setViewModelRealLocationListener() {
+//        mapService.setRealLocationListener(this)
+//    }
 
     fun getDriveColor(): Int {
         val ppmValue = mmkv.getInt(ValueKey.ppmValue, 0)
         val colorNum: Int
         var y: Int=0
-        if (concentrationValue <= ppmValue) {
-            y = (concentrationValue * 255 / ppmValue).toInt()
+        if (materialInfo.concentrationNum.toFloat() <= ppmValue) {
+            y = (materialInfo.concentrationNum.toFloat() * 255 / ppmValue).toInt()
             colorNum = colorHashMap[y] ?: 0
 //            colorNum=Color.parseColor(toHexEncoding(colorHashMap[y] ?: 0))
         } else {
@@ -57,13 +57,13 @@ class AMapViewModel : BaseViewModel(), TrackCollectService.RealLocationCallBack 
             y=255
             //colorNum= ContextCompat.getColor(appContext, R.color.red)
         }
-        ("巡测实时数据： $concentrationValue   颜色y:$y ").logE(LogFlag)
+        ("巡测实时数据： ${materialInfo.concentrationNum}   颜色y:$y ").logE(LogFlag)
         return colorNum
     }
 
-    override fun sendRealLocation(mlist: MutableList<LatLng>) {
-        _mRealTimeList.postValue(mlist)
-    }
+//    override fun sendRealLocation(mlist: MutableList<LatLng>,mByteArray: ByteArray) {
+//        _mRealTimeList.postValue(mlist)
+//    }
 
     private fun toHexEncoding(color: Int): String {
         val sb = StringBuffer()

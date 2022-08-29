@@ -329,16 +329,13 @@ class BleCallback : BluetoothGattCallback() {
                 //val name = tempBytes.toAsciiString()
                 val name = String(tempBytes)
                 //tempBytes.toHexString().logE("LogFlag")
-                val materialInfo = MaterialInfo(
+                materialInfo = MaterialInfo(
                     concentrationNum, concentrationState.toString(),
                     materialLibraryIndex, concentrationUnit, cfNum.toString(), name
                 )
 
-                concentrationValue = concentrationNum.toFloat()
-                ppm = it[19].toInt()
-                cf = cfNum
-
                 uiCallback.realData(materialInfo)
+                ppm = it[19].toInt()
 
                 delay(1000)
                 if (isRealTimeModel) {

@@ -11,9 +11,14 @@ import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
 import com.amap.api.maps.model.LatLng
 import com.blankj.utilcode.util.ToastUtils
+import com.swallowsonny.convertextlibrary.*
 import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.room.Survey
+import com.xysss.keeplearning.app.util.BleHelper.transSendCoding
+import com.xysss.keeplearning.app.util.ByteUtils
+import com.xysss.keeplearning.app.util.Crc8
 import com.xysss.keeplearning.data.repository.Repository
+import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.keeplearning.ui.activity.gaode.bean.LocationInfo
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
@@ -33,9 +38,7 @@ import java.util.concurrent.TimeUnit
  * 描述 : 描述
  */
 class TrackCollectService : Service(){
-
     private val mBinder = DataBinder()
-
     private var mLocationClient: AMapLocationClient? = null
     private var mAMapLocationListener: AMapLocationListener? = null
     private var mLocations = Vector<LocationInfo>()
@@ -44,7 +47,6 @@ class TrackCollectService : Service(){
     private var isshowerror = true
     private var latLngList= ArrayList<LatLng>()
     private var testFlag:Double= 0.0
-
     //数据库相关
     private var mTimeStringBuffer = StringBuffer()
     private var mConcentrationValueStringBuffer = StringBuffer()
@@ -74,7 +76,6 @@ class TrackCollectService : Service(){
         val service: TrackCollectService
             get() = this@TrackCollectService
     }
-
 
     private lateinit var realLocationCallBack: RealLocationCallBack
 
@@ -132,14 +133,13 @@ class TrackCollectService : Service(){
                     val trackTime=System.currentTimeMillis()
                     val longitude = BigDecimal(amapLocation.longitude + testFlag).setScale(5, RoundingMode.FLOOR)
                     val latitude = BigDecimal(amapLocation.latitude + testFlag).setScale(5, RoundingMode.FLOOR)
-
                     "lat: +$latitude lon: $longitude".logE(LogFlag)
-
-                    mLocations.add(LocationInfo(latitude.toDouble(),longitude.toDouble(),trackTime,concentrationValue,ppm,cf))
+                    mLocations.add(LocationInfo(latitude.toDouble(),longitude.toDouble(),trackTime,
+                        materialInfo.concentrationNum.toFloat(), ppm,materialInfo.cfNum.toFloat()))
                     latLngList.add(LatLng(amapLocation.latitude+testFlag,amapLocation.longitude+testFlag))
-
                     if(latLngList.size >1){
-                        realLocationCallBack.sendRealLocation(latLngList)
+                        val bytes = getRealSurveyDataBytes(latitude.toDouble(),longitude.toDouble())
+                        realLocationCallBack.sendRealLocation(latLngList,bytes)
                         val temp = LatLng(latLngList[1].latitude,latLngList[1].longitude)
                         latLngList.clear()
                         latLngList.add(temp)
@@ -156,6 +156,45 @@ class TrackCollectService : Service(){
                 }
             }
         }
+    }
+
+    private fun getRealSurveyDataBytes(mLatitude:Double,mLongitude: Double) : ByteArray{
+        val realSurveyHeadByte = byteArrayOf(
+            0x55.toByte(),
+            0x00.toByte(),
+            0x41.toByte(),
+            0x09.toByte(),
+            0x0B.toByte(),
+            0x00.toByte(),
+            0x38.toByte()
+        )
+        val concentrationNumBytes = ByteArray(4)
+        concentrationNumBytes.writeFloatLE(materialInfo.concentrationNum.toFloat())
+        val concentrationStateBytes = ByteArray(4)
+        concentrationStateBytes.writeInt32LE(materialInfo.concentrationState.toLong())
+        val materialLibraryIndexBytes = ByteArray(4)
+        materialLibraryIndexBytes.writeInt32LE(materialInfo.materialLibraryIndex.toLong())
+        val state = when(materialInfo.concentrationState){
+            "ppm" -> 0
+            "ppb" -> 1
+            "mg/m3" -> 2
+            else -> 0
+        }
+        val materialPpmBytes = ByteArray(1)
+        materialPpmBytes.writeInt8(state)
+        val retainBytes = ByteArray(3)
+        val materialCfBytes = ByteArray(4)
+        materialCfBytes.writeFloatLE(materialInfo.cfNum.toFloat())
+        var materialNameBytes = ByteArray(20)
+        materialNameBytes = materialInfo.materialName.toByteArray()
+        val mLongitudeBytes = ByteArray(8)
+        mLongitudeBytes.writeFloatLE(mLongitude.toFloat())
+        val mLatitudeBytes = ByteArray(8)
+        mLatitudeBytes.writeFloatLE(mLatitude.toFloat())
+        val beforeCrcCheckBytes = realSurveyHeadByte + concentrationNumBytes + concentrationStateBytes + materialLibraryIndexBytes + materialPpmBytes +
+                retainBytes + materialCfBytes + materialNameBytes + mLongitudeBytes + mLatitudeBytes
+        val resultBytes = beforeCrcCheckBytes+ Crc8.cal_crc8_t(beforeCrcCheckBytes,beforeCrcCheckBytes.size) + ByteUtils.FRAME_END
+        return transSendCoding(resultBytes)
     }
 
     // 开启数据入库线程，五秒中入一次库
@@ -183,9 +222,7 @@ class TrackCollectService : Service(){
 
         val track = Survey(trackBeginTime,trackEndTime,mTimeStringBuffer.toString().trim(),mConcentrationValueStringBuffer.toString().trim(),
             mPpmStringBuffer.toString().trim(), mCfStringBuffer.toString().trim(),mLongitudeLatitudeStringBuffer.toString().trim())
-
         clearBuffer()
-
         addTrack(track)
     }
 
@@ -215,7 +252,7 @@ class TrackCollectService : Service(){
     }
 
     interface RealLocationCallBack {
-        fun sendRealLocation(mlist: MutableList<LatLng>)
+        fun sendRealLocation(mList: MutableList<LatLng>,bytes: ByteArray)
     }
 
     private fun addTrack(track: Survey) {

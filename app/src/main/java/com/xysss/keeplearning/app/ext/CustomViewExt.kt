@@ -4,14 +4,9 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.keeplearning.app.ext.colorHashMap
-import com.xysss.keeplearning.app.ext.concentrationValue
-import com.xysss.keeplearning.app.ext.mmkv
 import com.xysss.keeplearning.app.util.SettingUtil
-import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.mvvmhelper.base.appContext
-import com.xysss.mvvmhelper.ext.logE
 
 fun RecyclerView.initFloatBtn(floatbtn: FloatingActionButton) {
     //监听recyclerview滑动到顶部的时候，需要把向上返回顶部的按钮隐藏

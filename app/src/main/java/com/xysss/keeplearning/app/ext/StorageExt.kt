@@ -4,6 +4,7 @@ import android.os.Looper
 import com.tencent.mmkv.MMKV
 import com.xysss.keeplearning.app.room.AppDatabase
 import com.xysss.keeplearning.data.annotation.ValueKey
+import com.xysss.keeplearning.data.response.MaterialInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import java.util.HashMap
@@ -91,9 +92,8 @@ var trackEndTime = 0L
 var trackTime = 0L
 
 //设备实时数据
-var concentrationValue: Float = 0F
+lateinit var materialInfo : MaterialInfo
 var ppm: Int = 0
-var cf: Float = 0F
 
 const val intentFlag ="beginTime"
 

@@ -56,8 +56,11 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
             //mViewModel.setViewModelRealLocationListener()
 
             mapService.setRealLocationListener(object : RealLocationCallBack {
-                override fun sendRealLocation(mlist: MutableList<LatLng>) {
-                    drawMapLine(mlist)
+                override fun sendRealLocation(mList: MutableList<LatLng>,bytes: ByteArray) {
+                    drawMapLine(mList)
+                    scope.launch(Dispatchers.IO) {
+                        mqttService.publish(bytes)
+                    }
                 }
             })
         }

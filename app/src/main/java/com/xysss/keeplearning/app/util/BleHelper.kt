@@ -19,7 +19,7 @@ import java.util.*
 object BleHelper {
 
     //Gatt
-    public var gatt: BluetoothGatt?=null
+    var gatt: BluetoothGatt?=null
     private var findDevice: BluetoothDevice? = null
 
     private lateinit var transSendCodingBytes: ByteArray
@@ -55,14 +55,16 @@ object BleHelper {
      * @param isResponse 是否响应
      */
     private fun sendCommand(command: String, isResponse: Boolean = true){
-        gatt?.writeCharacteristic(gatt?.getService(UUID.fromString(mmkv.getString(ValueKey.SERVICE_UUID,"")))?.
-        getCharacteristic(UUID.fromString(mmkv.getString(ValueKey.CHARACTERISTIC_WRITE_UUID,"")))
-            ?.apply {
-                val sendData=ByteUtils.hexStringToBytes(command)
-                val sendDataAll = sendData+Crc8.cal_crc8_t(sendData,sendData.size) + ByteUtils.FRAME_END
-                writeType = if (isResponse) BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT else BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-                value=transSendCoding(sendDataAll)
-            }) ?: ToastUtils.showShort("蓝牙断开，请重新连接")
+        gatt?.apply {
+            writeCharacteristic(
+                getService(UUID.fromString(mmkv.getString(ValueKey.SERVICE_UUID,""))).
+                getCharacteristic(UUID.fromString(mmkv.getString(ValueKey.CHARACTERISTIC_WRITE_UUID,""))).apply {
+                    val sendData=ByteUtils.hexStringToBytes(command)
+                    val sendDataAll = sendData+Crc8.cal_crc8_t(sendData,sendData.size) + ByteUtils.FRAME_END
+                    writeType = if (isResponse) BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT else BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                    value=transSendCoding(sendDataAll)
+                })
+        } ?: ToastUtils.showShort("蓝牙断开，请重新连接")
     }
 
 
@@ -144,7 +146,7 @@ object BleHelper {
         alarmIndex += alarmReadNum-1
     }
 
-    private fun transSendCoding(bytes: ByteArray): ByteArray {
+    fun transSendCoding(bytes: ByteArray): ByteArray {
         bytes.let {
             var i = 1
             if (it[0] == ByteUtils.FRAME_START) {

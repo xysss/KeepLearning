@@ -138,8 +138,11 @@ class TrackCollectService : Service(){
                         materialInfo.concentrationNum.toFloat(), ppm,materialInfo.cfNum.toFloat()))
                     latLngList.add(LatLng(amapLocation.latitude+testFlag,amapLocation.longitude+testFlag))
                     if(latLngList.size >1){
+
                         val bytes = getRealSurveyDataBytes(latitude.toDouble(),longitude.toDouble())
+
                         realLocationCallBack.sendRealLocation(latLngList,bytes)
+
                         val temp = LatLng(latLngList[1].latitude,latLngList[1].longitude)
                         latLngList.clear()
                         latLngList.add(temp)

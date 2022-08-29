@@ -92,6 +92,10 @@ object Repository {
         return dataSurveyDao.loadLimitSurvey(size, index)
     }
     @Synchronized
+    fun loadAllSurvey(): List<Survey>{
+        return dataSurveyDao.loadAllSurvey()
+    }
+    @Synchronized
     fun getSurveyByBeginTime(beginTime:Long): Survey{
         return dataSurveyDao.getSurveyByBeginTime(beginTime)
     }

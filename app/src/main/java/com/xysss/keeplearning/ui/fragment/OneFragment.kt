@@ -15,16 +15,23 @@ import android.os.IBinder
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import com.amap.api.maps.model.LatLng
 import com.blankj.utilcode.util.ServiceUtils.bindService
 import com.blankj.utilcode.util.ToastUtils
 import com.gyf.immersionbar.ktx.immersionBar
+import com.swallowsonny.convertextlibrary.writeFloatLE
+import com.swallowsonny.convertextlibrary.writeInt32LE
+import com.swallowsonny.convertextlibrary.writeInt8
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.app.ext.*
+import com.xysss.keeplearning.app.room.Survey
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.BleHelper
+import com.xysss.keeplearning.app.util.ByteUtils
+import com.xysss.keeplearning.app.util.Crc8
 import com.xysss.keeplearning.app.util.FileUtils
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.data.repository.Repository
@@ -37,7 +44,10 @@ import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadingDialogEntity
 import com.xysss.mvvmhelper.net.LoadingType.Companion.LOADING_CUSTOM
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import okhttp3.internal.toHexString
+import java.nio.ByteBuffer
 import java.util.*
 
 /**
@@ -223,9 +233,10 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                         ToastUtils.showShort("请先连接蓝牙")
                     }
                 }
+
                 R.id.synRecordBackgroundImg -> {
                     if (isBleReady){
-                        synMessage(1)
+                        synMessage(3)
                     }else{
                         ToastUtils.showShort("请先连接蓝牙")
                     }
@@ -338,6 +349,19 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                     } else {
                         ToastUtils.showShort("设备上未查询到数据")
                     }
+                } else if (flag == 3) {
+                    showProgressUI()
+                    scope.launch(Dispatchers.IO) {
+                        val surveyList = Repository.loadAllSurvey()
+                        if (surveyList.isNotEmpty()) {
+                            for (i in surveyList.indices){
+                                subpackage(getHistorySurveyByte(surveyList[i]))
+                            }
+                        } else {
+                            dismissProgressUI()
+                            ToastUtils.showShort("设备上未查询到数据")
+                        }
+                    }
                 }
             }
 
@@ -345,6 +369,113 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             }
             show()
         }
+    }
+
+    private suspend fun subpackage(byteArray: ByteArray){
+        if (byteArray.size>1024){
+            var mList=ByteArray(1024)
+            var j=0
+            for (i in 0 until byteArray.size-1){
+                mList[j]=byteArray[i]
+                j++
+                if (i==1024){
+                    mService.publish(mList)
+                    j=0
+                    delay(500)
+                }
+            }
+            if (mList.isNotEmpty()) mService.publish(mList)
+        }else{
+            mService.publish(byteArray)
+        }
+    }
+
+    private fun getHistorySurveyByte(survey: Survey) : ByteArray{
+        val sqlLatLngList = ArrayList<LatLng>()
+        var sqlConValueList = ArrayList<String>()
+        var sqlTimeList = ArrayList<String>()
+        var sqlPpmList = ArrayList<String>()
+        var sqlCfList = ArrayList<String>()
+
+        val latlngs = survey.longitudeLatitude.trim()
+        val conValue = survey.concentrationValue.trim()
+        val time = survey.time.trim()
+        val ppm = survey.ppm.trim()
+        val cf = survey.cf.trim()
+
+        if (conValue.isNotEmpty()){
+            sqlConValueList = conValue.split(delim).toList() as ArrayList<String>
+            sqlTimeList = time.split(delim).toList() as ArrayList<String>
+            sqlPpmList = ppm.split(delim).toList() as ArrayList<String>
+            sqlCfList = cf.split(delim).toList() as ArrayList<String>
+        }
+        if (latlngs.isNotEmpty()) {
+            val lonlats = latlngs.split(delim).toTypedArray()
+            if (lonlats.isNotEmpty()) {
+                for (i in lonlats.indices) {
+                    val lonlat = lonlats[i]
+                    val split = lonlat.split(cutOff).toTypedArray()
+                    if (split.isNotEmpty()) {
+                        try {
+                            sqlLatLngList.add(LatLng(split[0].toDouble(), split[1].toDouble()))
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+        }
+
+        val bytDatsSize = (sqlLatLngList.size * 57 + 12).toByte()
+        val bytSize = (sqlLatLngList.size * 57 + 21).toByte()
+
+        val mHeadByte : ByteArray = byteArrayOf(
+            0x55.toByte(),
+            0x00.toByte(),
+            bytSize,
+            0x09.toByte(),
+            0x0E.toByte(),
+            0x00.toByte(),
+            bytDatsSize
+        )
+
+        val beginTimeBytes = ByteArray(4)
+        beginTimeBytes.writeInt32LE(survey.beginTime)
+        val endTimeBytes = ByteArray(4)
+        endTimeBytes.writeInt32LE(survey.endTime)
+        val listSizeBytes = ByteArray(4)
+        listSizeBytes.writeInt32LE(sqlLatLngList.size.toLong())
+
+        var itemByteArray = ByteArray(sqlLatLngList.size * 57 )
+        var index:Int = 0
+
+        for (i in sqlLatLngList.indices){
+            val timeStamp = ByteArray(4)
+            timeStamp.writeInt32LE(if(sqlTimeList[i].isNotEmpty()) sqlTimeList[i].toLong() else 0)
+            val conBytes = ByteArray(4)
+            conBytes.writeFloatLE(if(sqlConValueList[i].isNotEmpty()) sqlConValueList[i].toFloat() else 0F)
+            val stateBytes = ByteArray(4)
+            val indexBytes = ByteArray(4)
+            val ppmBytes = ByteArray(1)
+            ppmBytes.writeInt8(if(sqlPpmList[i].isNotEmpty()) sqlPpmList[i].toInt() else 0)
+            val cfBytes = ByteArray(4)
+            cfBytes.writeFloatLE(if(sqlCfList[i].isNotEmpty()) sqlCfList[i].toFloat() else 0F)
+            val nameBytes = ByteArray(20)
+            val mLongitudeBytes = ByteArray(8)
+            mLongitudeBytes.writeFloatLE(sqlLatLngList[i].longitude.toFloat())
+            val mLatitudeBytes = ByteArray(8)
+            mLatitudeBytes.writeFloatLE(sqlLatLngList[i].latitude.toFloat())
+
+            val itemSurvey = timeStamp+conBytes+stateBytes+indexBytes+ppmBytes+cfBytes+nameBytes+mLongitudeBytes+mLatitudeBytes
+
+            System.arraycopy(itemSurvey,0,itemByteArray,index,itemSurvey.size)
+            index +=itemSurvey.size
+        }
+
+        val beforeCrcCheckBytes = mHeadByte + beginTimeBytes + endTimeBytes + listSizeBytes + itemByteArray
+
+        val resultBytes = beforeCrcCheckBytes+ Crc8.cal_crc8_t(beforeCrcCheckBytes,beforeCrcCheckBytes.size) + ByteUtils.FRAME_END
+        return BleHelper.transSendCoding(resultBytes)
     }
 
     private fun stopTest() {

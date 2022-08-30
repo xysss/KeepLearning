@@ -167,7 +167,7 @@ class TrackCollectService : Service(){
             0x00.toByte(),
             0x41.toByte(),
             0x09.toByte(),
-            0x0B.toByte(),
+            0x91.toByte(),
             0x00.toByte(),
             0x38.toByte()
         )
@@ -188,8 +188,15 @@ class TrackCollectService : Service(){
         val retainBytes = ByteArray(3)
         val materialCfBytes = ByteArray(4)
         materialCfBytes.writeFloatLE(materialInfo.cfNum.toFloat())
-        var materialNameBytes = ByteArray(20)
-        materialNameBytes = materialInfo.materialName.toByteArray()
+        val materialNameBytes = ByteArray(20)
+        val mNameBytes = materialInfo.materialName.toByteArray()
+        for (i in materialNameBytes.indices){
+            if (i<mNameBytes.size){
+                materialNameBytes[i]=mNameBytes[i]
+            }else{
+                materialNameBytes[i]=0
+            }
+        }
         val mLongitudeBytes = ByteArray(8)
         mLongitudeBytes.writeFloatLE(mLongitude.toFloat())
         val mLatitudeBytes = ByteArray(8)

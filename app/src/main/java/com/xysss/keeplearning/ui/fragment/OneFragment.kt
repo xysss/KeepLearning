@@ -437,7 +437,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             0x00.toByte(),
             bytSize,
             0x09.toByte(),
-            0x0E.toByte(),
+            0x94.toByte(),
             0x00.toByte(),
             bytDatsSize
         )
@@ -458,12 +458,24 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             val conBytes = ByteArray(4)
             conBytes.writeFloatLE(if(sqlConValueList[i].isNotEmpty()) sqlConValueList[i].toFloat() else 0F)
             val stateBytes = ByteArray(4)
+            stateBytes.writeInt32LE(1234)
             val indexBytes = ByteArray(4)
+            stateBytes.writeInt32LE(5678)
             val ppmBytes = ByteArray(1)
             ppmBytes.writeInt8(if(sqlPpmList[i].isNotEmpty()) sqlPpmList[i].toInt() else 0)
             val cfBytes = ByteArray(4)
             cfBytes.writeFloatLE(if(sqlCfList[i].isNotEmpty()) sqlCfList[i].toFloat() else 0F)
             val nameBytes = ByteArray(20)
+            val nBytes ="异丁烯".toByteArray()
+
+            for (k in nameBytes.indices){
+                if (k<nBytes.size){
+                    nameBytes[k]=nBytes[k]
+                }else{
+                    nameBytes[k]=0
+                }
+            }
+
             val mLongitudeBytes = ByteArray(8)
             mLongitudeBytes.writeFloatLE(sqlLatLngList[i].longitude.toFloat())
             val mLatitudeBytes = ByteArray(8)

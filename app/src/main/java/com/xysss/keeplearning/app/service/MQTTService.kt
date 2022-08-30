@@ -200,7 +200,7 @@ class MQTTService : Service(), LifecycleOwner {
 
             mqttClient?.publish(sendTopic, message, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    "${msg.toHexString()} to published to $sendTopic".logE(TAG)
+                    "长度：${msg.size}， ${msg.toHexString()} to published to $sendTopic".logE(TAG)
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {

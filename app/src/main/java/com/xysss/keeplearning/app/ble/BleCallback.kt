@@ -335,7 +335,6 @@ class BleCallback : BluetoothGattCallback() {
                 )
 
                 uiCallback.realData(materialInfo)
-                ppm = it[19].toInt()
 
                 delay(1000)
                 if (isRealTimeModel) {

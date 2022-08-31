@@ -93,7 +93,6 @@ var trackTime = 0L
 
 //设备实时数据
 lateinit var materialInfo : MaterialInfo
-var ppm: Int = 0
 
 const val intentFlag ="beginTime"
 

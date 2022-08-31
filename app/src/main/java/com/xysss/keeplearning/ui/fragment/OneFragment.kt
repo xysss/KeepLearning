@@ -236,7 +236,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
 
                 R.id.synRecordBackgroundImg -> {
                     if (isBleReady){
-                        synMessage(1)
+                        synMessage(3)
                     }else{
                         ToastUtils.showShort("请先连接蓝牙")
                     }
@@ -394,29 +394,17 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
 
     private fun getHistorySurveyByte(survey: Survey) : ByteArray{
         val sqlLatLngList = ArrayList<LatLng>()
-        var sqlConValueList = ArrayList<String>()
-        var sqlTimeList = ArrayList<String>()
-        var sqlPpmList = ArrayList<String>()
-        var sqlCfList = ArrayList<String>()
+        val sqlConValueList = if (survey.concentrationValue.trim().isNotEmpty()) survey.concentrationValue.trim().toList() as ArrayList<String> else ArrayList<String>()
+        val sqlTimeList = if (survey.time.trim().isNotEmpty()) survey.time.trim().toList() as ArrayList<String> else ArrayList<String>()
+        val sqlPpmList = if (survey.ppm.trim().isNotEmpty()) survey.ppm.trim().toList() as ArrayList<String> else ArrayList<String>()
+        val sqlIndexList = if (survey.index.trim().isNotEmpty()) survey.index.trim().toList() as ArrayList<String> else ArrayList<String>()
 
-        val latlngs = survey.longitudeLatitude.trim()
-        val conValue = survey.concentrationValue.trim()
-        val time = survey.time.trim()
-        val ppm = survey.ppm.trim()
-        val cf = survey.cf.trim()
-
-        if (conValue.isNotEmpty()){
-            sqlConValueList = conValue.split(delim).toList() as ArrayList<String>
-            sqlTimeList = time.split(delim).toList() as ArrayList<String>
-            sqlPpmList = ppm.split(delim).toList() as ArrayList<String>
-            sqlCfList = cf.split(delim).toList() as ArrayList<String>
-        }
-        if (latlngs.isNotEmpty()) {
-            val lonlats = latlngs.split(delim).toTypedArray()
-            if (lonlats.isNotEmpty()) {
-                for (i in lonlats.indices) {
-                    val lonlat = lonlats[i]
-                    val split = lonlat.split(cutOff).toTypedArray()
+        if (survey.longitudeLatitude.trim().isNotEmpty()) {
+            val lonLats = survey.longitudeLatitude.trim().split(delim).toTypedArray()
+            if (lonLats.isNotEmpty()) {
+                for (i in lonLats.indices) {
+                    val mLonLat = lonLats[i]
+                    val split = mLonLat.split(cutOff).toTypedArray()
                     if (split.isNotEmpty()) {
                         try {
                             sqlLatLngList.add(LatLng(split[0].toDouble(), split[1].toDouble()))
@@ -428,8 +416,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             }
         }
 
-        val bytDatsSize = (sqlLatLngList.size * 57 + 12).toByte()
-        val bytSize = (sqlLatLngList.size * 57 + 21).toByte()
+        val bytDatsSize = (sqlLatLngList.size * 29 + 12).toByte()
+        val bytSize = (sqlLatLngList.size * 29 + 21).toByte()
 
         val mHeadByte : ByteArray = byteArrayOf(
             0x55.toByte(),
@@ -440,7 +428,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             0x00.toByte(),
             bytDatsSize
         )
-
         val beginTimeBytes = ByteArray(4)
         beginTimeBytes.writeInt32LE(survey.beginTime)
         val endTimeBytes = ByteArray(4)
@@ -448,39 +435,41 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         val listSizeBytes = ByteArray(4)
         listSizeBytes.writeInt32LE(sqlLatLngList.size.toLong())
 
-        var itemByteArray = ByteArray(sqlLatLngList.size * 57 )
+        val itemByteArray = ByteArray(sqlLatLngList.size * 57 )
         var index:Int = 0
 
         for (i in sqlLatLngList.indices){
             val timeStamp = ByteArray(4)
             timeStamp.writeInt32LE(if(sqlTimeList[i].isNotEmpty()) sqlTimeList[i].toLong() else 0)
+
             val conBytes = ByteArray(4)
             conBytes.writeFloatLE(if(sqlConValueList[i].isNotEmpty()) sqlConValueList[i].toFloat() else 0F)
-            val stateBytes = ByteArray(4)
-            stateBytes.writeInt32LE(1234)
+
+//            val stateBytes = ByteArray(4)
+//            stateBytes.writeInt32LE(1234)
+
             val indexBytes = ByteArray(4)
-            stateBytes.writeInt32LE(5678)
+            indexBytes.writeInt32LE(if(sqlIndexList[i].isNotEmpty()) sqlIndexList[i].toLong() else 0)
+
             val ppmBytes = ByteArray(1)
             ppmBytes.writeInt8(if(sqlPpmList[i].isNotEmpty()) sqlPpmList[i].toInt() else 0)
-            val cfBytes = ByteArray(4)
-            cfBytes.writeFloatLE(if(sqlCfList[i].isNotEmpty()) sqlCfList[i].toFloat() else 0F)
-            val nameBytes = ByteArray(20)
-            val nBytes ="异丁烯".toByteArray()
 
-            for (k in nameBytes.indices){
-                if (k<nBytes.size){
-                    nameBytes[k]=nBytes[k]
-                }else{
-                    nameBytes[k]=0
-                }
-            }
+//            val nameBytes = ByteArray(20)
+//            val nBytes ="异丁烯".toByteArray()
+//            for (k in nameBytes.indices){
+//                if (k<nBytes.size){
+//                    nameBytes[k]=nBytes[k]
+//                }else{
+//                    nameBytes[k]=0
+//                }
+//            }
 
             val mLongitudeBytes = ByteArray(8)
             mLongitudeBytes.writeFloatLE(sqlLatLngList[i].longitude.toFloat())
             val mLatitudeBytes = ByteArray(8)
             mLatitudeBytes.writeFloatLE(sqlLatLngList[i].latitude.toFloat())
 
-            val itemSurvey = timeStamp+conBytes+stateBytes+indexBytes+ppmBytes+cfBytes+nameBytes+mLongitudeBytes+mLatitudeBytes
+            val itemSurvey = timeStamp + conBytes + indexBytes + ppmBytes +mLongitudeBytes+mLatitudeBytes
 
             System.arraycopy(itemSurvey,0,itemByteArray,index,itemSurvey.size)
             index +=itemSurvey.size

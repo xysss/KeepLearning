@@ -14,8 +14,11 @@ data class Survey(
     var endTime: Long,
     var time: String,
     var concentrationValue: String,
+    var alarmStatus : String,
+    var index : String,
     var ppm: String,
     var cf: String,
+    var name: String,
     var longitudeLatitude: String
 ) {
     @PrimaryKey(autoGenerate = true)

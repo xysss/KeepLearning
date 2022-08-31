@@ -6,10 +6,13 @@ package com.xysss.keeplearning.ui.activity.gaode.bean
  * 描述 : 描述
  */
 data class LocationInfo(
-    var lat: Double,
-    var lon: Double,
     var time: Long,
     var concentrationValue: Float,
+    var alarmStatus: String,
+    var index : Int,
     var ppm: Int,
-    var cf: Float
+    var cf: Float,
+    var name: String,
+    var lat: Double,
+    var lon: Double
 )

@@ -13,12 +13,12 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import com.amap.api.maps.model.LatLng
 import com.blankj.utilcode.util.ServiceUtils.bindService
 import com.blankj.utilcode.util.ToastUtils
 import com.gyf.immersionbar.ktx.immersionBar
+import com.swallowsonny.convertextlibrary.toHexString
 import com.swallowsonny.convertextlibrary.writeFloatLE
 import com.swallowsonny.convertextlibrary.writeInt32LE
 import com.swallowsonny.convertextlibrary.writeInt8
@@ -47,7 +47,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.internal.toHexString
-import java.nio.ByteBuffer
 import java.util.*
 
 /**
@@ -355,7 +354,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                         val surveyList = Repository.loadAllSurvey()
                         if (surveyList.isNotEmpty()) {
                             for (i in surveyList.indices){
-                                "mqtt : item :$i, 一共： ${surveyList.size}".logE(LogFlag)
+                                "mqtt history: item :$i, 一共： ${surveyList.size}".logE(LogFlag)
                                 subpackage(getHistorySurveyByte(surveyList[i]))
                             }
                         } else {
@@ -379,25 +378,32 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             for (i in byteArray.indices){
                 mList[j]=byteArray[i]
                 j++
-                if (i%1023==0){
+                if (i!=0 && i%1023==0){
                     mService.publish(mList)
-                    "mqtt : ${byteArray.size}  $i, $j, ${mList.size}".logE(LogFlag)
+                    "mqtt history 总长度: ${byteArray.size} 发送长度： $i : ${byteArray.toHexString()}".logE(LogFlag)
                     j=0
                     delay(200)
                 }
             }
-            if (mList.isNotEmpty()) mService.publish(mList)
+            if (mList.isNotEmpty()){
+                val mLastList=ByteArray(j)
+                System.arraycopy(mList,0,mLastList,0,mLastList.size)
+                mService.publish(mLastList)
+                "mqtt history last 总长度: ${byteArray.size} 发送长度： ${mLastList.size} : ${mLastList.toHexString()}".logE(LogFlag)
+            }
+            dismissProgressUI()
         }else{
             mService.publish(byteArray)
+            dismissProgressUI()
         }
     }
 
     private fun getHistorySurveyByte(survey: Survey) : ByteArray{
         val sqlLatLngList = ArrayList<LatLng>()
-        val sqlConValueList = if (survey.concentrationValue.trim().isNotEmpty()) survey.concentrationValue.trim().toList() as ArrayList<String> else ArrayList<String>()
-        val sqlTimeList = if (survey.time.trim().isNotEmpty()) survey.time.trim().toList() as ArrayList<String> else ArrayList<String>()
-        val sqlPpmList = if (survey.ppm.trim().isNotEmpty()) survey.ppm.trim().toList() as ArrayList<String> else ArrayList<String>()
-        val sqlIndexList = if (survey.index.trim().isNotEmpty()) survey.index.trim().toList() as ArrayList<String> else ArrayList<String>()
+        val sqlConValueList = if (survey.concentrationValue.trim().isNotEmpty()) survey.concentrationValue.split(delim).toList() as ArrayList<String> else ArrayList<String>()
+        val sqlTimeList = if (survey.time.trim().isNotEmpty()) survey.time.split(delim).toList() as ArrayList<String> else ArrayList<String>()
+        val sqlPpmList = if (survey.ppm.trim().isNotEmpty()) survey.ppm.split(delim).toList() as ArrayList<String> else ArrayList<String>()
+        val sqlIndexList = if (survey.index.trim().isNotEmpty()) survey.index.split(delim).toList() as ArrayList<String> else ArrayList<String>()
 
         if (survey.longitudeLatitude.trim().isNotEmpty()) {
             val lonLats = survey.longitudeLatitude.trim().split(delim).toTypedArray()
@@ -416,26 +422,31 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             }
         }
 
-        val bytDatsSize = (sqlLatLngList.size * 29 + 12).toByte()
-        val bytSize = (sqlLatLngList.size * 29 + 21).toByte()
+        val bytDatsSize = (sqlLatLngList.size * 29)+ 12
+        val bytSize = (sqlLatLngList.size * 29) + 21
 
+        "mqtt history size: ${sqlLatLngList.size} ,${bytDatsSize.toInt()},${bytSize.toInt()},$bytDatsSize,$bytSize".logE(LogFlag)
         val mHeadByte : ByteArray = byteArrayOf(
             0x55.toByte(),
             0x00.toByte(),
-            bytSize,
+            bytSize.toByte(),
             0x09.toByte(),
             0x94.toByte(),
             0x00.toByte(),
-            bytDatsSize
+            bytDatsSize.toByte()
         )
         val beginTimeBytes = ByteArray(4)
-        beginTimeBytes.writeInt32LE(survey.beginTime)
+        beginTimeBytes.writeInt32LE(survey.beginTime/1000)
+
         val endTimeBytes = ByteArray(4)
-        endTimeBytes.writeInt32LE(survey.endTime)
+        endTimeBytes.writeInt32LE(survey.endTime/1000)
+
         val listSizeBytes = ByteArray(4)
         listSizeBytes.writeInt32LE(sqlLatLngList.size.toLong())
 
-        val itemByteArray = ByteArray(sqlLatLngList.size * 57 )
+        "mqtt history time: ${survey.endTime/1000},16进制：${(survey.endTime/1000).toHexString()}".logE(LogFlag)
+
+        val itemByteArray = ByteArray(sqlLatLngList.size * 29 )
         var index:Int = 0
 
         for (i in sqlLatLngList.indices){
@@ -469,7 +480,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             val mLatitudeBytes = ByteArray(8)
             mLatitudeBytes.writeFloatLE(sqlLatLngList[i].latitude.toFloat())
 
-            val itemSurvey = timeStamp + conBytes + indexBytes + ppmBytes +mLongitudeBytes+mLatitudeBytes
+            val itemSurvey = timeStamp + conBytes + indexBytes + ppmBytes + mLongitudeBytes+mLatitudeBytes
 
             System.arraycopy(itemSurvey,0,itemByteArray,index,itemSurvey.size)
             index +=itemSurvey.size
@@ -529,12 +540,14 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
     }
 
     private fun dismissProgressUI() {
-        BleHelper.synFlag = ""
-        mViewBinding.synLin.visibility = View.INVISIBLE
-        mViewBinding.progressBar.visibility = View.INVISIBLE
-        mViewBinding.numShowText.visibility = View.INVISIBLE
+        scope.launch (Dispatchers.Main){
+            BleHelper.synFlag = ""
+            mViewBinding.synLin.visibility = View.INVISIBLE
+            mViewBinding.progressBar.visibility = View.INVISIBLE
+            mViewBinding.numShowText.visibility = View.INVISIBLE
 
-        dismissCustomLoading(loadingDialogEntity)
+            dismissCustomLoading(loadingDialogEntity)
+        }
     }
 
     override fun onDestroy() {

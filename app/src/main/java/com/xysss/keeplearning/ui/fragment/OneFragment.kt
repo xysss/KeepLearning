@@ -235,12 +235,11 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                 }
 
                 R.id.synRecordBackgroundImg -> {
-                    synMessage(3)
-//                    if (isBleReady){
-//                        synMessage(3)
-//                    }else{
-//                        ToastUtils.showShort("请先连接蓝牙")
-//                    }
+                    if (isBleReady){
+                        synMessage(1)
+                    }else{
+                        ToastUtils.showShort("请先连接蓝牙")
+                    }
                 }
                 R.id.synAlarmBackgroundImg -> {
                     if (isBleReady){

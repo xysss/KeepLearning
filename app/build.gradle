@@ -38,8 +38,8 @@ android {
         applicationId "com.xysss.keeplearning"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 7
-        versionName "1.0.7"
+        versionCode 11
+        versionName "1.0.11"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"  //用于启用JUnit测试
         resConfigs "zh-rCN", "zh-rHK", "zh-rMO", "zh-rTW" // 去除无用语言
@@ -85,7 +85,7 @@ android {
         variant ->
             variant.outputs.all {
                 //在这里修改apk文件名
-                outputFileName = "xys-v${variant.versionName}-t${releaseTime()}-${name}.apk"
+                outputFileName = "Vp200-v${variant.versionName}-t${releaseTime()}-${name}.apk"
             }
     }
     buildFeatures {

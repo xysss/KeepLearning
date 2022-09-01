@@ -426,7 +426,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         val bytDatsSize = (sqlLatLngList.size * 29)+ 12
         val bytSize = (sqlLatLngList.size * 29) + 21
 
-        "mqtt history size: ${sqlLatLngList.size} ,${bytDatsSize.toInt()},${bytSize.toInt()},$bytDatsSize,$bytSize".logE(LogFlag)
+        "mqtt history size: ${sqlLatLngList.size} ,$bytDatsSize,$bytSize".logE(LogFlag)
         val mHeadByte : ByteArray = byteArrayOf(
             0x55.toByte(),
             0x00.toByte(),
@@ -534,7 +534,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         mViewBinding.numShowText.visibility = View.VISIBLE
 
         loadingDialogEntity.loadingType = LOADING_CUSTOM
-        loadingDialogEntity.loadingMessage = "同步数据信息中"
+        loadingDialogEntity.loadingMessage = "同步巡测信息中"
         loadingDialogEntity.isShow = true
         loadingDialogEntity.requestCode = "reqRecord"
         showCustomLoading(loadingDialogEntity)

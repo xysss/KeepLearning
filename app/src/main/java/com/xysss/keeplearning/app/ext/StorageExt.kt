@@ -89,10 +89,9 @@ const val cutOff = ","
 //巡测实时数据
 var trackBeginTime = 0L
 var trackEndTime = 0L
-var trackTime = 0L
 
 //设备实时数据
-lateinit var materialInfo : MaterialInfo
+var materialInfo = MaterialInfo("","",0,"",""," ")
 
 const val intentFlag ="beginTime"
 

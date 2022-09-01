@@ -394,6 +394,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             dismissProgressUI()
         }else{
             mService.publish(byteArray)
+            "mqtt history last 总长度: ${byteArray.size} 发送长度： ${byteArray.size} : ${byteArray.toHexString()}".logE(LogFlag)
             dismissProgressUI()
         }
     }
@@ -436,15 +437,15 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             bytDatsSize.toByte()
         )
         val beginTimeBytes = ByteArray(4)
-        beginTimeBytes.writeInt32LE(survey.beginTime/1000)
+        beginTimeBytes.writeInt32LE(survey.beginTime)
 
         val endTimeBytes = ByteArray(4)
-        endTimeBytes.writeInt32LE(survey.endTime/1000)
+        endTimeBytes.writeInt32LE(survey.endTime)
 
         val listSizeBytes = ByteArray(4)
         listSizeBytes.writeInt32LE(sqlLatLngList.size.toLong())
 
-        "mqtt history time: ${survey.endTime/1000},16进制：${(survey.endTime/1000).toHexString()}".logE(LogFlag)
+        "mqtt history time: ${survey.endTime},16进制：${(survey.endTime).toHexString()}".logE(LogFlag)
 
         val itemByteArray = ByteArray(sqlLatLngList.size * 29 )
         var index:Int = 0
@@ -480,7 +481,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             val mLatitudeBytes = ByteArray(8)
             mLatitudeBytes.writeFloatLE(sqlLatLngList[i].latitude.toFloat())
 
-            val itemSurvey = timeStamp + conBytes + indexBytes + ppmBytes + mLongitudeBytes+mLatitudeBytes
+            val itemSurvey = timeStamp + conBytes + indexBytes + ppmBytes + mLongitudeBytes +  mLatitudeBytes
 
             System.arraycopy(itemSurvey,0,itemByteArray,index,itemSurvey.size)
             index +=itemSurvey.size

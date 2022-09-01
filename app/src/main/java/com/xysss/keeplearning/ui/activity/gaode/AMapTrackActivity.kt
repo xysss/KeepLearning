@@ -183,7 +183,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     private fun setStartState(){
         mViewBinding.btnSurVey.text="结束"
         isSurveying = true
-        trackBeginTime = System.currentTimeMillis()
+        trackBeginTime = System.currentTimeMillis()/1000
         scope.launch(Dispatchers.IO) {
             val mByte : ByteArray = byteArrayOf(
                 0x55.toByte(),
@@ -203,7 +203,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     private fun setEndState(){
         mViewBinding.btnSurVey.text="开始"
         isSurveying = false
-        trackEndTime = System.currentTimeMillis()
+        trackEndTime = System.currentTimeMillis()/1000
         scope.launch(Dispatchers.IO) {
             val mByte : ByteArray = byteArrayOf(
                 0x55.toByte(),

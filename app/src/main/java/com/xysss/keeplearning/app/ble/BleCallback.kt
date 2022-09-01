@@ -307,20 +307,20 @@ class BleCallback : BluetoothGattCallback() {
         mBytes.let {
             if (it.size == 69) {
                 //浓度值
-                val concentrationNum = String.format("%.2f", it.readByteArrayBE(7, 4).readFloatLE())
+                val conNum = String.format("%.2f", it.readByteArrayBE(7, 4).readFloatLE())
                 //报警状态
-                val concentrationState = it.readByteArrayBE(11, 4).readInt32LE()
+                val conState = it.readByteArrayBE(11, 4).readInt32LE()
                 //物质库索引
-                val materialLibraryIndex = it.readByteArrayBE(15, 4).readInt32LE()
+                val maIndex = it.readByteArrayBE(15, 4).readInt32LE()
                 //浓度单位
-                val concentrationUnit: String = when (it[19].toInt()) {
+                val conUnit: String = when (it[19].toInt()) {
                     0 -> "ppm"
                     1 -> "ppb"
                     2 -> "mg/m3"
                     else -> ""
                 }
                 //CF值
-                val cfNum = it.readByteArrayBE(23, 4).readFloatLE()
+                val cf = it.readByteArrayBE(23, 4).readFloatLE()
                 //物质名称
                 var i = 27
                 while (i < it.size)
@@ -329,10 +329,14 @@ class BleCallback : BluetoothGattCallback() {
                 //val name = tempBytes.toAsciiString()
                 val name = String(tempBytes)
                 //tempBytes.toHexString().logE("LogFlag")
-                materialInfo = MaterialInfo(
-                    concentrationNum, concentrationState.toString(),
-                    materialLibraryIndex, concentrationUnit, cfNum.toString(), name
-                )
+                materialInfo.apply {
+                    concentrationNum=conNum
+                    concentrationState=conState.toString()
+                    materialLibraryIndex=maIndex
+                    concentrationUnit=conUnit
+                    cfNum=cf.toString()
+                    materialName=name
+                }
 
                 uiCallback.realData(materialInfo)
 

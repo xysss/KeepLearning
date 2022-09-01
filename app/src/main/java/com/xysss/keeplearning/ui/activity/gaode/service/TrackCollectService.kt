@@ -133,7 +133,7 @@ class TrackCollectService : Service(){
 
                 // 避免阻塞UI主线程，开启一个单独线程来存入内存
                 mVectorThread?.execute {
-                    val trackTime=System.currentTimeMillis()
+                    val trackTime=System.currentTimeMillis()/1000
                     val longitude = BigDecimal(amapLocation.longitude + testFlag).setScale(5, RoundingMode.FLOOR)
                     val latitude = BigDecimal(amapLocation.latitude + testFlag).setScale(5, RoundingMode.FLOOR)
                     "lat: +$latitude lon: $longitude".logE(LogFlag)
@@ -332,7 +332,6 @@ class TrackCollectService : Service(){
                 if (!TextUtils.isEmpty(track.cf)) {
                     mCfStringBuffer.append(track.cf)
                 }
-                //lnglats
                 if (!TextUtils.isEmpty(surveySlq.longitudeLatitude)) {
                     mLongitudeLatitudeStringBuffer.append(surveySlq.longitudeLatitude)
                 }

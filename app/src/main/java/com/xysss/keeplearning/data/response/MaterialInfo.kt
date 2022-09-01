@@ -12,9 +12,9 @@ import kotlinx.android.parcel.Parcelize
 @SuppressLint("ParcelCreator")
 @Parcelize
 data class MaterialInfo(
-    val concentrationNum:String,
-    val concentrationState:String,
-    val materialLibraryIndex:Int,
-    val concentrationUnit:String,
-    val cfNum:String,
-    val materialName:String) : Parcelable
+    var concentrationNum:String,
+    var concentrationState:String,
+    var materialLibraryIndex:Int,
+    var concentrationUnit:String,
+    var cfNum:String,
+    var materialName:String) : Parcelable

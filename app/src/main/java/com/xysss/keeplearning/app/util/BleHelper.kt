@@ -57,8 +57,8 @@ object BleHelper {
     private fun sendCommand(command: String, isResponse: Boolean = true){
         gatt?.apply {
             writeCharacteristic(
-                getService(UUID.fromString(mmkv.getString(ValueKey.SERVICE_UUID,""))).
-                getCharacteristic(UUID.fromString(mmkv.getString(ValueKey.CHARACTERISTIC_WRITE_UUID,""))).apply {
+                getService(UUID.fromString(mmkv.getString(ValueKey.SERVICE_UUID,sUUID))).
+                getCharacteristic(UUID.fromString(mmkv.getString(ValueKey.CHARACTERISTIC_WRITE_UUID,wUUID))).apply {
                     val sendData=ByteUtils.hexStringToBytes(command)
                     val sendDataAll = sendData+Crc8.cal_crc8_t(sendData,sendData.size) + ByteUtils.FRAME_END
                     writeType = if (isResponse) BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT else BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE

@@ -27,6 +27,7 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
 
     private val sqlLatLngList = ArrayList<LatLng>()
     private var sqlConValueList = ArrayList<String>()
+    private var ppmList = ArrayList<String>()
     private var drawList= ArrayList<LatLng>()
     private var mBeginTime:Long = 0
     //巡航最大数值
@@ -58,9 +59,13 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
             val surveySlq = Repository.getSurveyByBeginTime(beginTime)
             val latlngs = surveySlq.longitudeLatitude.trim()
             val conValue = surveySlq.concentrationValue.trim()
+            val ppm = surveySlq.ppm.trim()
 
             if (conValue.isNotEmpty()){
                 sqlConValueList = conValue.split(delim).toList() as ArrayList<String>
+            }
+            if (ppm.isNotEmpty()){
+                ppmList = ppm.split(delim).toList() as ArrayList<String>
             }
             if (latlngs.isNotEmpty()) {
                 val lonlats = latlngs.split(delim).toTypedArray()
@@ -93,8 +98,14 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
         "巡测 MaxConValue: $surveyHistoryMaxConValue".logE(LogFlag)
 
         scope.launch(Dispatchers.Main) {
-            mViewBinding.surveyMaxValue.text = surveyHistoryMaxConValue.toInt().toString()
-            mViewBinding.surveyAvgValue.text = (surveyHistoryMaxConValue/2).toInt().toString()
+            val conUnit: String = when (ppmList[ppmList.size-2].toInt()) {
+                0 -> "ppm"
+                1 -> "ppb"
+                2 -> "mg/m3"
+                else -> ""
+            }
+            mViewBinding.surveyMaxValue.text = surveyHistoryMaxConValue.toInt().toString() +" "+conUnit
+            mViewBinding.surveyAvgValue.text = (surveyHistoryMaxConValue/2).toInt().toString() +" "+conUnit
             mViewBinding.surveyMinValue.text = 0.toString()
         }
         toDealData()

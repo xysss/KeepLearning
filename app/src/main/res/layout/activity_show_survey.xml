@@ -11,9 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-
-
-
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -42,12 +39,15 @@
             android:id="@+id/surveyAvgValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/history_survey_icon"
-            android:layout_margin="1dp"
             android:layout_centerVertical="true"
+            android:layout_marginStart="1dp"
+            android:layout_marginTop="1dp"
+            android:layout_marginEnd="1dp"
+            android:layout_marginBottom="1dp"
+            android:layout_toEndOf="@+id/history_survey_icon"
+            android:text="50"
             android:textSize="10sp"
-            android:textStyle="bold"
-            android:text="50" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/surveyMinValue"

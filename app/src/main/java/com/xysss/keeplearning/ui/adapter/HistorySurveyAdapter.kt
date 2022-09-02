@@ -9,7 +9,7 @@ import com.xysss.keeplearning.app.util.ByteUtils
 
 /**
  * 作者 : xys
- * 时间 : 2022-08-24 14:12
+ * 时间 : 2022-08-24 14:12x
  * 描述 : 描述
  */
 class HistorySurveyAdapter(data: ArrayList<Any>) : BaseQuickAdapter<Any, BaseViewHolder>(R.layout.history_item_survey,data), LoadMoreModule {

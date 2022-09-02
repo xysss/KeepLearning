@@ -222,8 +222,6 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
                     etCharacteristicIndicateUuid.setText(mmkv.getString(ValueKey.CHARACTERISTIC_INDICATE_UUID, ""))
 
                     tvSave.setOnClickListener {
-
-
                         etServiceUuid.text.toString().let {
                             if (it.isEmpty()) mmkv.putString(ValueKey.SERVICE_UUID, sUUID)
                             else mmkv.putString(ValueKey.SERVICE_UUID, it)

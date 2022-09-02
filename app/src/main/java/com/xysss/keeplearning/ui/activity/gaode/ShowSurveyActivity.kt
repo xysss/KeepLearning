@@ -54,6 +54,7 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun getTrack(beginTime: Long){
         if (beginTime!=0L) {
             val surveySlq = Repository.getSurveyByBeginTime(beginTime)
@@ -104,9 +105,9 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
                 2 -> "mg/m3"
                 else -> ""
             }
-            mViewBinding.surveyMaxValue.text = surveyHistoryMaxConValue.toInt().toString() +" "+conUnit
-            mViewBinding.surveyAvgValue.text = (surveyHistoryMaxConValue/2).toInt().toString() +" "+conUnit
-            mViewBinding.surveyMinValue.text = 0.toString()
+            mViewBinding.surveyMaxValue.text = "${surveyHistoryMaxConValue.toInt()} $conUnit"
+            mViewBinding.surveyAvgValue.text = "${(surveyHistoryMaxConValue/2).toInt()} $conUnit"
+            mViewBinding.surveyMinValue.text = "0 $conUnit"
         }
         toDealData()
     }

@@ -1,7 +1,6 @@
 package com.xysss.keeplearning.app.util
 
 import android.annotation.SuppressLint
-import android.util.Log
 import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.mvvmhelper.ext.logE
 import java.math.RoundingMode
@@ -81,6 +80,25 @@ object ByteUtils {
     @SuppressLint("SimpleDateFormat")
     fun getDateTime(times: Long): String {
         return SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(times)
+    }
+
+    /*
+   * 将时间转换为时间戳
+   */
+    fun dateToStamp(s: String): String {
+        val res: String
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val date = simpleDateFormat.parse(s)
+        val ts = date.time
+        res = ts.toString()
+        return res
+    }
+
+    fun timeToDate(time: String): String {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = java.lang.Long.valueOf(time)
+        val sf = SimpleDateFormat("MM-dd ") //这里的格式可换"yyyy年-MM月dd日-HH时mm分ss秒"等等格式
+        return sf.format(calendar.time)
     }
 
     /**

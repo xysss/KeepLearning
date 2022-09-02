@@ -17,8 +17,8 @@ class HistorySurveyAdapter(data: ArrayList<Any>) : BaseQuickAdapter<Any, BaseVie
     override fun convert(holder: BaseViewHolder, item: Any) {
         val itemSurvey = item as Survey
         holder.setText(R.id.itemSurveyId, itemSurvey.id.toString()+". ")
-        holder.setText(R.id.itemSurveyBeginTime, ByteUtils.getDateTime(itemSurvey.beginTime))
-        holder.setText(R.id.itemSurveyEndTime, ByteUtils.getDateTime(itemSurvey.endTime))
+        holder.setText(R.id.itemSurveyBeginTime, ByteUtils.getDateTime(itemSurvey.beginTime *1000))
+        holder.setText(R.id.itemSurveyEndTime, ByteUtils.getDateTime(itemSurvey.endTime *1000))
         holder.setText(R.id.itemSurveyBeginTimeTitle, "开始时间:")
         holder.setText(R.id.itemSurveyEndTimeTitle, "结束时间:")
     }

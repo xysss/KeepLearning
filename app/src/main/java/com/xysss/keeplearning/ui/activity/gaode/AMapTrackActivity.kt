@@ -196,7 +196,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                 0x00.toByte(),
             )
             val startSurveyByte=mByte + Crc8.cal_crc8_t(mByte,mByte.size) + ByteUtils.FRAME_END
-            mqttService.publish(startSurveyByte)
+            mqttService.publish(startSurveyByte,2)
         }
     }
 
@@ -216,7 +216,7 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
                 0x00.toByte(),
             )
             val endSurveyByte=mByte + Crc8.cal_crc8_t(mByte,mByte.size) + ByteUtils.FRAME_END
-            mqttService.publish(endSurveyByte)
+            mqttService.publish(endSurveyByte,2)
         }
     }
 

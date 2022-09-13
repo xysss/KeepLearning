@@ -73,18 +73,6 @@ class BlueToothViewModel : BaseViewModel(), BleCallback.UiCallback {
     override fun mqttSendMsg(bytes: ByteArray) {
         mService.publish(bytes)
     }
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * 下载
      * @param downLoadData Function1<ProgressT<String>, Unit>

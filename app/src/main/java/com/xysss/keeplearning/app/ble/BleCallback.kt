@@ -279,8 +279,8 @@ class BleCallback : BluetoothGattCallback() {
                     if (it[i] == ByteUtils.FRAME_00) break else i++
                 val tempBytes: ByteArray = it.readByteArrayBE(49, i - 49)
 
-                mmkv.putString(ValueKey.deviceHardwareVersion,it[7].toInt().toString()+":"+it[8].toInt().toString())
-                mmkv.putString(ValueKey.deviceSoftwareVersion,it[9].toInt().toString()+":"+it[10].toInt().toString())
+                mmkv.putString(ValueKey.deviceHardwareVersion,it[7].toInt().toString()+"."+it[8].toInt().toString())
+                mmkv.putString(ValueKey.deviceSoftwareVersion,it[9].toInt().toString()+"."+it[10].toInt().toString())
                 mmkv.putInt(ValueKey.deviceBattery,it[11].toInt())
                 mmkv.putInt(ValueKey.deviceFreeMemory,it[12].toInt())
                 mmkv.putInt(ValueKey.deviceRecordSum,it.readByteArrayBE(13, 4).readInt32LE())

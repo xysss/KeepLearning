@@ -147,9 +147,16 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             if (it == 100) {
                 dismissProgressUI()
                 ToastUtils.showShort("同步完成")
-
                 historyTask?.cancel()
                 mTimer?.cancel()
+            }
+        }
+
+        mViewModel.dialogStatus.observe(this) {
+            if (it){
+                dismissProgressUI()
+            }else{
+                showProgressUI()
             }
         }
 
@@ -241,17 +248,25 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                 }
 
                 R.id.synRecordBackgroundImg -> {
-                    if (isBleReady){
-                        synMessage(3)
+                    if (netConnectIsOK){
+                        if (isBleReady){
+                            synMessage(3)
+                        }else{
+                            ToastUtils.showShort("请先连接蓝牙")
+                        }
                     }else{
-                        ToastUtils.showShort("请先连接蓝牙")
+                        ToastUtils.showShort("网络未连接")
                     }
                 }
                 R.id.synAlarmBackgroundImg -> {
-                    if (isBleReady){
-                        synMessage(2)
+                    if (netConnectIsOK){
+                        if (isBleReady){
+                            synMessage(2)
+                        }else{
+                            ToastUtils.showShort("请先连接蓝牙")
+                        }
                     }else{
-                        ToastUtils.showShort("请先连接蓝牙")
+                        ToastUtils.showShort("网络未连接")
                     }
                 }
 
@@ -357,18 +372,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                     }
                 } else if (flag == 3) {
                     showProgressUI()
-                    scope.launch(Dispatchers.IO) {
-                        val surveyList = Repository.loadAllSurvey()
-                        if (surveyList.isNotEmpty()) {
-                            for (i in surveyList.indices){
-                                "mqtt history: item :$i, 一共： ${surveyList.size}".logE(LogFlag)
-                                subpackage(getHistorySurveyByte(surveyList[i]))
-                            }
-                        } else {
-                            dismissProgressUI()
-                            ToastUtils.showShort("设备上未查询到数据")
-                        }
-                    }
+                    mViewModel.sendSurveys()
                 }
             }
 
@@ -376,128 +380,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             }
             show()
         }
-    }
-
-    private suspend fun subpackage(byteArray: ByteArray){
-        if (byteArray.size>1024){
-            val mList=ByteArray(1024)
-            var j=0
-            for (i in byteArray.indices){
-                mList[j]=byteArray[i]
-                j++
-                if (i!=0 && i%1023==0){
-                    mService.publish(mList)
-                    "mqtt history 总长度: ${byteArray.size} 发送长度： $i : ${byteArray.toHexString()}".logE(LogFlag)
-                    j=0
-                    delay(200)
-                }
-            }
-            if (mList.isNotEmpty()){
-                val mLastList=ByteArray(j)
-                System.arraycopy(mList,0,mLastList,0,mLastList.size)
-                mService.publish(mLastList)
-                "mqtt history last 总长度: ${byteArray.size} 发送长度： ${mLastList.size} : ${mLastList.toHexString()}".logE(LogFlag)
-            }
-            dismissProgressUI()
-        }else{
-            mService.publish(byteArray)
-            "mqtt history last 总长度: ${byteArray.size} 发送长度： ${byteArray.size} : ${byteArray.toHexString()}".logE(LogFlag)
-            dismissProgressUI()
-        }
-    }
-
-    private fun getHistorySurveyByte(survey: Survey) : ByteArray{
-        val sqlLatLngList = ArrayList<LatLng>()
-        val sqlConValueList = if (survey.concentrationValue.trim().isNotEmpty()) survey.concentrationValue.split(delim).toList() as ArrayList<String> else ArrayList<String>()
-        val sqlTimeList = if (survey.time.trim().isNotEmpty()) survey.time.split(delim).toList() as ArrayList<String> else ArrayList<String>()
-        val sqlPpmList = if (survey.ppm.trim().isNotEmpty()) survey.ppm.split(delim).toList() as ArrayList<String> else ArrayList<String>()
-        val sqlIndexList = if (survey.index.trim().isNotEmpty()) survey.index.split(delim).toList() as ArrayList<String> else ArrayList<String>()
-
-        if (survey.longitudeLatitude.trim().isNotEmpty()) {
-            val lonLats = survey.longitudeLatitude.trim().split(delim).toTypedArray()
-            if (lonLats.isNotEmpty()) {
-                for (i in lonLats.indices) {
-                    val mLonLat = lonLats[i]
-                    val split = mLonLat.split(cutOff).toTypedArray()
-                    if (split.isNotEmpty()) {
-                        try {
-                            sqlLatLngList.add(LatLng(split[0].toDouble(), split[1].toDouble()))
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                }
-            }
-        }
-
-        val bytDatsSize = (sqlLatLngList.size * 29)+ 12
-        val bytSize = (sqlLatLngList.size * 29) + 21
-
-        "mqtt history size: ${sqlLatLngList.size} ,$bytDatsSize,$bytSize".logE(LogFlag)
-        val mHeadByte : ByteArray = byteArrayOf(
-            0x55.toByte(),
-            0x00.toByte(),
-            bytSize.toByte(),
-            0x09.toByte(),
-            0x94.toByte(),
-            0x00.toByte(),
-            bytDatsSize.toByte()
-        )
-        val beginTimeBytes = ByteArray(4)
-        beginTimeBytes.writeInt32LE(survey.beginTime)
-
-        val endTimeBytes = ByteArray(4)
-        endTimeBytes.writeInt32LE(survey.endTime)
-
-        val listSizeBytes = ByteArray(4)
-        listSizeBytes.writeInt32LE(sqlLatLngList.size.toLong())
-
-        "mqtt history time: ${survey.endTime},16进制：${(survey.endTime).toHexString()}".logE(LogFlag)
-
-        val itemByteArray = ByteArray(sqlLatLngList.size * 29 )
-        var index:Int = 0
-
-        for (i in sqlLatLngList.indices){
-            val timeStamp = ByteArray(4)
-            timeStamp.writeInt32LE(if(sqlTimeList[i].isNotEmpty()) sqlTimeList[i].toLong() else 0)
-
-            val conBytes = ByteArray(4)
-            conBytes.writeFloatLE(if(sqlConValueList[i].isNotEmpty()) sqlConValueList[i].toFloat() else 0F)
-
-//            val stateBytes = ByteArray(4)
-//            stateBytes.writeInt32LE(1234)
-
-            val indexBytes = ByteArray(4)
-            indexBytes.writeInt32LE(if(sqlIndexList[i].isNotEmpty()) sqlIndexList[i].toLong() else 0)
-
-            val ppmBytes = ByteArray(1)
-            ppmBytes.writeInt8(if(sqlPpmList[i].isNotEmpty()) sqlPpmList[i].toInt() else 0)
-
-//            val nameBytes = ByteArray(20)
-//            val nBytes ="异丁烯".toByteArray()
-//            for (k in nameBytes.indices){
-//                if (k<nBytes.size){
-//                    nameBytes[k]=nBytes[k]
-//                }else{
-//                    nameBytes[k]=0
-//                }
-//            }
-
-            val mLongitudeBytes = ByteArray(8)
-            mLongitudeBytes.writeFloatLE(sqlLatLngList[i].longitude.toFloat())
-            val mLatitudeBytes = ByteArray(8)
-            mLatitudeBytes.writeFloatLE(sqlLatLngList[i].latitude.toFloat())
-
-            val itemSurvey = timeStamp + conBytes + indexBytes + ppmBytes + mLongitudeBytes +  mLatitudeBytes
-
-            System.arraycopy(itemSurvey,0,itemByteArray,index,itemSurvey.size)
-            index +=itemSurvey.size
-        }
-
-        val beforeCrcCheckBytes = mHeadByte + beginTimeBytes + endTimeBytes + listSizeBytes + itemByteArray
-
-        val resultBytes = beforeCrcCheckBytes+ Crc8.cal_crc8_t(beforeCrcCheckBytes,beforeCrcCheckBytes.size) + ByteUtils.FRAME_END
-        return BleHelper.transSendCoding(resultBytes)
     }
 
     private fun stopTest() {

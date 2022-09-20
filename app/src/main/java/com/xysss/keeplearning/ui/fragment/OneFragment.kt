@@ -43,6 +43,7 @@ import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadingDialogEntity
 import com.xysss.mvvmhelper.net.LoadingType.Companion.LOADING_CUSTOM
+import com.xysss.mvvmhelper.net.manager.NetState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

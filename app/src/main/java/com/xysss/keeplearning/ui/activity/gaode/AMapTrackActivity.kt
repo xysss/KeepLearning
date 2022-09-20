@@ -27,6 +27,7 @@ import com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService.Real
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
+import com.xysss.mvvmhelper.net.manager.NetState
 import getRouteWidth
 import io.reactivex.functions.Consumer
 import kotlinx.coroutines.Dispatchers
@@ -171,12 +172,29 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
     }
 
     private fun surVeyClick() {
-        isDrawPoint = true
-        if (isSurveying){
-            setEndState()
-        }else {
-            setStartState()
-            mapService.start()
+        if(netConnectIsOK){
+            isDrawPoint = true
+            if (isSurveying){
+                setEndState()
+            }else {
+                setStartState()
+                mapService.start()
+            }
+        }else{
+            ToastUtils.showShort("网络未连接，请先连接网络")
+        }
+    }
+
+    override fun onNetworkStateChanged(netState: NetState) {
+        if (netState.isSuccess) {
+            ToastUtils.showShort("网络连接成功!")
+            "网络连接成功!".logE(LogFlag)
+            netConnectIsOK=true
+
+        } else {
+            ToastUtils.showShort("网络无连接!")
+            "网络无连接!".logE(LogFlag)
+            netConnectIsOK=false
         }
     }
 

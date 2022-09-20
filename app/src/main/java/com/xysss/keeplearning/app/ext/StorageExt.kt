@@ -97,4 +97,6 @@ const val intentFlag ="beginTime"
 
 var colorHashMap = HashMap<Int, Int>()
 
+var netConnectIsOK = false
+
 

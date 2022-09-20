@@ -24,24 +24,20 @@ class NetworkStateReceive : BroadcastReceiver() {
                         if(it.isSuccess){
                             //没网
                             NetworkStateManager.instance.mNetworkStateCallback.value = NetState(isSuccess = false)
-                            "网络无连接!Service".logE("xysss")
                         }
                         return
                     }
                     NetworkStateManager.instance.mNetworkStateCallback.value = NetState(isSuccess = false)
-                    "网络无连接!Service".logE("xysss")
                 }else{
                     //收到有网络时判断之前的值是不是没有网络，如果没有网络才提示通知 ，防止重复通知
                     NetworkStateManager.instance.mNetworkStateCallback.value?.let {
                         if(!it.isSuccess){
                             //有网络了
                             NetworkStateManager.instance.mNetworkStateCallback.value = NetState(isSuccess = true)
-                            "终于有网了!Service".logE("xysss")
                         }
                         return
                     }
                     NetworkStateManager.instance.mNetworkStateCallback.value = NetState(isSuccess = true)
-                    "终于有网了!Service".logE("xysss")
                 }
             }
             isInit = false

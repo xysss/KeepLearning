@@ -2,23 +2,31 @@ package com.xysss.keeplearning.ui.activity
 
 import android.content.ComponentName
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.net.Uri
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import com.blankj.utilcode.util.ToastUtils
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
+import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.keeplearning.app.ext.job
+import com.xysss.keeplearning.app.ext.netConnectIsOK
 import com.xysss.keeplearning.databinding.ActivityMainBinding
 import com.xysss.keeplearning.ui.adapter.MainAdapter
 import com.xysss.keeplearning.viewmodel.TestViewModel
 import com.xysss.mvvmhelper.base.appContext
+import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.net.manager.NetState
+import com.xysss.mvvmhelper.net.manager.NetworkStateReceive
 import initColorMap
 import java.util.*
 
 class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
+    private var netWorkReceiver: NetworkStateReceive? = null
     override fun initView(savedInstanceState: Bundle?) {
         //mToolbar.setCenterTitle(R.string.bottom_title_read)
         //进行竖向方向的滑动
@@ -45,6 +53,19 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
         }
 
         initColorMap()
+        //动态注册网络状态监听广播
+        netWorkReceiver = NetworkStateReceive()
+        application.registerReceiver(
+            netWorkReceiver,
+            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        )
+        val filter = IntentFilter()
+        filter.apply {
+            addAction(WifiManager.WIFI_STATE_CHANGED_ACTION)
+            addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION)
+            addAction(ConnectivityManager.CONNECTIVITY_ACTION)
+        }
+        registerReceiver(netWorkReceiver, filter)
 
 //        val intent = getAutostartSettingIntent()
 //        startActivity(intent)
@@ -117,12 +138,15 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
      * 示例，在Activity/Fragment中如果想监听网络变化，可重写onNetworkStateChanged该方法
      */
     override fun onNetworkStateChanged(netState: NetState) {
-        super.onNetworkStateChanged(netState)
         if (netState.isSuccess) {
-            ToastUtils.showShort("终于有网了!")
+            ToastUtils.showShort("网络连接成功!")
+            "网络连接成功!".logE(LogFlag)
+            netConnectIsOK=true
+
         } else {
             ToastUtils.showShort("网络无连接!")
-
+            "网络无连接!".logE(LogFlag)
+            netConnectIsOK=false
         }
     }
 
@@ -131,5 +155,6 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
     override fun onDestroy() {
         super.onDestroy()
         job.cancel()
+        application.unregisterReceiver(netWorkReceiver)
     }
 }

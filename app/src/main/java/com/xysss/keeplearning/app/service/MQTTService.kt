@@ -84,24 +84,6 @@ class MQTTService : Service(), LifecycleOwner {
             .build()
         startForeground(1,notification)
 
-        //网络监听
-        NetworkStateManager.instance.mNetworkStateCallback.observe(this){
-            onNetworkStateChanged(it)
-        }
-    }
-
-    /**
-     * 示例，在Activity/Fragment中如果想监听网络变化，可重写onNetworkStateChanged该方法
-     */
-    private fun onNetworkStateChanged(netState: NetState) {
-        if (netState.isSuccess) {
-            ToastUtils.showShort("终于有网了!Service")
-            "终于有网了!Service".logE(LogFlag)
-        } else {
-            isConnectMqtt=false
-            ToastUtils.showShort("网络无连接!Service")
-            "网络无连接!Service".logE(LogFlag)
-        }
     }
 
     override fun onBind(intent: Intent): IBinder {

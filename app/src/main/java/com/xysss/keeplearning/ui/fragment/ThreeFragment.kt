@@ -4,9 +4,11 @@ import android.os.Bundle
 import com.gyf.immersionbar.ktx.immersionBar
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
+import com.xysss.keeplearning.app.ext.appVersionCode
 import com.xysss.keeplearning.app.util.ByteUtils
 import com.xysss.keeplearning.databinding.FragmentThreeBinding
 import com.xysss.keeplearning.viewmodel.SettingViewModel
+import com.xysss.mvvmhelper.base.appContext
 
 /**
  * Author:bysd-2
@@ -30,6 +32,7 @@ class ThreeFragment : BaseFragment<SettingViewModel, FragmentThreeBinding>() {
             //it.logE("LogFlag")
             mViewBinding.settingTextViewValue1.text = it.deviceHardwareVersion
             mViewBinding.settingTextViewValue2.text = it.deviceSoftwareVersion
+            mViewBinding.settingTextViewValueApp3.text = appVersionCode
             mViewBinding.settingTextViewValue3.text = it.deviceBattery.toString()
             mViewBinding.settingTextViewValue4.text = it.deviceFreeMemory.toString()
             mViewBinding.settingTextViewValue5.text = it.deviceRecordSum.toString()
@@ -42,6 +45,7 @@ class ThreeFragment : BaseFragment<SettingViewModel, FragmentThreeBinding>() {
             mViewBinding.settingTextViewValue12.text = it.deviceTwaNumber
             mViewBinding.settingTextViewValue13.text = it.deviceStelNumber
             mViewBinding.settingTextViewValue14.text = it.deviceId
+
         }
     }
 

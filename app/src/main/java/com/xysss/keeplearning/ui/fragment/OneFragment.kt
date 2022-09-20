@@ -66,6 +66,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
     private var mTimer: Timer? = null
     private var historyTask: HistoryTimerTask? = null
     private var realDataTask: RealTimeDataTimerTask? = null
+    private var blueConnectTask: BlueToothConnectTimerTask? = null
+
     private var retryFlagCount = 0
 
     private val connection = object : ServiceConnection {
@@ -132,7 +134,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
 
                 dismissProgressUI()
             } else if (it == "未连接设备") {
-                isBleReady=true
+                isBleReady=false
                 mViewBinding.blueTv.setTextColor(Color.parseColor("#FFFFFFFF"))
                 mViewBinding.blueLinkImg.setImageDrawable(resources.getDrawable(R.drawable.no_connected_icon, null))
             }
@@ -193,6 +195,10 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                 loadingDialogEntity.isShow = true
                 loadingDialogEntity.requestCode = "linkBle"
                 showCustomLoading(loadingDialogEntity)
+
+                mTimer = Timer()
+                blueConnectTask = BlueToothConnectTimerTask()
+                mTimer?.schedule(blueConnectTask, 10 * 1000, 10 * 1000)
             }
         }
 
@@ -555,6 +561,7 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         BleHelper.gatt?.close()
         realDataTask?.cancel()
         historyTask?.cancel()
+        blueConnectTask?.cancel()
         mTimer?.cancel()
         appContext.unbindService(connection)
         super.onDestroy()
@@ -574,6 +581,22 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
 
                     ToastUtils.showShort("重连成功！")
                     startTest()
+                }
+            }
+        }
+    }
+
+    inner class BlueToothConnectTimerTask : TimerTask() {
+        override fun run() {
+            if (isBleReady){
+                blueConnectTask?.cancel()
+                mTimer?.cancel()
+            }else{
+                scope.launch(Dispatchers.Main) {
+                    dismissProgressUI()
+                    ToastUtils.showShort("蓝牙连接失败,请重新尝试")
+                    blueConnectTask?.cancel()
+                    mTimer?.cancel()
                 }
             }
         }

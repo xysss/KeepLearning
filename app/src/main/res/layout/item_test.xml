@@ -7,7 +7,7 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/item_test_button"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp.100"
+        android:layout_height="@dimen/dp_100"
         android:background="@color/colorPrimary"
-        android:padding="@dimen/dp.12" />
+        android:padding="@dimen/dp_12" />
 </LinearLayout>

@@ -10,11 +10,11 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/testTableLayout"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp.50" />
+            android:layout_height="@dimen/dp_50" />
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp.1"
+            android:layout_height="@dimen/dp_1"
             android:background="@color/colorDivider" />
 
         <androidx.viewpager.widget.ViewPager

@@ -25,6 +25,7 @@ import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ble.BleDevice
 import com.xysss.keeplearning.app.ble.BleDeviceAdapter
 import com.xysss.keeplearning.app.ext.*
+import com.xysss.keeplearning.app.wheel.dialog.UpdateDialog
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.databinding.ActivityLinkBluetoothBinding
 import com.xysss.keeplearning.databinding.DialogScanFilterBinding
@@ -119,18 +120,18 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
                 if (appVersionInfo.version.toInt()>getAppVersionCode(this)){
                     appVersionInfo.logE(LogFlag)
                     // 升级对话框
-//                    UpdateDialog.Builder(this)
-//                        // 版本名
-//                        .setVersionName("v1.0.${appVersionInfo.version.toInt()}")
-//                        // 是否强制更新
-//                        .setForceUpdate(false)
-//                        // 更新日志
-//                        .setUpdateLog("修复一些已知问题")
-//                        // 下载 URL
-//                        .setDownloadUrl(appVersionInfo.appUrl)
-//                        // 文件 MD5
-//                        //.setFileMd5("df2f045dfa854d8461d9cefe08b813c8")
-//                        .show()
+                    UpdateDialog.Builder(this)
+                        // 版本名
+                        .setVersionName("v1.0.${appVersionInfo.version.toInt()}")
+                        // 是否强制更新
+                        .setForceUpdate(false)
+                        // 更新日志
+                        .setUpdateLog("修复一些已知问题")
+                        // 下载 URL
+                        .setDownloadUrl(appVersionInfo.appUrl)
+                        // 文件 MD5
+                        //.setFileMd5("df2f045dfa854d8461d9cefe08b813c8")
+                        .show()
                 }
             }
         }

@@ -7,6 +7,10 @@ import cat.ereza.customactivityoncrash.config.CaocConfig
 import com.amap.api.location.AMapLocationClient
 import com.effective.android.anchors.Project
 import com.effective.android.anchors.Task
+import com.hjq.http.EasyConfig
+import com.hjq.http.config.IRequestApi
+import com.hjq.http.model.HttpHeaders
+import com.hjq.http.model.HttpParams
 import com.hjq.toast.ToastUtils
 import com.kingja.loadsir.callback.SuccessCallback
 import com.kingja.loadsir.core.LoadSir
@@ -18,6 +22,8 @@ import com.tencent.mmkv.MMKV
 import com.xysss.keeplearning.R
 
 import com.xysss.keeplearning.app.api.NetHttpClient
+import com.xysss.keeplearning.app.wheel.http.model.RequestHandler
+import com.xysss.keeplearning.app.wheel.http.model.RequestServer
 import com.xysss.keeplearning.ui.activity.ErrorActivity
 import com.xysss.keeplearning.ui.activity.SplashActivity
 import com.xysss.mvvmhelper.base.appContext
@@ -26,6 +32,7 @@ import com.xysss.mvvmhelper.ext.getColorExt
 import com.xysss.mvvmhelper.widget.BaseEmptyCallback
 import com.xysss.mvvmhelper.widget.BaseErrorCallback
 import com.xysss.mvvmhelper.widget.BaseLoadingCallback
+import okhttp3.OkHttpClient
 import rxhttp.RxHttpPlugins
 import java.util.*
 
@@ -137,6 +144,28 @@ class InitComm : Task(TASK_ID, true) {
             .restartActivity(SplashActivity::class.java) // 重启的activity
             .errorActivity(ErrorActivity::class.java) //发生错误跳转的activity
             .apply()
+
+        // 网络请求框架初始化
+        val okHttpClient: OkHttpClient = OkHttpClient.Builder()
+            .build()
+
+        EasyConfig.with(okHttpClient)
+            // 是否打印日志
+            .setLogEnabled(com.xysss.keeplearning.BuildConfig.DEBUG)
+            // 设置服务器配置
+            .setServer(RequestServer())
+            // 设置请求处理策略
+            .setHandler(RequestHandler(appContext))
+            // 设置请求重试次数
+            .setRetryCount(1)
+            .setInterceptor { api: IRequestApi, params: HttpParams, headers: HttpHeaders ->
+                // 添加全局请求头
+                headers.put("token", "66666666666")
+                //headers.put("deviceOaid", UmengClient.getDeviceOaid())
+                headers.put("versionName", BuildConfig.VERSION_NAME)
+                headers.put("versionCode", BuildConfig.VERSION_CODE.toString())
+            }
+            .into()
     }
 }
 

@@ -15,8 +15,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/dp.18"
-            android:layout_marginRight="@dimen/dp.18"
+            android:layout_marginLeft="@dimen/dp_18"
+            android:layout_marginRight="@dimen/dp_18"
             android:orientation="vertical">
 
 
@@ -24,13 +24,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="@dimen/dp.48"
+                android:layout_marginTop="@dimen/dp_48"
                 android:src="@drawable/ic_login_header" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp.48"
-                android:layout_marginTop="@dimen/dp.48"
+                android:layout_height="@dimen/dp_48"
+                android:layout_marginTop="@dimen/dp_48"
                 android:background="@drawable/shape_login_edit"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
@@ -42,28 +42,28 @@
                     android:layout_weight="1"
                     android:background="@null"
                     android:drawableStart="@drawable/ic_login_user"
-                    android:drawablePadding="@dimen/dp.6"
+                    android:drawablePadding="@dimen/dp_6"
                     android:hint="@string/login_phone"
                     android:lines="1"
                     android:maxLength="11"
-                    android:paddingLeft="@dimen/dp.12"
-                    android:paddingRight="@dimen/dp.12"
+                    android:paddingLeft="@dimen/dp_12"
+                    android:paddingRight="@dimen/dp_12"
                     android:textColor="@color/colorBlackGry"
-                    android:textSize="@dimen/dp.15" />
+                    android:textSize="@dimen/dp_15" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/clearText"
-                    android:layout_width="@dimen/dp.24"
-                    android:layout_height="@dimen/dp.24"
-                    android:layout_marginEnd="@dimen/dp.6"
+                    android:layout_width="@dimen/dp_24"
+                    android:layout_height="@dimen/dp_24"
+                    android:layout_marginEnd="@dimen/dp_6"
                     android:src="@drawable/ic_login_clear"
                     android:visibility="visible" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp.48"
-                android:layout_marginTop="@dimen/dp.30"
+                android:layout_height="@dimen/dp_48"
+                android:layout_marginTop="@dimen/dp_30"
                 android:background="@drawable/shape_login_edit"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
@@ -75,21 +75,21 @@
                     android:layout_weight="1"
                     android:background="@null"
                     android:drawableStart="@drawable/ic_login_pwd"
-                    android:drawablePadding="@dimen/dp.6"
+                    android:drawablePadding="@dimen/dp_6"
                     android:hint="@string/login_password"
                     android:inputType="textPassword"
                     android:lines="1"
-                    android:paddingLeft="@dimen/dp.12"
-                    android:paddingRight="@dimen/dp.12"
+                    android:paddingLeft="@dimen/dp_12"
+                    android:paddingRight="@dimen/dp_12"
                     android:textColor="@color/colorBlackGry"
-                    android:textSize="@dimen/dp.15"
+                    android:textSize="@dimen/dp_15"
                     />
 
                 <CheckBox
                     android:id="@+id/showPassword"
-                    android:layout_width="@dimen/dp.24"
-                    android:layout_height="@dimen/dp.24"
-                    android:layout_marginEnd="@dimen/dp.6"
+                    android:layout_width="@dimen/dp_24"
+                    android:layout_height="@dimen/dp_24"
+                    android:layout_marginEnd="@dimen/dp_6"
                     android:button="@drawable/selector_login_key_visible"
                     android:checked="false"
                     android:visibility="visible" />
@@ -98,23 +98,23 @@
             <TextView
                 android:id="@+id/loginBtn"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp.48"
-                android:layout_marginTop="@dimen/dp.30"
-                android:layout_marginBottom="@dimen/dp.12"
+                android:layout_height="@dimen/dp_48"
+                android:layout_marginTop="@dimen/dp_30"
+                android:layout_marginBottom="@dimen/dp_12"
                 android:background="@drawable/shape_login_btn"
                 android:gravity="center"
                 android:text="@string/login_submit"
                 android:textColor="@color/colorWhite"
-                android:textSize="@dimen/dp.20" />
+                android:textSize="@dimen/dp_20" />
 
             <TextView
                 android:id="@+id/downText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp.8"
+                android:layout_marginTop="@dimen/dp_8"
                 android:text="@string/login_tips"
                 android:textColor="@color/colorBlackGry6"
-                android:textSize="@dimen/dp.13" />
+                android:textSize="@dimen/dp_13" />
 
 
         </LinearLayout>

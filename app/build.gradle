@@ -38,7 +38,7 @@ android {
         applicationId "com.xysss.keeplearning"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 17
+        versionCode 20
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"  //用于启用JUnit测试

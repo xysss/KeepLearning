@@ -315,7 +315,7 @@ class BleCallback : BluetoothGattCallback() {
                 //浓度单位
                 val conUnit: String = when (it[19].toInt()) {
                     0 -> "ppm"
-                    1 -> "ppb"
+                    1 -> "ppm"
                     2 -> "mg/m3"
                     else -> ""
                 }
@@ -330,7 +330,11 @@ class BleCallback : BluetoothGattCallback() {
                 val name = String(tempBytes)
                 //tempBytes.toHexString().logE("LogFlag")
                 materialInfo.apply {
-                    concentrationNum=conNum
+                    concentrationNum = if (it[19].toInt()==1){
+                        (conNum.toFloat()/1000).toString()
+                    }else{
+                        conNum
+                    }
                     concentrationState=conState.toString()
                     materialLibraryIndex=maIndex
                     concentrationUnit=conUnit

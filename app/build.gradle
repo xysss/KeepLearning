@@ -4,9 +4,6 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
 }
-static def releaseTime() {
-    return new Date().format("yyyyMMdd-HH")
-}
 android {
 
 //    sourceSets {
@@ -81,13 +78,15 @@ android {
             path file('src/main/cpp/CMakeLists.txt')
         }
     }
-    android.applicationVariants.all {
-        variant ->
-            variant.outputs.all {
-                //在这里修改apk文件名
-                outputFileName = "Vp200-v${variant.versionName}-t${releaseTime()}-${name}.apk"
-            }
+    applicationVariants.all { variant ->
+        // apk 输出文件名配置
+        variant.outputs.all { output ->
+            outputFileName = 'Vp200_v' + variant.versionName + '_' + variant.versionCode
+            outputFileName += '_' + new Date().format('MMdd')+'_'+name
+            outputFileName += '.apk'
+        }
     }
+
     buildFeatures {
         viewBinding true
     }
@@ -174,7 +173,7 @@ dependencies {
     }
     implementation 'com.louiscad.splitties:splitties-collections:2.1.1'
     //内存泄漏检测工具
-    //debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
     //调试数据库
     debugImplementation 'com.guolindev.glance:glance:1.1.0'
     //解决方法数65536问题

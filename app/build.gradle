@@ -35,7 +35,7 @@ android {
         applicationId "com.xysss.keeplearning"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 21
+        versionCode 22
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"  //用于启用JUnit测试
@@ -81,7 +81,7 @@ android {
     applicationVariants.all { variant ->
         // apk 输出文件名配置
         variant.outputs.all { output ->
-            outputFileName = 'Vp200_v' + variant.versionName + '_' + variant.versionCode
+            outputFileName = 'Vp200_v' + variant.versionName + '.' + variant.versionCode
             outputFileName += '_' + new Date().format('MMdd')+'_'+name
             outputFileName += '.apk'
         }

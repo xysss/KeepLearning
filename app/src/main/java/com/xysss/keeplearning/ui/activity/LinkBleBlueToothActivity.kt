@@ -8,6 +8,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -30,6 +31,8 @@ import com.xysss.keeplearning.databinding.DialogScanFilterBinding
 import com.xysss.keeplearning.databinding.DialogUuidEditBinding
 import com.xysss.keeplearning.viewmodel.LinkBlueToothViewModel
 import com.xysss.mvvmhelper.base.appContext
+import com.xysss.mvvmhelper.ext.getAppVersionCode
+import com.xysss.mvvmhelper.ext.logE
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat
 import no.nordicsemi.android.support.v18.scanner.ScanCallback
 import no.nordicsemi.android.support.v18.scanner.ScanResult
@@ -67,6 +70,7 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
     override fun initView(savedInstanceState: Bundle?) {
         //检查版本
         checkAndroidVersion()
+        mViewModel.checkVersion()
         init()
     }
 
@@ -107,6 +111,30 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
         mViewBinding.fabAdd.setOnClickListener { if (isScanning) stopScan() else scan() }
     }
 
+    override fun initObserver() {
+        super.initObserver()
+        mViewModel.appVersionInfo.observe(this) { appVersionInfo->
+            if (appVersionInfo.appUrl.isNotEmpty()){
+                "appVersionInfo: $appVersionInfo".logE(LogFlag)
+                if (appVersionInfo.version.toInt()>getAppVersionCode(this)){
+                    appVersionInfo.logE(LogFlag)
+                    // 升级对话框
+//                    UpdateDialog.Builder(this)
+//                        // 版本名
+//                        .setVersionName("v1.0.${appVersionInfo.version.toInt()}")
+//                        // 是否强制更新
+//                        .setForceUpdate(false)
+//                        // 更新日志
+//                        .setUpdateLog("修复一些已知问题")
+//                        // 下载 URL
+//                        .setDownloadUrl(appVersionInfo.appUrl)
+//                        // 文件 MD5
+//                        //.setFileMd5("df2f045dfa854d8461d9cefe08b813c8")
+//                        .show()
+                }
+            }
+        }
+    }
     /**
      * 检查UUID
      */

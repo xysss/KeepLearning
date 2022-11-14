@@ -10,10 +10,10 @@ import rxhttp.wrapper.annotation.DefaultDomain
 object NetUrl {
 
     // 服务器请求成功的 Code值
-    const val SUCCESS_CODE = 0
+    const val SUCCESS_CODE = 200
 
     @DefaultDomain //设置为默认域名
-    const val DEV_URL = "https://wanandroid.com/"
+    const val DEV_URL = "https://www.htvision.com.cn/"
 
     //登录
     const val LOGIN = "user/login"
@@ -26,7 +26,7 @@ object NetUrl {
 
     const val UPLOAD_URL = "http://t.xinhuo.com/index.php/Api/Pic/uploadPic"
 
-    const val DOWNLOAD_URL = "http://update.9158.com/miaolive/Miaolive.apk"
+    var DOWNLOAD_URL = "http://update.9158.com/miaolive/Miaolive.apk"
 
     /**
      * 公众号分类
@@ -37,8 +37,5 @@ object NetUrl {
      * 获取公众号数据
      */
     const val Public_Data = "wxarticle/list/%1\$d/%1\$d/json"
-
-
-
 
 }

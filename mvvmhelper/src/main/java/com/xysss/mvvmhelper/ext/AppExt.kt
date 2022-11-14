@@ -54,6 +54,19 @@ fun getAppVersion(context: Context): String {
     return ""
 }
 
+/**
+ * 获取versionCode
+ */
+fun getAppVersionCode(context: Context): Int {
+    try {
+        val pi = context.packageManager.getPackageInfo(context.packageName, 0)
+        return pi.versionCode
+    } catch (e: PackageManager.NameNotFoundException) {
+        e.printStackTrace()
+    }
+    return 0
+}
+
 private val activityList = LinkedList<Activity>()
 
 //app当前显示的Activity

@@ -44,7 +44,7 @@ fun getPackageNameName(context: Context): String {
 /**
  * 获取versionName
  */
-fun getAppVersion(context: Context): String {
+fun getAppVersionName(context: Context): String {
     try {
         val pi = context.packageManager.getPackageInfo(context.packageName, 0)
         return pi.versionName

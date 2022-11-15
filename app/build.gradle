@@ -31,7 +31,9 @@ android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
+    // 资源目录存放指引：https://developer.android.google.cn/guide/topics/resources/providing-resources
     defaultConfig {
+        // 无痛修改包名：https://www.jianshu.com/p/17327e191d2e
         applicationId "com.xysss.keeplearning"
         minSdkVersion 21
         targetSdkVersion 30
@@ -50,6 +52,15 @@ android {
         ndk {
             abiFilters "armeabi-v7a","x86"  //armeabi,'arm64-v8a'
         }
+
+        // 仅保留中文语种的资源
+        //resConfigs 'zh'
+
+        // 仅保留 xxhdpi 图片资源（目前主流分辨率 1920 * 1080）
+        //resConfigs 'xxhdpi'
+
+        // 混淆配置
+        //proguardFiles 'proguard-sdk.pro', 'proguard-app.pro'
     }
     buildTypes {
         release {

@@ -71,5 +71,5 @@ var materialInfo = MaterialInfo("0","0",0,"0","0","0")
 const val intentFlag ="beginTime"
 var colorHashMap = HashMap<Int, Int>()
 var netConnectIsOK = false
-var appVersionCode =""
+var appVersion =""
 

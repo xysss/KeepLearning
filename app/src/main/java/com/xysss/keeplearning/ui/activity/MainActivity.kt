@@ -13,7 +13,7 @@ import com.blankj.utilcode.util.ToastUtils
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
 import com.xysss.keeplearning.app.ext.LogFlag
-import com.xysss.keeplearning.app.ext.appVersionCode
+import com.xysss.keeplearning.app.ext.appVersion
 import com.xysss.keeplearning.app.ext.job
 import com.xysss.keeplearning.app.ext.netConnectIsOK
 import com.xysss.keeplearning.databinding.ActivityMainBinding
@@ -76,9 +76,9 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
             val info = manager.getPackageInfo(this.packageName, 0)
             info.versionName
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                appVersionCode ="${info.versionName}.${info.longVersionCode}"
+                appVersion ="${info.versionName}.${info.longVersionCode}"
             }else{
-                appVersionCode ="${info.versionName}.${info.versionCode}"
+                appVersion ="${info.versionName}.${info.versionCode}"
             }
         } catch (e: Exception) {
             e.printStackTrace()

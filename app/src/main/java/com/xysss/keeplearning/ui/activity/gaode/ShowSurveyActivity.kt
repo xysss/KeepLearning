@@ -28,6 +28,7 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
     private val sqlLatLngList = ArrayList<LatLng>()
     private var sqlConValueList = ArrayList<String>()
     private var ppmList = ArrayList<String>()
+    private var nameList = ArrayList<String>()
     private var drawList= ArrayList<LatLng>()
     private var mBeginTime:Long = 0
     //巡航最大数值
@@ -48,7 +49,6 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
         mViewBinding.mMapView.onCreate(savedInstanceState)
         mViewBinding.mMapView.map.uiSettings.isZoomControlsEnabled = false
 
-
         scope.launch(Dispatchers.IO) {
             getTrack(mBeginTime)
         }
@@ -61,12 +61,16 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
             val latlngs = surveySlq.longitudeLatitude.trim()
             val conValue = surveySlq.concentrationValue.trim()
             val ppm = surveySlq.ppm.trim()
+            val name = surveySlq.name.trim()
 
             if (conValue.isNotEmpty()){
                 sqlConValueList = conValue.split(delim).toList() as ArrayList<String>
             }
             if (ppm.isNotEmpty()){
                 ppmList = ppm.split(delim).toList() as ArrayList<String>
+            }
+            if (ppm.isNotEmpty()){
+                nameList = name.split(delim).toList() as ArrayList<String>
             }
             if (latlngs.isNotEmpty()) {
                 val lonlats = latlngs.split(delim).toTypedArray()
@@ -108,6 +112,8 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
             mViewBinding.surveyMaxValue.text = "${surveyHistoryMaxConValue.toInt()} $conUnit"
             mViewBinding.surveyAvgValue.text = "${(surveyHistoryMaxConValue/2).toInt()} $conUnit"
             mViewBinding.surveyMinValue.text = "0 $conUnit"
+            mViewBinding.tvVocDes.text="${nameList[nameList.size-2]}浓度"
+
         }
         toDealData()
     }

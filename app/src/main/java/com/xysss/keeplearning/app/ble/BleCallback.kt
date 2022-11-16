@@ -331,7 +331,7 @@ class BleCallback : BluetoothGattCallback() {
                 //tempBytes.toHexString().logE("LogFlag")
                 materialInfo.apply {
                     concentrationNum = if (it[19].toInt()==1){
-                        (conNum.toFloat()/1000).toString()
+                        String.format("%.2f", conNum.toFloat()/1000)
                     }else{
                         conNum
                     }

@@ -130,7 +130,7 @@ class TrackCollectService : Service(){
                 }
 
                 //测试模拟数据
-                testFlag += 0.00001
+                //testFlag += 0.00001
 
                 // 避免阻塞UI主线程，开启一个单独线程来存入内存
                 mVectorThread?.execute {

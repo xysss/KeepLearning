@@ -12,6 +12,7 @@ import com.amap.api.maps.CameraUpdate
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.model.*
 import com.blankj.utilcode.util.ToastUtils
+import com.swallowsonny.convertextlibrary.writeInt16LE
 import com.swallowsonny.convertextlibrary.writeInt8
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.xysss.keeplearning.R
@@ -207,15 +208,16 @@ class AMapTrackActivity : BaseActivity<AMapViewModel, ActivityAmapTrackBinding>(
             val mByte : ByteArray = byteArrayOf(
                 0x55.toByte(),
                 0x00.toByte(),
-                0x0A.toByte(),
+                0x0B.toByte(),
                 0x09.toByte(),
                 0x0C.toByte(),
                 0x00.toByte(),
-                0x01.toByte(),
+                0x02.toByte(),
             )
-            val setPpmBytes = ByteArray(1)
-            setPpmBytes.writeInt8(mmkv.getInt(ValueKey.ppmValue, 0))
-            val startSurveyByte=mByte + setPpmBytes + Crc8.cal_crc8_t(mByte,mByte.size) + ByteUtils.FRAME_END
+            val setPpmBytes = ByteArray(2)
+            setPpmBytes.writeInt16LE(mmkv.getInt(ValueKey.ppmValue, 0))
+            val realByte=mByte + setPpmBytes
+            val startSurveyByte=realByte + Crc8.cal_crc8_t(realByte,realByte.size) + ByteUtils.FRAME_END
             mqttService.publish(startSurveyByte,2)
         }
     }

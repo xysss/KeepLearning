@@ -374,7 +374,7 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
         }
         if (isScanning) {
             isScanning = false
-            BluetoothLeScannerCompat.getScanner().stopScan(scanCallback)
+            BluetoothLeScannerCompat.getScanner().stopScan(mactivity.get()!!.scanCallback)
             mViewBinding.progressBar.visibility = View.INVISIBLE
             mViewBinding.fabAdd.text = "开始扫描"
         }

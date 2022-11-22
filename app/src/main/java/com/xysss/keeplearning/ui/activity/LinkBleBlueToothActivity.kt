@@ -54,7 +54,7 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
     private var isScanNullNameDevice = false
     //当前扫描设备是否过滤设备信号值强度低于目标值的设备
     private var rssi = -100
-    var mactivity: WeakReference<LinkBleBlueToothActivity> = WeakReference<LinkBleBlueToothActivity>(this)
+    lateinit var weakActivity: WeakReference<LinkBleBlueToothActivity>
     //注册开启蓝牙  注意在onCreate之前注册
     private val activityResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -79,6 +79,7 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
      * 初始化
      */
     private fun init() {
+        weakActivity= WeakReference<LinkBleBlueToothActivity>(this)
         mmkv.putString(ValueKey.SERVICE_UUID, sUUID)
         mmkv.putString(ValueKey.DESCRIPTOR_UUID, dUUID)
         mmkv.putString(ValueKey.CHARACTERISTIC_WRITE_UUID, wUUID)
@@ -360,7 +361,7 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
         isScanning = true
         addressList.clear()
         mList.clear()
-        BluetoothLeScannerCompat.getScanner().startScan(mactivity.get()!!.scanCallback)
+        BluetoothLeScannerCompat.getScanner().startScan(weakActivity.get()!!.scanCallback)
         mViewBinding.progressBar.visibility = View.VISIBLE
         mViewBinding.fabAdd.text = "扫描中"
     }
@@ -374,7 +375,7 @@ class LinkBleBlueToothActivity : BaseActivity<LinkBlueToothViewModel, ActivityLi
         }
         if (isScanning) {
             isScanning = false
-            BluetoothLeScannerCompat.getScanner().stopScan(mactivity.get()!!.scanCallback)
+            BluetoothLeScannerCompat.getScanner().stopScan(weakActivity.get()!!.scanCallback)
             mViewBinding.progressBar.visibility = View.INVISIBLE
             mViewBinding.fabAdd.text = "开始扫描"
         }

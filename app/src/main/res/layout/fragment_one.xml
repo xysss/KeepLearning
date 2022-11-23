@@ -109,162 +109,209 @@
         app:layout_constraintTop_toBottomOf="@+id/concentrationNum"
         android:layout_height="wrap_content"/>
 
-    <ImageView
-        android:id="@+id/toServiceBackImg"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/function_cl"
+        android:visibility="gone"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="4dp"
-        android:src="@drawable/to_service_background"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/materialName" />
-
-    <ImageView
-        android:id="@+id/to_service_icon_img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/to_location_icon"
-        android:layout_marginTop="88dp"
-        android:layout_marginStart="75dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/materialName" />
-
-    <TextView
-        android:id="@+id/servicesTex"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="14dp"
-        android:text="    巡测"
-        android:textSize="20sp"
-        android:textColor="@color/color_995"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/to_service_icon_img" />
-
-    <ImageView
-        android:id="@+id/synRecordBackgroundImg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:src="@drawable/syn_record_background"
-        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
-        app:layout_constraintTop_toBottomOf="@+id/materialName" />
-
-    <ImageView
-        android:id="@+id/syn_record_icon_img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/syn_record_icon"
-        android:layout_marginTop="35dp"
-        android:layout_marginStart="77dp"
-        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
-        app:layout_constraintTop_toBottomOf="@+id/materialName" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:textColor="@color/color_9FB"
-        android:text="同步巡测信息"
-        android:textSize="20sp"
-        android:layout_marginTop="14dp"
-        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
-        app:layout_constraintTop_toBottomOf="@+id/syn_record_icon_img" />
-
-    <ImageView
-        android:id="@+id/synAlarmBackgroundImg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/syn_alarm_background"
-        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
-        app:layout_constraintTop_toBottomOf="@+id/synRecordBackgroundImg" />
-
-    <ImageView
-        android:id="@+id/syn_alarm_icon_img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/syn_alarm_icon"
-        android:layout_marginTop="22dp"
-        android:layout_marginStart="77dp"
-        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
-        app:layout_constraintTop_toBottomOf="@+id/synRecordBackgroundImg" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:text="同步报警信息"
-        android:textSize="20sp"
-        android:layout_marginTop="14dp"
-        android:textColor="@color/color_92D"
-        app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
-        app:layout_constraintTop_toBottomOf="@+id/syn_alarm_icon_img" />
-
-    <LinearLayout
-        android:visibility="invisible"
-        android:id="@+id/syn_lin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toServiceBackImg"
-        android:layout_marginStart="120dp"
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal">
+        app:layout_constraintTop_toBottomOf="@+id/materialName"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="wrap_content">
 
         <ImageView
+            android:id="@+id/toServiceBackImg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/to_service_background"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/to_service_icon_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/to_location_icon"
+            android:layout_marginTop="88dp"
+            android:layout_marginStart="75dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/servicesTex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="14dp"
+            android:text="    巡测"
+            android:textSize="20sp"
+            android:textColor="@color/color_995"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/to_service_icon_img" />
+
+        <ImageView
+            android:id="@+id/synRecordBackgroundImg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/syn_record_background"
+            app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/syn_record_icon_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/syn_record_icon"
+            android:layout_marginTop="35dp"
+            android:layout_marginStart="77dp"
+            app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:textColor="@color/color_9FB"
+            android:text="同步巡测信息"
+            android:textSize="20sp"
+            android:layout_marginTop="14dp"
+            app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
+            app:layout_constraintTop_toBottomOf="@+id/syn_record_icon_img" />
+
+        <ImageView
+            android:id="@+id/synAlarmBackgroundImg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/syn_alarm_background"
+            app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
+            app:layout_constraintTop_toBottomOf="@+id/synRecordBackgroundImg" />
+
+        <ImageView
+            android:id="@+id/syn_alarm_icon_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/syn_alarm_icon"
+            android:layout_marginTop="22dp"
+            android:layout_marginStart="77dp"
+            app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
+            app:layout_constraintTop_toBottomOf="@+id/synRecordBackgroundImg" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:text="同步报警信息"
+            android:textSize="20sp"
+            android:layout_marginTop="14dp"
+            android:textColor="@color/color_92D"
+            app:layout_constraintLeft_toRightOf="@+id/toServiceBackImg"
+            app:layout_constraintTop_toBottomOf="@+id/syn_alarm_icon_img" />
+
+        <LinearLayout
             android:visibility="invisible"
-            android:id="@+id/syn_history_icon_img"
+            android:id="@+id/syn_lin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/syn_history_icon" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="同步中"
-            android:textColor="@color/white"
-            android:textSize="11sp"
-            android:layout_marginStart="7dp" />
-        <TextView
-            android:id="@+id/syn_num_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0%"
-            android:textColor="@color/white"
-            android:textSize="11sp"
-            android:layout_marginStart="1dp" />
-    </LinearLayout>
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toServiceBackImg"
+            android:layout_marginStart="120dp"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
 
-    <!--    android:indeterminate="true"-->
-    <ProgressBar
-        android:visibility="invisible"
+            <ImageView
+                android:visibility="invisible"
+                android:id="@+id/syn_history_icon_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/syn_history_icon" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="同步中"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:layout_marginStart="7dp" />
+            <TextView
+                android:id="@+id/syn_num_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0%"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:layout_marginStart="1dp" />
+        </LinearLayout>
+
+        <!--    android:indeterminate="true"-->
+        <ProgressBar
+            android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:id="@+id/progress_bar"
+            android:progressDrawable="@drawable/progress_bg"
+            android:max="100"
+            app:layout_constraintTop_toBottomOf="@+id/syn_lin"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            style="?android:attr/progressBarStyleHorizontal"/>
+
+        <TextView
+            android:visibility="invisible"
+            android:id="@+id/numShowText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0/0"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            app:layout_constraintTop_toBottomOf="@+id/progress_bar"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginEnd="20dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:id="@+id/progress_bar"
-        android:progressDrawable="@drawable/progress_bg"
-        android:max="100"
-        app:layout_constraintTop_toBottomOf="@+id/syn_lin"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        style="?android:attr/progressBarStyleHorizontal"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/materialName"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:visibility="invisible"
-        android:id="@+id/numShowText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0/0"
-        android:textColor="@color/white"
-        android:textSize="11sp"
-        app:layout_constraintTop_toBottomOf="@+id/progress_bar"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginEnd="20dp" />
+        <com.amap.api.maps.MapView
+            android:id="@+id/mMapView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
+        <ImageView
+            android:id="@+id/imageIcon"
+            android:src="@drawable/five_ppm_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="10dp" />
 
+        <Button
+            android:id="@+id/btn_surVey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="开始" />
 
-
-
+        <Button
+            android:id="@+id/btn_show"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="设置"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="80dp" />
+    </RelativeLayout>
 
 
 
@@ -388,7 +435,6 @@
             android:text="进度：==" />
 
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 

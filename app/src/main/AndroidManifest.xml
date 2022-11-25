@@ -73,14 +73,8 @@
 
         <service android:name="com.amap.api.location.APSService"/>
 
-        <service android:name="com.xysss.keeplearning.ui.activity.gaode.service.TrackCollectService"/>
-
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
-        <activity
-            android:name="com.xysss.keeplearning.ui.activity.gaode.AMapTrackActivity"
-            android:launchMode="singleInstance"
-            android:exported="true" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.gaode.ShowSurveyActivity"
             android:launchMode="singleInstance"

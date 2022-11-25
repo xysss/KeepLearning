@@ -1,20 +1,11 @@
 package com.xysss.keeplearning.ui.fragment
 
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.Toast
-import com.blankj.utilcode.util.ToastUtils
-import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.listener.OnItemChildClickListener
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
-import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.keeplearning.app.ext.intentFlag
 import com.xysss.keeplearning.app.room.Survey
 import com.xysss.keeplearning.databinding.FragmentHistorySurveyBinding
-import com.xysss.keeplearning.ui.activity.WebActivity
-import com.xysss.keeplearning.ui.activity.gaode.AMapTrackActivity
 import com.xysss.keeplearning.ui.activity.gaode.ShowSurveyActivity
 import com.xysss.keeplearning.ui.adapter.HistorySurveyAdapter
 import com.xysss.keeplearning.viewmodel.HistorySurveyViewModel

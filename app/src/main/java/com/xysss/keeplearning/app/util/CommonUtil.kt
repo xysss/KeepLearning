@@ -84,10 +84,8 @@ class CommonUtil {
          *
          * @return
          */
-        @SuppressLint("HardwareIds")
         fun getImei(context: Context): String? {
-            val imei: String?
-            imei = try {
+            val imei: String? = try {
                 (context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).deviceId
             } catch (e: Exception) {
                 "myTrace"

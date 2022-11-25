@@ -10,24 +10,23 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Color
+import android.opengl.Visibility
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import com.amap.api.maps.model.LatLng
+import com.amap.api.maps.CameraUpdate
+import com.amap.api.maps.CameraUpdateFactory
+import com.amap.api.maps.model.*
 import com.blankj.utilcode.util.ServiceUtils.bindService
 import com.blankj.utilcode.util.ToastUtils
 import com.gyf.immersionbar.ktx.immersionBar
-import com.swallowsonny.convertextlibrary.toHexString
-import com.swallowsonny.convertextlibrary.writeFloatLE
-import com.swallowsonny.convertextlibrary.writeInt32LE
-import com.swallowsonny.convertextlibrary.writeInt8
+import com.swallowsonny.convertextlibrary.writeInt16LE
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.app.ext.*
-import com.xysss.keeplearning.app.room.Survey
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils
@@ -37,17 +36,14 @@ import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.data.repository.Repository
 import com.xysss.keeplearning.databinding.FragmentOneBinding
 import com.xysss.keeplearning.ui.activity.*
-import com.xysss.keeplearning.ui.activity.gaode.AMapTrackActivity
-import com.xysss.keeplearning.viewmodel.BlueToothViewModel
+import com.xysss.keeplearning.viewmodel.OneFragmentViewModel
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.*
 import com.xysss.mvvmhelper.net.LoadingDialogEntity
 import com.xysss.mvvmhelper.net.LoadingType.Companion.LOADING_CUSTOM
-import com.xysss.mvvmhelper.net.manager.NetState
+import getRouteWidth
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import okhttp3.internal.toHexString
 import java.util.*
 
 /**
@@ -55,9 +51,9 @@ import java.util.*
  * Time:2021/9/2811:15
  */
 
-class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
+class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     private var downloadApkPath = ""
-    private lateinit var mService: MQTTService
+    private lateinit var mqttService: MQTTService
     private var loadingDialogEntity = LoadingDialogEntity()
     private val send00Msg = "55000a0900000100"  //读取设备信息
     private val send10Msg = "55000a0910000100"  //读取实时数据
@@ -68,21 +64,24 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
     private var historyTask: HistoryTimerTask? = null
     private var realDataTask: RealTimeDataTimerTask? = null
     private var blueConnectTask: BlueToothConnectTimerTask? = null
-
     private var retryFlagCount = 0
+
+    private var isDrawPoint = false  //是否要画起点和终点
+    private var isSurveying = false  //是否巡测中
+    private var ppmChoice = -1
 
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val mBinder = service as MQTTService.MyBinder
-            mService = mBinder.service
-            mViewModel.putService(mService)
+            mqttService = mBinder.service
+            mViewModel.putService(mqttService)
 
             if (mmkv.getString(ValueKey.deviceId,"")!=""){
                 if (!isConnectMqtt){
                     recTopic= mmkv.getString(ValueKey.recTopicValue, "").toString()
                     sendTopic= mmkv.getString(ValueKey.sendTopicValue, "").toString()
-                    mService.connectMqtt(appContext)
+                    mqttService.connectMqtt(appContext)
                 }
             }
         }
@@ -108,6 +107,9 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         //请求权限
         requestCameraPermissions()
 
+        // 在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
+        mViewBinding.mMapView.onCreate(savedInstanceState)
+        mViewBinding.mMapView.map.uiSettings.isZoomControlsEnabled = false
     }
 
     override fun onResume() {
@@ -115,6 +117,8 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         immersionBar {
             titleBar(mViewBinding.customToolbar)
         }
+        // 在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
+        mViewBinding.mMapView.onResume()
     }
 
     @SuppressLint("ResourceAsColor", "SetTextI18n", "UseCompatLoadingForDrawables")
@@ -124,6 +128,10 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             mViewBinding.concentrationNum.text = it.concentrationNum
             mViewBinding.concentrationUnit.text = it.concentrationUnit
             mViewBinding.materialName.text = it.materialName
+        }
+
+        mViewModel.latLngResultList.observe(this){
+            drawMapLine(it)
         }
 
         mViewModel.bleState.observe(this) {
@@ -165,6 +173,50 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         }
     }
 
+    private fun drawMapLine(list: MutableList<LatLng>?) {
+        if (list == null || list.isEmpty()) {
+            return
+        }
+        val mBuilder = LatLngBounds.Builder()
+        val polylineOptions = PolylineOptions() //.setCustomTexture(BitmapDescriptorFactory.fromResource(R.mipmap.ic_tour_track))
+            .color(mViewModel.getDriveColor())
+            .width(getRouteWidth())
+            .addAll(list)
+        //mMap.clear()
+        mViewBinding.mMapView.map.addPolyline(polylineOptions)
+        if (isDrawPoint){
+            if (isSurveying) {
+                val latLngBegin = LatLng(list[0].latitude, list[0].longitude)  //标记点
+                val markerBegin: Marker = mViewBinding.mMapView.map.addMarker(
+                    MarkerOptions().position(latLngBegin).title("起点").snippet("DefaultMarker")
+                )
+            } else {
+                val latLngEnd = LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
+                val markerEnd: Marker = mViewBinding.mMapView.map.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
+                mViewModel.stopLocation()
+                mViewBinding.functionCl.visibility=View.VISIBLE
+                mViewBinding.trackRl.visibility=View.GONE
+                isPollingModel=false
+            }
+            isDrawPoint=false
+        }
+        //mMap.mapType=AMap.MAP_TYPE_NORMAL  //白昼地图（即普通地图）
+
+        list.forEach {
+            mBuilder.include(it)
+        }
+
+        val cameraUpdate: CameraUpdate
+        // 判断,区域点计算出来,的两个点相同,这样地图视角发生改变,SDK5.0.0会出现异常白屏(定位到海上了)
+        val northeast = mBuilder.build().northeast
+        cameraUpdate = if (northeast != null && northeast == mBuilder.build().southwest) {
+            CameraUpdateFactory.newLatLng(mBuilder.build().southwest)
+        } else {
+            CameraUpdateFactory.newLatLngBounds(mBuilder.build(), 20)
+        }
+        mViewBinding.mMapView.map.animateCamera(cameraUpdate)
+    }
+
     /**
      * 请求权限
      */
@@ -174,8 +226,11 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         //请求打开相机权限
         val rxPermissions = RxPermissions(requireActivity())
         rxPermissions.request(
-            Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
         ).subscribe { aBoolean ->
             if (aBoolean) {
                 ToastUtils.showShort("权限已经打开")
@@ -218,10 +273,32 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             mViewBinding.getPermission, mViewBinding.testRoom, mViewBinding.linkBlueTooth,
 
             mViewBinding.blueLink, mViewBinding.testBackgroundImg, mViewBinding.toServiceBackImg,
-            mViewBinding.synRecordBackgroundImg, mViewBinding.synAlarmBackgroundImg
+            mViewBinding.synRecordBackgroundImg, mViewBinding.synAlarmBackgroundImg,
+            mViewBinding.btnSurVey, mViewBinding.btnShow
 
         ) {
             when (it.id) {
+                R.id.btn_surVey -> {
+                    when (mmkv.getInt(ValueKey.ppmValue, 0)) {
+                        5 -> {
+                            mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.five_ppm_icon, null))
+                            surVeyClick()
+                        }
+                        10 -> {
+                            mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
+                            surVeyClick()
+                        }
+                        else -> {
+                            ToastUtils.showShort("请先设置ppm参数")
+                        }
+                    }
+                }
+
+                R.id.btn_show -> {
+                    showSingleChoiceDialog()
+                    //mViewModel.onShowClick()
+                }
+
                 R.id.blueLink -> {
                     val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
                     requestDataLauncher.launch(intentBle)
@@ -240,8 +317,13 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                 //进入巡测模式
                 R.id.toServiceBackImg -> {
                     if (isBleReady){
-                        if (!isRealing) startTest()
-                        toStartActivity(AMapTrackActivity::class.java)
+                        if (!isRealing){
+                            startTest()
+                        }
+                        mViewBinding.functionCl.visibility=View.GONE
+                        mViewBinding.trackRl.visibility=View.VISIBLE
+                        isPollingModel=true
+                        //toStartActivity(AMapTrackActivity::class.java)
                     }else{
                         ToastUtils.showShort("请先连接蓝牙")
                     }
@@ -273,9 +355,6 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
                 //以下为demo按钮
                 R.id.testRoom -> {
                     toStartActivity(RoomSampleActivity::class.java)
-                }
-                R.id.getPermission -> {
-                    requestCameraPermissions()
                 }
                 R.id.loginBtn -> {
                     toStartActivity(LoginActivity::class.java)
@@ -321,6 +400,55 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
             }
         }
     }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private fun showSingleChoiceDialog() {
+        val lastPpmValue: Int = when (mmkv.getInt(ValueKey.ppmValue, 0)) {
+            5 -> {
+                mmkv.putInt(ValueKey.ppmValue, 5)
+                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.five_ppm_icon, null))
+                0
+            }
+            10 ->{
+                mmkv.putInt(ValueKey.ppmValue, 10)
+                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
+                1
+            }
+            else -> {
+                mmkv.putInt(ValueKey.ppmValue, 10)
+                mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
+                1
+            }
+        }
+        val items = arrayOf("5ppm", "10ppm")
+        val singleChoiceDialog = androidx.appcompat.app.AlertDialog.Builder(mActivity)
+        singleChoiceDialog.setTitle("请选择")
+        // 第二个参数是默认选项，此处设置
+        singleChoiceDialog.setSingleChoiceItems(items, lastPpmValue) { _, which ->
+            ppmChoice = which
+        }
+        singleChoiceDialog.setPositiveButton("确定") { _, _ ->
+            if (ppmChoice != -1) {
+                ToastUtils.showShort("你选择了" + items[ppmChoice])
+                when (ppmChoice) {
+                    0 -> {
+                        mmkv.putInt(ValueKey.ppmValue, 5)
+                        mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.five_ppm_icon, null))
+                    }
+                    1 -> {
+                        mmkv.putInt(ValueKey.ppmValue, 10)
+                        mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
+                    }
+                    else ->{
+                        mmkv.putInt(ValueKey.ppmValue, 10)
+                        mViewBinding.imageIcon.setImageDrawable(resources.getDrawable(R.drawable.ten_ppm_icon, null))
+                    }
+                }
+            }
+        }
+        singleChoiceDialog.show()
+    }
+
 
     private fun synMessage(flag: Int) {
         //已经废弃，不建议使用
@@ -395,6 +523,11 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         mTimer?.cancel()
     }
 
+    private fun startTrack(){
+        mViewModel.startLocation()
+        mViewModel.startCollect()
+    }
+
     private fun startTest() {
         //切换实时数据模式
         BleHelper.synFlag = "实时数据模式"
@@ -440,13 +573,77 @@ class OneFragment : BaseFragment<BlueToothViewModel, FragmentOneBinding>() {
         }
     }
 
+    private fun surVeyClick() {
+        if(netConnectIsOK){
+            isDrawPoint = true
+            if (isSurveying){
+                setEndState()
+            }else {
+                setStartState()
+                startTrack()
+            }
+        }else{
+            ToastUtils.showShort("网络未连接，请先连接网络")
+        }
+    }
+
+    private fun setStartState(){
+        mViewBinding.btnSurVey.text="结束"
+        isSurveying = true
+        trackBeginTime = System.currentTimeMillis()/1000
+        scope.launch(Dispatchers.IO) {
+            val mByte : ByteArray = byteArrayOf(
+                0x55.toByte(),
+                0x00.toByte(),
+                0x0B.toByte(),
+                0x09.toByte(),
+                0x0C.toByte(),
+                0x00.toByte(),
+                0x02.toByte(),
+            )
+            val setPpmBytes = ByteArray(2)
+            setPpmBytes.writeInt16LE(mmkv.getInt(ValueKey.ppmValue, 0))
+            val realByte=mByte + setPpmBytes
+            val startSurveyByte=realByte + Crc8.cal_crc8_t(realByte,realByte.size) + ByteUtils.FRAME_END
+            mqttService.publish(startSurveyByte,2)
+        }
+    }
+
+
+    private fun setEndState(){
+        mViewBinding.btnSurVey.text="开始"
+        isSurveying = false
+        trackEndTime = System.currentTimeMillis()/1000
+        scope.launch(Dispatchers.IO) {
+            val mByte : ByteArray = byteArrayOf(
+                0x55.toByte(),
+                0x00.toByte(),
+                0x0A.toByte(),
+                0x09.toByte(),
+                0x0D.toByte(),
+                0x00.toByte(),
+                0x01.toByte(),
+                0x00.toByte(),
+            )
+            val endSurveyByte=mByte + Crc8.cal_crc8_t(mByte,mByte.size) + ByteUtils.FRAME_END
+            mqttService.publish(endSurveyByte,2)
+        }
+    }
+
     override fun onDestroy() {
         BleHelper.gatt?.close()
         realDataTask?.cancel()
         historyTask?.cancel()
         blueConnectTask?.cancel()
         mTimer?.cancel()
-        appContext.unbindService(connection)
+        mActivity.unbindService(connection)
+
+        isPollingModel=false
+        //setEndState()
+        // 在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
+        mViewBinding.mMapView.onDestroy()
+        //tt.onClose()
+        "AmapTrackActivity onDestory".logE(LogFlag)
         super.onDestroy()
     }
 

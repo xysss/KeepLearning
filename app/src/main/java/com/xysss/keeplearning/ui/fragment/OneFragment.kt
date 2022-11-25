@@ -124,15 +124,28 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     @SuppressLint("ResourceAsColor", "SetTextI18n", "UseCompatLoadingForDrawables")
     override fun initObserver() {
         super.initObserver()
+
+        mViewModel.isTrackOver.observe(this){
+            if (!it){
+                exitTrackUI()
+            }
+        }
+
         mViewModel.bleDate.observe(this) {
             mViewBinding.concentrationNum.text = it.concentrationNum
             mViewBinding.concentrationUnit.text = it.concentrationUnit
             mViewBinding.materialName.text = it.materialName
         }
 
-        mViewModel.latLngResultList.observe(this){
-            drawMapLine(it)
-        }
+        mViewModel.setRealLocationListener(object : OneFragmentViewModel.RealLocationCallBack {
+            override fun sendRealLocation(mList: MutableList<LatLng>) {
+                drawMapLine(mList)
+            }
+        })
+
+//        mViewModel.latLngResultList.observe(this){
+//            drawMapLine(it)
+//        }
 
         mViewModel.bleState.observe(this) {
             mViewBinding.blueTv.text = it
@@ -194,9 +207,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                 val latLngEnd = LatLng(list[list.size - 1].latitude, list[list.size - 1].longitude)  //标记点
                 val markerEnd: Marker = mViewBinding.mMapView.map.addMarker(MarkerOptions().position(latLngEnd).title("终点").snippet("DefaultMarker"))
                 mViewModel.stopLocation()
-                mViewBinding.functionCl.visibility=View.VISIBLE
-                mViewBinding.trackRl.visibility=View.GONE
-                isPollingModel=false
             }
             isDrawPoint=false
         }
@@ -323,7 +333,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                         mViewBinding.functionCl.visibility=View.GONE
                         mViewBinding.trackRl.visibility=View.VISIBLE
                         isPollingModel=true
-                        //toStartActivity(AMapTrackActivity::class.java)
                     }else{
                         ToastUtils.showShort("请先连接蓝牙")
                     }
@@ -628,6 +637,12 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
             val endSurveyByte=mByte + Crc8.cal_crc8_t(mByte,mByte.size) + ByteUtils.FRAME_END
             mqttService.publish(endSurveyByte,2)
         }
+    }
+
+    private fun exitTrackUI(){
+        mViewBinding.functionCl.visibility=View.VISIBLE
+        mViewBinding.trackRl.visibility=View.GONE
+        isPollingModel=false
     }
 
     override fun onDestroy() {

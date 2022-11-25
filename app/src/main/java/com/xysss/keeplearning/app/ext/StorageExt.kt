@@ -67,7 +67,7 @@ const val cutOff = ","
 var trackBeginTime = 0L
 var trackEndTime = 0L
 //设备实时数据
-var materialInfo = MaterialInfo("0","0",0,"0","0","0")
+var materialInfo = MaterialInfo("0","0",0,"0","0","异丁烯")
 const val intentFlag ="beginTime"
 var colorHashMap = HashMap<Int, Int>()
 var netConnectIsOK = false

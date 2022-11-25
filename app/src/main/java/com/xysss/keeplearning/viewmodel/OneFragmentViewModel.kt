@@ -63,6 +63,9 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
     private var _numShow=MutableLiveData<String>()
     private var _dialogStatus=MutableLiveData<Boolean>()
 
+    var isTrackOver = MutableLiveData<Boolean>(true)   //是否巡测中
+
+
     @SuppressLint("StaticFieldLeak")
     private lateinit var mService: MQTTService
 
@@ -413,9 +416,9 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
                     latLngList.add(LatLng(amapLocation.latitude+testFlag,amapLocation.longitude+testFlag))
                     if(latLngList.size >1){
                         val sendRealSurveyBytes = getRealSurveyDataBytes(latitude.toDouble(),longitude.toDouble())
-                        latLngResultList.postValue(latLngList)
                         mService.publish(sendRealSurveyBytes)
-                        //realLocationCallBack.sendRealLocation(latLngList,bytes)
+                        //latLngResultList.postValue(latLngList)
+                        realLocationCallBack.sendRealLocation(latLngList)
                         val temp = LatLng(latLngList[1].latitude,latLngList[1].longitude)
                         latLngList.clear()
                         latLngList.add(temp)
@@ -658,7 +661,10 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
     }
 
     fun stopLocation() {
-        ToastUtils.showShort("停止采集")
+        "stopLocation是否在主线程： ${isMainThread()}".logE(LogFlag)
+        ToastUtils.showShort("已停止采集")
+        isTrackOver.postValue(false)
+
         if (mLocationClient != null) {
             mLocationClient?.stopLocation()
             mLocationClient = null
@@ -699,7 +705,7 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
 
 
     interface RealLocationCallBack {
-        fun sendRealLocation(mList: MutableList<LatLng>,bytes: ByteArray)
+        fun sendRealLocation(mList: MutableList<LatLng>)
     }
 
 }

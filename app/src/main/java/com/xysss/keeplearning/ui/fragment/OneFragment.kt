@@ -110,6 +110,10 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         // 在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         mViewBinding.mMapView.onCreate(savedInstanceState)
         mViewBinding.mMapView.map.uiSettings.isZoomControlsEnabled = false
+
+        mViewBinding.trackRl.visibility=View.GONE
+        mViewBinding.functionCl.visibility=View.VISIBLE
+
     }
 
     override fun onResume() {
@@ -124,12 +128,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     @SuppressLint("ResourceAsColor", "SetTextI18n", "UseCompatLoadingForDrawables")
     override fun initObserver() {
         super.initObserver()
-
-        mViewModel.isTrackOver.observe(this){
-            if (!it){
-                exitTrackUI()
-            }
-        }
 
         mViewModel.bleDate.observe(this) {
             mViewBinding.concentrationNum.text = it.concentrationNum
@@ -284,10 +282,18 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
 
             mViewBinding.blueLink, mViewBinding.testBackgroundImg, mViewBinding.toServiceBackImg,
             mViewBinding.synRecordBackgroundImg, mViewBinding.synAlarmBackgroundImg,
-            mViewBinding.btnSurVey, mViewBinding.btnShow
+            mViewBinding.btnSurVey, mViewBinding.btnShow,mViewBinding.trackBackIv
 
         ) {
             when (it.id) {
+                R.id.track_back_iv -> {
+                    if (isSurveying){
+                        ToastUtils.showShort("请先结束走航")
+                    }else{
+                        exitTrackUI()
+                    }
+                }
+
                 R.id.btn_surVey -> {
                     when (mmkv.getInt(ValueKey.ppmValue, 0)) {
                         5 -> {
@@ -330,9 +336,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                         if (!isRealing){
                             startTest()
                         }
-                        mViewBinding.functionCl.visibility=View.GONE
-                        mViewBinding.trackRl.visibility=View.VISIBLE
-                        isPollingModel=true
+                        showTrackUI()
                     }else{
                         ToastUtils.showShort("请先连接蓝牙")
                     }
@@ -643,6 +647,11 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         mViewBinding.functionCl.visibility=View.VISIBLE
         mViewBinding.trackRl.visibility=View.GONE
         isPollingModel=false
+    }
+    private fun showTrackUI(){
+        mViewBinding.functionCl.visibility=View.GONE
+        mViewBinding.trackRl.visibility=View.VISIBLE
+        isPollingModel=true
     }
 
     override fun onDestroy() {

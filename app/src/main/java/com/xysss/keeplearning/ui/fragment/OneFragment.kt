@@ -333,9 +333,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                 //进入巡测模式
                 R.id.toServiceBackImg -> {
                     if (isBleReady){
-                        if (!isRealing){
-                            startTest()
-                        }
                         showTrackUI()
                     }else{
                         ToastUtils.showShort("请先连接蓝牙")
@@ -592,6 +589,9 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
             if (isSurveying){
                 setEndState()
             }else {
+                if (!isRealing){
+                    startTest()
+                }
                 setStartState()
                 startTrack()
             }

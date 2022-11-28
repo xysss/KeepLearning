@@ -128,7 +128,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     @SuppressLint("ResourceAsColor", "SetTextI18n", "UseCompatLoadingForDrawables")
     override fun initObserver() {
         super.initObserver()
-
         mViewModel.bleDate.observe(this) {
             mViewBinding.concentrationNum.text = it.concentrationNum
             mViewBinding.concentrationUnit.text = it.concentrationUnit
@@ -534,6 +533,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     }
 
     private fun startTrack(){
+        mViewBinding.mMapView.map.clear()
         mViewModel.startLocation()
         mViewModel.startCollect()
     }

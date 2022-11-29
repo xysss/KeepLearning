@@ -25,6 +25,7 @@ import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.*
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.data.repository.Repository
+import com.xysss.keeplearning.data.response.AppVersionResponse
 import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.keeplearning.ui.activity.gaode.bean.LocationInfo
 import com.xysss.mvvmhelper.base.BaseViewModel
@@ -36,6 +37,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import okhttp3.internal.toHexString
+import rxhttp.toClass
 import rxhttp.toFlow
 import rxhttp.wrapper.entity.Progress
 import rxhttp.wrapper.param.RxHttp
@@ -62,6 +64,9 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
     private var _progressNum=MutableLiveData<Int>()
     private var _numShow=MutableLiveData<String>()
     private var _dialogStatus=MutableLiveData<Boolean>()
+
+    val appVersionInfo: LiveData<AppVersionResponse> get() = _appVersionInfo
+    private var _appVersionInfo= MutableLiveData<AppVersionResponse>()
 
     @SuppressLint("StaticFieldLeak")
     private lateinit var mService: MQTTService
@@ -91,10 +96,21 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
 
     private lateinit var realLocationCallBack: RealLocationCallBack
 
+    fun checkVersion(){
+        scope.launch(Dispatchers.IO) {
+            _appVersionInfo.postValue(getAppVersionInfo())
+        }
+    }
+
+    private suspend fun getAppVersionInfo(): AppVersionResponse {
+        return RxHttp.get("access/integration/versioninfo/Vp200App")
+            .toClass<AppVersionResponse>()
+            .await()
+    }
+
     fun setRealLocationListener(mListener: RealLocationCallBack) {
         this.realLocationCallBack = mListener
     }
-
 
     fun setCallBack(){
         //注册回调

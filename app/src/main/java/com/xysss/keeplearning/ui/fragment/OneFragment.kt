@@ -2,36 +2,45 @@ package com.xysss.keeplearning.ui.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Color
-import android.opengl.Visibility
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.amap.api.maps.CameraUpdate
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.model.*
 import com.blankj.utilcode.util.ServiceUtils.bindService
 import com.blankj.utilcode.util.ToastUtils
+import com.chad.library.adapter.base.BaseQuickAdapter
 import com.gyf.immersionbar.ktx.immersionBar
 import com.swallowsonny.convertextlibrary.writeInt16LE
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
+import com.xysss.keeplearning.app.ble.BleDevice
+import com.xysss.keeplearning.app.ble.BleDeviceAdapter
 import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils
 import com.xysss.keeplearning.app.util.Crc8
 import com.xysss.keeplearning.app.util.FileUtils
+import com.xysss.keeplearning.app.wheel.dialog.UpdateDialog
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.data.repository.Repository
 import com.xysss.keeplearning.databinding.FragmentOneBinding
@@ -44,6 +53,10 @@ import com.xysss.mvvmhelper.net.LoadingType.Companion.LOADING_CUSTOM
 import getRouteWidth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat
+import no.nordicsemi.android.support.v18.scanner.ScanCallback
+import no.nordicsemi.android.support.v18.scanner.ScanResult
+import java.lang.ref.WeakReference
 import java.util.*
 
 /**
@@ -70,6 +83,30 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     private var isSurveying = false  //是否巡测中
     private var ppmChoice = -1
 
+    private lateinit var layNoEquipment : LinearLayout
+    private lateinit var blueToothProgressBar : ProgressBar
+    private lateinit var blueListRv : RecyclerView
+
+    //默认蓝牙适配器
+    private var defaultAdapter = BluetoothAdapter.getDefaultAdapter()
+    //低功耗蓝牙适配器
+    private lateinit var bleAdapter: BleDeviceAdapter
+    //蓝牙列表
+    private var mList: MutableList<BleDevice> = ArrayList()
+    //地址列表
+    private var addressList: MutableList<String> = ArrayList()
+    //当前是否扫描
+    private var isScanning = false
+    //当前扫描设备是否过滤设备名称为Null的设备
+    private var isScanNullNameDevice = false
+    //当前扫描设备是否过滤设备信号值强度低于目标值的设备
+    private var rssi = -100
+    private lateinit var blueListDialog: AlertDialog
+    private val activityResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) ToastUtils.showShort(if (defaultAdapter.isEnabled) "蓝牙已打开" else "蓝牙未打开")
+        }
+
     private val connection = object : ServiceConnection {
         //与服务绑定成功的时候自动回调
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -85,7 +122,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                 }
             }
         }
-
         //崩溃被杀掉的时候回调
         override fun onServiceDisconnected(name: ComponentName?) {
         }
@@ -93,6 +129,8 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
 
     override fun initView(savedInstanceState: Bundle?) {
         mViewBinding.customToolbar.setCenterTitle(R.string.bottom_title_read)
+        //检查版本
+        mViewModel.checkVersion()
         //bugly进入首页检查更新
         //Beta.checkUpgrade(false, true)
         //开启服务
@@ -101,9 +139,9 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
 
         mViewModel.setCallBack()
 
-        //去连接蓝牙
-        val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
-        requestDataLauncher.launch(intentBle)
+//        //去连接蓝牙
+//        val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
+//        requestDataLauncher.launch(intentBle)
         //请求权限
         requestCameraPermissions()
 
@@ -114,6 +152,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         mViewBinding.trackRl.visibility=View.GONE
         mViewBinding.functionCl.visibility=View.VISIBLE
 
+        initBlueTooth()
     }
 
     override fun onResume() {
@@ -128,6 +167,27 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     @SuppressLint("ResourceAsColor", "SetTextI18n", "UseCompatLoadingForDrawables")
     override fun initObserver() {
         super.initObserver()
+        mViewModel.appVersionInfo.observe(this) { appVersionInfo->
+            if (appVersionInfo.appUrl.isNotEmpty()){
+                "appVersionInfo: $appVersionInfo".logE(LogFlag)
+                if (appVersionInfo.version.toInt()> getAppVersionCode(mActivity)){
+                    appVersionInfo.logE(LogFlag)
+                    // 升级对话框
+                    UpdateDialog.Builder(mActivity)
+                        // 版本名
+                        .setVersionName("${getAppVersionName(mActivity)}.${appVersionInfo.version.toInt()}")
+                        // 是否强制更新
+                        .setForceUpdate(false)
+                        // 更新日志
+                        .setUpdateLog("修复一些已知问题")
+                        // 下载 URL
+                        .setDownloadUrl(appVersionInfo.appUrl)
+                        // 文件 MD5
+                        //.setFileMd5("df2f045dfa854d8461d9cefe08b813c8")
+                        .show()
+                }
+            }
+        }
         mViewModel.bleDate.observe(this) {
             mViewBinding.concentrationNum.text = it.concentrationNum
             mViewBinding.concentrationUnit.text = it.concentrationUnit
@@ -150,8 +210,9 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                 isBleReady=true
                 mViewBinding.blueTv.setTextColor(Color.parseColor("#4BDAFF"))
                 mViewBinding.blueLinkImg.setImageDrawable(resources.getDrawable(R.drawable.connected_icon, null))
-
+                blueListDialog.dismiss()
                 dismissProgressUI()
+
             } else if (it == "未连接设备") {
                 isBleReady=false
                 mViewBinding.blueTv.setTextColor(Color.parseColor("#FFFFFFFF"))
@@ -251,26 +312,175 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         super.onDestroyView()
     }
 
-    //蓝牙页面回调
-    @SuppressLint("UseCompatLoadingForDrawables", "ResourceAsColor")
-    private val requestDataLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val device = result.data?.getParcelableExtra<BluetoothDevice>("device")
-                //val data = result.data?.getStringExtra("data")
-                mViewModel.connectBlueTooth(device)
-                //等待页面
-                loadingDialogEntity.loadingType = LOADING_CUSTOM
-                loadingDialogEntity.loadingMessage = "连接蓝牙中"
-                loadingDialogEntity.isShow = true
-                loadingDialogEntity.requestCode = "linkBle"
-                showCustomLoading(loadingDialogEntity)
-
-                mTimer = Timer()
-                blueConnectTask = BlueToothConnectTimerTask()
-                mTimer?.schedule(blueConnectTask, 10 * 1000, 10 * 1000)
-            }
+    //扫描结果回调
+    private val scanCallback = object : ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult) {
+            val name = result.device.name ?: "Unknown"
+            addDeviceList(BleDevice(result.device, result.rssi, name))
         }
+    }
+
+    private fun openBluetooth() = defaultAdapter.let {
+        if (it.isEnabled) ToastUtils.showShort("蓝牙已打开，可以开始扫描设备了") else activityResult.launch(
+            Intent(
+                BluetoothAdapter.ACTION_REQUEST_ENABLE
+            )
+        )
+    }
+
+    private fun initBlueTooth(){
+        openBluetooth()
+        mmkv.putString(ValueKey.SERVICE_UUID, sUUID)
+        mmkv.putString(ValueKey.DESCRIPTOR_UUID, dUUID)
+        mmkv.putString(ValueKey.CHARACTERISTIC_WRITE_UUID, wUUID)
+        mmkv.putString(ValueKey.CHARACTERISTIC_INDICATE_UUID, rUUID)
+        //默认过滤设备名为空的设备
+        mmkv.putBoolean(ValueKey.NULL_NAME, true)
+        mmkv.getInt(ValueKey.RSSI, 100)
+
+        mmkv.putString(ValueKey.SERVICE_UUID, sUUID)
+        mmkv.putString(ValueKey.DESCRIPTOR_UUID, dUUID)
+        mmkv.putString(ValueKey.CHARACTERISTIC_WRITE_UUID, wUUID)
+        mmkv.putString(ValueKey.CHARACTERISTIC_INDICATE_UUID, rUUID)
+
+        bleAdapter = BleDeviceAdapter(mList).apply {
+            setOnItemClickListener { _, _, position ->
+                if (checkUuid()) {
+                    stopScan()
+                    val device = mList[position].device
+                    mViewModel.connectBlueTooth(device)
+                    //等待页面
+                    loadingDialogEntity.loadingType = LOADING_CUSTOM
+                    loadingDialogEntity.loadingMessage = "连接蓝牙中"
+                    loadingDialogEntity.isShow = true
+                    loadingDialogEntity.requestCode = "linkBle"
+                    showCustomLoading(loadingDialogEntity)
+                    mTimer = Timer()
+                    blueConnectTask = BlueToothConnectTimerTask()
+                    mTimer?.schedule(blueConnectTask, 10 * 1000, 10 * 1000)
+                }
+            }
+            animationEnable = true
+            setAnimationWithDefault(BaseQuickAdapter.AnimationType.SlideInRight)
+        }
+    }
+
+    /**
+     * 扫描蓝牙
+     */
+    private fun scan() {
+        if (!defaultAdapter.isEnabled) {
+            ToastUtils.showShort("蓝牙未打开");return
+        }
+        if (isScanning) {
+            ToastUtils.showShort("正在扫描中...");return
+        }
+        isScanning = true
+        addressList.clear()
+        mList.clear()
+        BluetoothLeScannerCompat.getScanner().startScan(scanCallback)
+        blueToothProgressBar.visibility = View.VISIBLE
+    }
+
+    /**
+     * 添加到设备列表
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    private fun addDeviceList(bleDevice: BleDevice) {
+        //过滤设备名为null的设备
+        if (mmkv.getBoolean(ValueKey.NULL_NAME, false) && bleDevice.device.name == null) {
+            return
+        }
+        rssi = -mmkv.getInt(ValueKey.RSSI, 100)
+        filterDeviceList()
+        if (bleDevice.rssi < rssi) {
+            return
+        }
+        //检查之前所添加的设备地址是否存在当前地址列表
+        val address = bleDevice.device.address
+        if (!addressList.contains(address)) {
+            addressList.add(address)
+            mList.add(bleDevice)
+        }
+        //无设备UI展示
+        layNoEquipment.visibility = if (mList.size > 0) View.GONE else View.VISIBLE
+        //刷新列表适配器
+        bleAdapter.notifyDataSetChanged()
+    }
+    /**
+     * 过滤设备列表
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    private fun filterDeviceList() {
+        if (mList.size > 0) {
+            val mIterator = mList.iterator()
+            while (mIterator.hasNext()) {
+                val next = mIterator.next()
+                if ((mmkv.getBoolean(ValueKey.NULL_NAME, false) && next.device.name == null) || next.rssi < rssi) {
+                    addressList.remove(next.device.address)
+                    mIterator.remove()
+                }
+            }
+            bleAdapter.notifyDataSetChanged()
+        }
+    }
+
+    /**
+     * 停止扫描
+     */
+    private fun stopScan() {
+        if (!defaultAdapter.isEnabled) {
+            ToastUtils.showShort("蓝牙未打开");return
+        }
+        if (isScanning) {
+            isScanning = false
+            BluetoothLeScannerCompat.getScanner().stopScan(scanCallback)
+            blueToothProgressBar.visibility = View.INVISIBLE
+        }
+    }
+
+    /**
+     * 检查UUID
+     */
+    private fun checkUuid(): Boolean {
+        val serviceUuid = mmkv.getString(ValueKey.SERVICE_UUID, "")
+        val descriptorUuid = mmkv.getString(ValueKey.DESCRIPTOR_UUID, "")
+        val writeUuid = mmkv.getString(ValueKey.CHARACTERISTIC_WRITE_UUID, "")
+        val indicateUuid = mmkv.getString(ValueKey.CHARACTERISTIC_INDICATE_UUID, "")
+        if (serviceUuid.isNullOrEmpty()) {
+            ToastUtils.showShort("请输入Service UUID")
+            return false
+        }
+        if (serviceUuid.length < 32) {
+            ToastUtils.showShort("请输入正确的Service UUID")
+            return false
+        }
+        if (descriptorUuid.isNullOrEmpty()) {
+            ToastUtils.showShort("请输入Descriptor UUID")
+            return false
+        }
+        if (descriptorUuid.length < 32) {
+            ToastUtils.showShort("请输入正确的Descriptor UUID")
+            return false
+        }
+        if (writeUuid.isNullOrEmpty()) {
+            ToastUtils.showShort("请输入Characteristic Write UUID")
+            return false
+        }
+        if (writeUuid.length < 32) {
+            ToastUtils.showShort("请输入正确的Characteristic Write UUID")
+            return false
+        }
+        if (indicateUuid.isNullOrEmpty()) {
+            ToastUtils.showShort("请输入Characteristic Indicate UUID")
+            return false
+        }
+        if (indicateUuid.length < 32) {
+            ToastUtils.showShort("请输入正确的Characteristic Indicate UUID")
+            return false
+        }
+        return true
+    }
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewClick() {
@@ -278,7 +488,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
             mViewBinding.loginBtn, mViewBinding.testPageBtn, mViewBinding.testListBtn,
             mViewBinding.testDownload, mViewBinding.testUpload, mViewBinding.testCrash,
             mViewBinding.getPermission, mViewBinding.testRoom, mViewBinding.linkBlueTooth,
-
             mViewBinding.blueLink, mViewBinding.testBackgroundImg, mViewBinding.toServiceBackImg,
             mViewBinding.synRecordBackgroundImg, mViewBinding.synAlarmBackgroundImg,
             mViewBinding.btnSurVey, mViewBinding.btnShow,mViewBinding.trackBackIv
@@ -292,7 +501,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                         exitTrackUI()
                     }
                 }
-
                 R.id.btn_surVey -> {
                     when (mmkv.getInt(ValueKey.ppmValue, 0)) {
                         5 -> {
@@ -308,15 +516,27 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                         }
                     }
                 }
-
                 R.id.btn_show -> {
                     showSingleChoiceDialog()
                     //mViewModel.onShowClick()
                 }
-
                 R.id.blueLink -> {
-                    val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
-                    requestDataLauncher.launch(intentBle)
+//                    val intentBle = Intent(appContext, LinkBleBlueToothActivity::class.java)
+//                    requestDataLauncher.launch(intentBle)
+                    val blueListBuilder = AlertDialog.Builder(mActivity)
+                    val view = View.inflate(mActivity, R.layout.activity_link_bluetooth, null)
+                    //        builder.setCancelable(false);  // 点外侧和返回键都不起作用；
+                    blueListBuilder.setView(view)
+                    blueListDialog = blueListBuilder.show()
+                    blueListDialog.setCanceledOnTouchOutside(false) // 点外侧不消失，但返回键起作用
+                    layNoEquipment = view.findViewById<View>(R.id.lay_no_equipment) as LinearLayout
+                    blueToothProgressBar = view.findViewById<View>(R.id.progress_bar) as ProgressBar
+                    blueListRv = view.findViewById<View>(R.id.rv_device) as RecyclerView
+                    blueListRv.apply {
+                        layoutManager = LinearLayoutManager(appContext)
+                        adapter = bleAdapter
+                    }
+                    if (isScanning) stopScan() else scan()
                 }
                 R.id.testBackgroundImg -> {
                     if (isBleReady){
@@ -327,7 +547,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                     }else{
                         ToastUtils.showShort("请先连接蓝牙")
                     }
-
                 }
                 //进入巡测模式
                 R.id.toServiceBackImg -> {
@@ -337,7 +556,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                         ToastUtils.showShort("请先连接蓝牙")
                     }
                 }
-
                 R.id.synRecordBackgroundImg -> {
                     if (netConnectIsOK){
                         if (isBleReady){
@@ -361,51 +579,51 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                     }
                 }
 
-                //以下为demo按钮
-                R.id.testRoom -> {
-                    toStartActivity(RoomSampleActivity::class.java)
-                }
-                R.id.loginBtn -> {
-                    toStartActivity(LoginActivity::class.java)
-                }
-                R.id.testPageBtn -> {
-                    toStartActivity(TestActivity::class.java)
-                }
-                R.id.testListBtn -> {
-                    toStartActivity(ListActivity::class.java)
-                }
-                R.id.linkBlueTooth -> {
-                    //toStartActivity(LinkBleBlueTooth::class.java)
-                }
-                R.id.testDownload -> {
-                    mViewModel.downLoad({
-                        //下载中
-                        mViewBinding.testUpdateText.text = "下载进度：${it.progress}%"
-                    }, {
-                        //下载完成
-                        downloadApkPath = it
-                        showDialogMessage("下载成功，路径为：${it}")
-                    }, {
-                        //下载失败
-                        showDialogMessage(it.msg)
-                    })
-                }
-                R.id.testUpload -> {
-                    mViewModel.upload(downloadApkPath, {
-                        //上传中 进度
-                        mViewBinding.testUpdateText.text = "上传进度：${it.progress}%"
-                    }, {
-                        //上传完成
-                        showDialogMessage("上传成功：${it}")
-                    }, {
-                        //上传失败
-                        showDialogMessage("${it.msg}--${it.message}")
-                    })
-                }
-                R.id.testCrash -> {
-                    //测试捕获异常
-                    CrashReport.testJavaCrash()
-                }
+//                //以下为demo按钮
+//                R.id.testRoom -> {
+//                    toStartActivity(RoomSampleActivity::class.java)
+//                }
+//                R.id.loginBtn -> {
+//                    toStartActivity(LoginActivity::class.java)
+//                }
+//                R.id.testPageBtn -> {
+//                    toStartActivity(TestActivity::class.java)
+//                }
+//                R.id.testListBtn -> {
+//                    toStartActivity(ListActivity::class.java)
+//                }
+//                R.id.linkBlueTooth -> {
+//                    //toStartActivity(LinkBleBlueTooth::class.java)
+//                }
+//                R.id.testDownload -> {
+//                    mViewModel.downLoad({
+//                        //下载中
+//                        mViewBinding.testUpdateText.text = "下载进度：${it.progress}%"
+//                    }, {
+//                        //下载完成
+//                        downloadApkPath = it
+//                        showDialogMessage("下载成功，路径为：${it}")
+//                    }, {
+//                        //下载失败
+//                        showDialogMessage(it.msg)
+//                    })
+//                }
+//                R.id.testUpload -> {
+//                    mViewModel.upload(downloadApkPath, {
+//                        //上传中 进度
+//                        mViewBinding.testUpdateText.text = "上传进度：${it.progress}%"
+//                    }, {
+//                        //上传完成
+//                        showDialogMessage("上传成功：${it}")
+//                    }, {
+//                        //上传失败
+//                        showDialogMessage("${it.msg}--${it.message}")
+//                    })
+//                }
+//                R.id.testCrash -> {
+//                    //测试捕获异常
+//                    CrashReport.testJavaCrash()
+//                }
             }
         }
     }
@@ -430,7 +648,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
             }
         }
         val items = arrayOf("5ppm", "10ppm")
-        val singleChoiceDialog = androidx.appcompat.app.AlertDialog.Builder(mActivity)
+        val singleChoiceDialog = AlertDialog.Builder(mActivity)
         singleChoiceDialog.setTitle("请选择")
         // 第二个参数是默认选项，此处设置
         singleChoiceDialog.setSingleChoiceItems(items, lastPpmValue) { _, which ->
@@ -512,7 +730,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                     mViewModel.sendSurveys()
                 }
             }
-
             setNegativeButton("取消") { _, _ ->
             }
             show()
@@ -524,10 +741,8 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         isRealing = false
         mViewBinding.testText.text = "开始"
         mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.drawable.start_icon, null))
-
         mViewBinding.synLin.visibility = View.INVISIBLE
         mViewBinding.progressBar.visibility = View.INVISIBLE
-
         realDataTask?.cancel()
         mTimer?.cancel()
     }
@@ -622,7 +837,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         }
     }
 
-
     private fun setEndState(){
         mViewBinding.btnSurVey.text="开始"
         isSurveying = false
@@ -652,6 +866,11 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         mViewBinding.functionCl.visibility=View.GONE
         mViewBinding.trackRl.visibility=View.VISIBLE
         isPollingModel=true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopScan()
     }
 
     override fun onDestroy() {

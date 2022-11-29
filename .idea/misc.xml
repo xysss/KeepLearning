@@ -54,6 +54,7 @@
         <entry key="app/src/main/res/drawable-xxhdpi/ic_widgets.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable-xxhdpi/shape_white_top_radius_24.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable/all_border.xml" value="0.185" />
+        <entry key="app/src/main/res/drawable/bluetooth_list_item_pressed_text_color.xml" value="0.2435" />
         <entry key="app/src/main/res/drawable/ic_add.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable/ic_bluetooth.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.3802083333333333" />
@@ -70,7 +71,7 @@
         <entry key="app/src/main/res/layout/activity_data_exchange.xml" value="0.4052757520582584" />
         <entry key="app/src/main/res/layout/activity_demo.xml" value="0.19375" />
         <entry key="app/src/main/res/layout/activity_error.xml" value="0.20364583333333333" />
-        <entry key="app/src/main/res/layout/activity_link_bluetooth.xml" value="0.16822916666666668" />
+        <entry key="app/src/main/res/layout/activity_link_bluetooth.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_list.xml" value="0.26197916666666665" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.24635416666666668" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25052083333333336" />
@@ -85,6 +86,8 @@
         <entry key="app/src/main/res/layout/activity_trackquery.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/activity_trackquery_options.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/activity_web.xml" value="0.3640625" />
+        <entry key="app/src/main/res/layout/bluetooth_list.xml" value="0.309375" />
+        <entry key="app/src/main/res/layout/bluetooth_list_item.xml" value="0.309375" />
         <entry key="app/src/main/res/layout/dialog_date.xml" value="0.3640625" />
         <entry key="app/src/main/res/layout/dialog_scan_filter.xml" value="0.15260416666666668" />
         <entry key="app/src/main/res/layout/dialog_uuid_edit.xml" value="0.3640625" />

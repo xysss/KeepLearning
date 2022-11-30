@@ -77,17 +77,17 @@
 
         <activity
             android:name="com.xysss.keeplearning.ui.activity.gaode.ShowSurveyActivity"
-            android:launchMode="singleInstance"
-            android:exported="true" />
+            android:launchMode="singleTop"
+            android:exported="false" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.DemoActivity"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.SettingActivity"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.WebActivity"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.SplashActivity"
             android:screenOrientation="portrait"
@@ -102,40 +102,41 @@
             android:name="com.xysss.keeplearning.ui.activity.MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleInstance"
+            android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.TestActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
+            android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.ListActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
+            android:exported="false"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.LoginActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
+            android:exported="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.ErrorActivity"
             android:label="错误界面"
-            android:launchMode="singleTask"
+            android:exported="false"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.xysss.keeplearning.ui.activity.RoomSampleActivity"
             android:label="数据库页面"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
+            android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.xysss.keeplearning.ui.activity.LinkBleBlueToothActivity"
-            android:label="蓝牙界面"
-            android:launchMode="singleInstance"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.BleDemoKotlin" />
-        <activity
             android:name="com.xysss.keeplearning.ui.activity.NavigationActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
+            android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
         <provider
@@ -147,8 +148,5 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
-
     </application>
-
 </manifest>

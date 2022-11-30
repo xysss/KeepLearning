@@ -28,7 +28,7 @@ android {
         abortOnError false
     }
 
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
     // 资源目录存放指引：https://developer.android.google.cn/guide/topics/resources/providing-resources

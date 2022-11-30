@@ -8,7 +8,6 @@ import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import com.blankj.utilcode.util.ToastUtils
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseActivity
@@ -16,12 +15,15 @@ import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.keeplearning.app.ext.appVersion
 import com.xysss.keeplearning.app.ext.job
 import com.xysss.keeplearning.app.ext.netConnectIsOK
+import com.xysss.keeplearning.app.wheel.manager.ActivityManager
+import com.xysss.keeplearning.app.wheel.other.DoubleClickHelper
 import com.xysss.keeplearning.databinding.ActivityMainBinding
 import com.xysss.keeplearning.ui.adapter.MainAdapter
 import com.xysss.keeplearning.viewmodel.TestViewModel
 import com.xysss.mvvmhelper.base.BackPressedListener
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
+import com.xysss.mvvmhelper.ext.toast
 import com.xysss.mvvmhelper.net.manager.NetState
 import com.xysss.mvvmhelper.net.manager.NetworkStateReceive
 import initColorMap
@@ -178,9 +180,18 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
     }
 
     override fun onBackPressed() {
-        "Mainactivity onBackPressed".logE(LogFlag)
+        //判断fragment是否拦截
         if (!interceptBackPressed()) {
-            super.onBackPressed()
+            if (!DoubleClickHelper.isOnDoubleClick()) {
+                toast(R.string.home_exit_hint)
+                return
+            }
+            // 移动到上一个任务栈，避免侧滑引起的不良反应
+            moveTaskToBack(false)
+            postDelayed({
+                // 进行内存优化，销毁掉所有的界面
+                ActivityManager.getInstance().finishAllActivities()
+            }, 300)
         }
     }
 

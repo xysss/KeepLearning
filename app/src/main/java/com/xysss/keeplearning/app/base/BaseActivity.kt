@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.viewbinding.ViewBinding
 import com.gyf.immersionbar.ImmersionBar
+import com.hjq.base.action.HandlerAction
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.widget.CustomToolBar
 import com.xysss.mvvmhelper.base.BaseVbActivity
@@ -14,7 +15,8 @@ import com.xysss.mvvmhelper.base.BaseViewModel
  * Time:2021/9/1518:30
  * 描述　: 你项目中的Activity基类，在这里实现显示弹窗，吐司，还有加入自己的需求操作
  */
-abstract class BaseActivity<VM : BaseViewModel, VB : ViewBinding> : BaseVbActivity<VM, VB>() {
+abstract class BaseActivity<VM : BaseViewModel, VB : ViewBinding> : BaseVbActivity<VM, VB>(),
+    HandlerAction {
 
     lateinit var mToolbar: CustomToolBar
 

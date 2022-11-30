@@ -347,6 +347,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
             setOnItemClickListener { _, _, position ->
                 if (checkUuid()) {
                     stopScan()
+                    blueListDialog.dismiss()
                     val device = mList[position].device
                     mViewModel.connectBlueTooth(device)
                     //等待页面
@@ -380,6 +381,20 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         mList.clear()
         BluetoothLeScannerCompat.getScanner().startScan(scanCallback)
         blueToothProgressBar.visibility = View.VISIBLE
+    }
+
+    /**
+     * 停止扫描
+     */
+    private fun stopScan() {
+        if (!defaultAdapter.isEnabled) {
+            ToastUtils.showShort("蓝牙未打开");return
+        }
+        if (isScanning) {
+            isScanning = false
+            BluetoothLeScannerCompat.getScanner().stopScan(scanCallback)
+            blueToothProgressBar.visibility = View.INVISIBLE
+        }
     }
 
     /**
@@ -422,20 +437,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                 }
             }
             bleAdapter.notifyDataSetChanged()
-        }
-    }
-
-    /**
-     * 停止扫描
-     */
-    private fun stopScan() {
-        if (!defaultAdapter.isEnabled) {
-            ToastUtils.showShort("蓝牙未打开");return
-        }
-        if (isScanning) {
-            isScanning = false
-            BluetoothLeScannerCompat.getScanner().stopScan(scanCallback)
-            blueToothProgressBar.visibility = View.INVISIBLE
         }
     }
 
@@ -491,7 +492,6 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
             mViewBinding.blueLink, mViewBinding.testBackgroundImg, mViewBinding.toServiceBackImg,
             mViewBinding.synRecordBackgroundImg, mViewBinding.synAlarmBackgroundImg,
             mViewBinding.btnSurVey, mViewBinding.btnShow,mViewBinding.trackBackIv
-
         ) {
             when (it.id) {
                 R.id.track_back_iv -> {
@@ -536,7 +536,14 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                         layoutManager = LinearLayoutManager(appContext)
                         adapter = bleAdapter
                     }
-                    if (isScanning) stopScan() else scan()
+                    addressList.clear()
+                    mList.clear()
+
+                    if (isScanning){
+                        stopScan()
+                        scan()
+                    }
+                    else scan()
                 }
                 R.id.testBackgroundImg -> {
                     if (isBleReady){
@@ -627,6 +634,8 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
             }
         }
     }
+
+
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun showSingleChoiceDialog() {
@@ -873,6 +882,12 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         stopScan()
     }
 
+    override fun handleBackPressed(): Boolean {
+        //处理自己的逻辑
+        //return true
+        return false
+    }
+
     override fun onDestroy() {
         BleHelper.gatt?.close()
         realDataTask?.cancel()
@@ -950,5 +965,4 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
             }
         }
     }
-
 }

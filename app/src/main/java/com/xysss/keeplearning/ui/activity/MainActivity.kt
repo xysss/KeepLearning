@@ -19,6 +19,7 @@ import com.xysss.keeplearning.app.ext.netConnectIsOK
 import com.xysss.keeplearning.databinding.ActivityMainBinding
 import com.xysss.keeplearning.ui.adapter.MainAdapter
 import com.xysss.keeplearning.viewmodel.TestViewModel
+import com.xysss.mvvmhelper.base.BackPressedListener
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
 import com.xysss.mvvmhelper.net.manager.NetState
@@ -161,6 +162,25 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
             ToastUtils.showShort("网络无连接!")
             "网络无连接!".logE(LogFlag)
             netConnectIsOK=false
+        }
+    }
+    /**
+     * 拦截事件
+     */
+    private fun interceptBackPressed(): Boolean {
+        val fragment = supportFragmentManager.findFragmentByTag("f${mViewBinding.mainViewPager.adapter?.getItemId(0)}")
+        if (fragment is BackPressedListener) {
+            if (fragment.handleBackPressed()) {
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun onBackPressed() {
+        "Mainactivity onBackPressed".logE(LogFlag)
+        if (!interceptBackPressed()) {
+            super.onBackPressed()
         }
     }
 

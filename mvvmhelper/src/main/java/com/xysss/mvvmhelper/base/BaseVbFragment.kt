@@ -21,13 +21,12 @@ import com.xysss.mvvmhelper.net.manager.NetworkStateManager
 import com.xysss.mvvmhelper.widget.BaseEmptyCallback
 import com.xysss.mvvmhelper.widget.BaseErrorCallback
 import com.xysss.mvvmhelper.widget.BaseLoadingCallback
-import java.lang.reflect.ParameterizedType
 
 /**
  * Author:bysd-2
  * Time:2021/10/911:40
  */
-abstract class BaseVbFragment<VM : BaseViewModel, VB : ViewBinding>  : Fragment(), BaseIView {
+abstract class BaseVbFragment<VM : BaseViewModel, VB : ViewBinding>  : Fragment(), BaseIView,BackPressedListener {
 
 
     //使用了 ViewBinding 就不需要 layoutId了，因为 会从 VB 泛型 找到相关的view
@@ -153,6 +152,11 @@ abstract class BaseVbFragment<VM : BaseViewModel, VB : ViewBinding>  : Fragment(
         onVisible()
     }
 
+    override fun handleBackPressed(): Boolean {
+        //默认不响应
+        return false
+    }
+
     /**
      * 是否需要懒加载
      */
@@ -161,12 +165,12 @@ abstract class BaseVbFragment<VM : BaseViewModel, VB : ViewBinding>  : Fragment(
             view?.post {
                 lazyLoadData()
                 //在Fragment中，只有懒加载过了才能开启网络变化监听
-                NetworkStateManager.instance.mNetworkStateCallback.observe(this, {
+                NetworkStateManager.instance.mNetworkStateCallback.observe(this) {
                     //不是首次订阅时调用方法，防止数据第一次监听错误
                     if (!isFirst) {
                         onNetworkStateChanged(it)
                     }
-                })
+                }
                 isFirst = false
             }
         }

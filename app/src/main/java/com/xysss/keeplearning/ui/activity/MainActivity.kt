@@ -198,8 +198,8 @@ class MainActivity : BaseActivity<TestViewModel, ActivityMainBinding>() {
     override fun showToolBar() = false
 
     override fun onDestroy() {
-        super.onDestroy()
         job.cancel()
         application.unregisterReceiver(netWorkReceiver)
+        super.onDestroy()
     }
 }

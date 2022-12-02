@@ -212,25 +212,24 @@ class ShowSurveyActivity : BaseActivity<ShowSurveyViewModel, ActivityShowSurveyB
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         // 在activity执行onDestroy时执行mMapView.onDestroy()，销毁地图
         mViewBinding.mMapView.onDestroy()
+        super.onDestroy()
     }
 
     override fun onResume() {
+        mViewBinding.mMapView.onResume()
         super.onResume()
         // 在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
-        mViewBinding.mMapView.onResume()
     }
 
     override fun onPause() {
-        super.onPause()
         // 在activity执行onPause时执行mMapView.onPause ()，暂停地图的绘制
         mViewBinding.mMapView.onPause()
+        super.onPause()
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
+        finishAfterTransition()
     }
-
 }

@@ -1,6 +1,7 @@
 package com.xysss.keeplearning.app.util
 
 import android.annotation.SuppressLint
+import com.swallowsonny.convertextlibrary.toHexString
 import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.mvvmhelper.ext.logE
 import java.math.RoundingMode
@@ -66,7 +67,6 @@ object ByteUtils {
             val pos = i * 2
             byteArrayResult[i] = (charToByte(hexChars[pos]).toInt().shl(4) or charToByte(hexChars[pos + 1]).toInt()).toByte()
         }
-        "hexStringToBytes: ${byteArrayResult.contentToString()}".logE(LogFlag)
         return byteArrayResult
     }
 

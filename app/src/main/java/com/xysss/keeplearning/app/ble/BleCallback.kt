@@ -1,5 +1,6 @@
 package com.xysss.keeplearning.app.ble
 
+import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.os.Build
 import com.swallowsonny.convertextlibrary.*
@@ -45,6 +46,7 @@ class BleCallback : BluetoothGattCallback() {
     /**
      * 连接状态回调
      */
+    @SuppressLint("MissingPermission")
     override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
         if (status == BluetoothGatt.GATT_SUCCESS) {
             Thread.sleep(500)
@@ -89,6 +91,7 @@ class BleCallback : BluetoothGattCallback() {
     /**
      * 描述符写入回调
      */
+    @SuppressLint("MissingPermission")
     override fun onDescriptorWrite(gatt: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
         if (mmkv.getString(ValueKey.DESCRIPTOR_UUID,"0") == descriptor.uuid.toString().lowercase(Locale.getDefault())) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -139,6 +142,7 @@ class BleCallback : BluetoothGattCallback() {
     /**
      * 发现服务回调
      */
+    @SuppressLint("MissingPermission")
     override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
         //initServiceAndChara(gatt)
         if (!BleHelper.enableIndicateNotification(gatt)) {
@@ -171,7 +175,7 @@ class BleCallback : BluetoothGattCallback() {
     private suspend fun startSendMessage() {
         while (true) {
             sendLinkedDeque.poll()?.let {
-                delay(500)
+                delay(200)
                 BleHelper.sendBlueToothMsg(it)
             }
         }
@@ -251,7 +255,7 @@ class BleCallback : BluetoothGattCallback() {
 
     private suspend fun analyseMessage(mBytes: ByteArray?) {
         mBytes?.let {
-            scope.launch(Dispatchers.IO) {
+            scope.launch(Dispatchers.Default) {
                 when (it[4]) {
                     //设备信息
                     ByteUtils.Msg80 -> dealMsg80(it)
@@ -341,7 +345,7 @@ class BleCallback : BluetoothGattCallback() {
                     cfNum=cf.toString()
                     materialName=name
                 }
-
+                "实时检测数据： ${materialInfo.concentrationNum}".logE(LogFlag)
                 uiCallback.realData(materialInfo)
 
                 delay(1000)

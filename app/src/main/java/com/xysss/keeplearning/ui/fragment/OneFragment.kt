@@ -72,7 +72,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     private val send10Msg = "55000a0910000100"  //读取实时数据
     private val send20Msg = "55000a0920000100"  //读取物质库信息
     private val send21Msg = "55000D0921000401000000"  //读取物质条目信息
-    private var isRealing = false
+    private var isRealTesting = false
     private var mTimer: Timer? = null
     private var historyTask: HistoryTimerTask? = null
     private var realDataTask: RealTimeDataTimerTask? = null
@@ -314,6 +314,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
 
     //扫描结果回调
     private val scanCallback = object : ScanCallback() {
+        @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val name = result.device.name ?: "Unknown"
             addDeviceList(BleDevice(result.device, result.rssi, name))
@@ -400,7 +401,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     /**
      * 添加到设备列表
      */
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged", "MissingPermission")
     private fun addDeviceList(bleDevice: BleDevice) {
         //过滤设备名为null的设备
         if (mmkv.getBoolean(ValueKey.NULL_NAME, false) && bleDevice.device.name == null) {
@@ -425,7 +426,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     /**
      * 过滤设备列表
      */
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged", "MissingPermission")
     private fun filterDeviceList() {
         if (mList.size > 0) {
             val mIterator = mList.iterator()
@@ -547,7 +548,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                 }
                 R.id.testBackgroundImg -> {
                     if (isBleReady){
-                        if (!isRealing)
+                        if (!isRealTesting)
                             startTest()
                         else
                             stopTest()
@@ -747,7 +748,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
 
     private fun stopTest() {
         isRealTimeModel = false
-        isRealing = false
+        isRealTesting = false
         mViewBinding.testText.text = "开始"
         mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.drawable.start_icon, null))
         mViewBinding.synLin.visibility = View.INVISIBLE
@@ -766,14 +767,14 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         //切换实时数据模式
         BleHelper.synFlag = "实时数据模式"
         isRealTimeModel = true
-        isRealing = true
+        isRealTesting = true
         mViewBinding.testText.text = "停止"
         mViewBinding.testImg.setImageDrawable(resources.getDrawable(R.drawable.pause_icon, null))
         //展示进度条
         mViewBinding.synLin.visibility = View.INVISIBLE
         mViewBinding.progressBar.visibility = View.INVISIBLE
         //发送请求实时数据指令
-        BleHelper.addSendLinkedDeque(send10Msg)
+        BleHelper.addSendLinkedDeque(reqRealTimeDataMsg)
         //开启超时监测
         mTimer = Timer()
         realDataTask = RealTimeDataTimerTask()
@@ -813,7 +814,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
             if (isSurveying){
                 setEndState()
             }else {
-                if (!isRealing){
+                if (!isRealTesting){
                     startTest()
                 }
                 setStartState()
@@ -888,6 +889,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         return false
     }
 
+    @SuppressLint("MissingPermission")
     override fun onDestroy() {
         BleHelper.gatt?.close()
         realDataTask?.cancel()
@@ -917,6 +919,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                     mTimer?.cancel()
                     stopTest()
 
+                    "数据接收15秒超时"
                     ToastUtils.showShort("重连成功！")
                     startTest()
                 }

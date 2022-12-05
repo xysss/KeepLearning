@@ -1,5 +1,6 @@
 package com.xysss.keeplearning.app.util
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
@@ -42,6 +43,7 @@ object BleHelper {
      * 设置特征通知
      * return true, if the write operation was initiated successfully
      */
+    @SuppressLint("MissingPermission")
     private fun setCharacteristicNotification(gatt: BluetoothGatt, gattCharacteristic: BluetoothGattCharacteristic): Boolean =
         if (gatt.setCharacteristicNotification(gattCharacteristic, true))
             gatt.writeDescriptor(gattCharacteristic.getDescriptor(UUID.fromString(mmkv.getString(ValueKey.DESCRIPTOR_UUID,"")))
@@ -54,6 +56,7 @@ object BleHelper {
      * @param command 指令
      * @param isResponse 是否响应
      */
+    @SuppressLint("MissingPermission")
     private fun sendCommand(command: String, isResponse: Boolean = true){
         gatt?.apply {
             writeCharacteristic(
@@ -63,11 +66,13 @@ object BleHelper {
                     val sendDataAll = sendData+Crc8.cal_crc8_t(sendData,sendData.size) + ByteUtils.FRAME_END
                     writeType = if (isResponse) BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT else BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
                     value=transSendCoding(sendDataAll)
+                    "blueToothSendData: ${value.toHexString()}".logE(LogFlag)
                 })
         } ?: ToastUtils.showShort("蓝牙断开，请重新连接")
     }
 
 
+    @SuppressLint("MissingPermission")
     fun connectBlueTooth(device: BluetoothDevice?, bleCallback: BleCallback){
         //gatt连接 第二个参数表示是否需要自动连接。如果设置为 true, 表示如果设备断开了，会不断的尝试自动连接。设置为 false 表示只进行一次连接尝试。
         //第三个参数是连接后进行的一系列操作的回调，例如连接和断开连接的回调，发现服务的回调，成功写入数据，成功读取数据的回调等等。

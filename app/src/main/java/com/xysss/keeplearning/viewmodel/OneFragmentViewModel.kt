@@ -711,7 +711,6 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
             y=255
             //colorNum= ContextCompat.getColor(appContext, R.color.red)
         }
-        ("巡测实时数据： ${materialInfo.concentrationNum}   颜色y:$y ").logE(LogFlag)
         return colorNum
     }
 

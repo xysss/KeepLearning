@@ -885,8 +885,13 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
 
     override fun handleBackPressed(): Boolean {
         //处理自己的逻辑
-        //return true
-        return false
+        return if (isSurveying){
+            ToastUtils.showShort("请先结束走航")
+            true
+        }else{
+            exitTrackUI()
+            false
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -919,7 +924,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                     mTimer?.cancel()
                     stopTest()
 
-                    "数据接收15秒超时"
+                    "数据接收15秒超时".logE(LogFlag)
                     ToastUtils.showShort("重连成功！")
                     startTest()
                 }
@@ -952,7 +957,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                 retryFlagCount = 0
             } else {
                 scope.launch(Dispatchers.Main) {
-                    if (retryFlagCount < 4) {  //超时最多连续重发3次
+                    if (retryFlagCount < 3) {  //超时最多连续重发3次
                         retryFlagCount++
                         BleHelper.retryHistoryMessage()
                         "接收超时进行第 $retryFlagCount 次重发尝试".logE("LogFlag")

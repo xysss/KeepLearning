@@ -244,7 +244,7 @@ class BleCallback : BluetoothGattCallback() {
                     }
                     transcodingBytesList.clear()
                 } else if (newLength < 9 && transcodingBytesList.size > 9) { //协议长度不够
-                    "解析协议不完整，协议长度: $newLength  解析长度：${transcodingBytesList.size} ,${transcodingBytesList.toHexString()}".logE("LogFlag")
+                    "解析协议不完整，协议长度: $newLength  解析长度：${transcodingBytesList.size}}".logE("LogFlag")
                     isRecOK = false
                     //BleHelper.retryHistoryMessage(recordCommand,alarmCommand)
                     transcodingBytesList.clear()

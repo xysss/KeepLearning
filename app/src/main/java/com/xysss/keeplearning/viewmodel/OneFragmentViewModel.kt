@@ -1,7 +1,14 @@
 package com.xysss.keeplearning.viewmodel
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.bluetooth.BluetoothDevice
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Context.ALARM_SERVICE
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.text.TextUtils
@@ -34,7 +41,6 @@ import com.xysss.mvvmhelper.ext.logE
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import okhttp3.internal.toHexString
 import rxhttp.toClass
@@ -74,7 +80,7 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
     //蓝牙回调
     private val bleCallBack = BleCallback()
 
-    private var mLocationClient: AMapLocationClient? = null
+    public var mLocationClient: AMapLocationClient? = null
     private var mAMapLocationListener: AMapLocationListener? = null
     private var mLocations = Vector<LocationInfo>()
     private var mDataBaseThread: ScheduledExecutorService? = null  // 入库线程
@@ -127,7 +133,6 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
 
     override fun realData(materialInfo: MaterialInfo) {
         _bleDate.postValue(materialInfo)
-        materialInfo.toString().logE("LogFlag")
     }
 
     override fun bleConnected(state:String) {
@@ -449,7 +454,6 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
             }
         }
     }
-
     // 开启数据入库线程，五秒中入一次库
     @SuppressLint("SimpleDateFormat")
     fun startCollect() {

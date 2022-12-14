@@ -1,5 +1,6 @@
 package com.xysss.keeplearning.app.service
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -182,7 +183,7 @@ class MQTTService : Service(), LifecycleOwner {
 
             mqttClient?.publish(sendTopic, message, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    "长度：${msg.size}， ${msg.toHexString()} to published to $sendTopic".logE(TAG)
+                    "长度：${msg.size} to published to $sendTopic".logE(TAG)
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -255,6 +256,7 @@ class MQTTService : Service(), LifecycleOwner {
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun unbindService(conn: ServiceConnection) {
         mqttDisconnect()
         gatt.disconnect()

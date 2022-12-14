@@ -105,11 +105,11 @@ class BleCallback : BluetoothGattCallback() {
 
 //                uiCallback.bleConnected("已连接设备")
 
-                scope.launch(Dispatchers.IO) {
+                scope.launch(Dispatchers.Default) {
                     startSendMessage()
                 }
 
-                scope.launch(Dispatchers.IO) {
+                scope.launch(Dispatchers.Default) {
                     startDealMessage()
                 }
 
@@ -158,7 +158,7 @@ class BleCallback : BluetoothGattCallback() {
      * 先触发
      */
     override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
-        scope.launch(Dispatchers.IO){
+        scope.launch(Dispatchers.Default){
             if (isConnectMqtt){
                 if (!isPollingModel){
                     uiCallback.mqttSendMsg(characteristic.value)

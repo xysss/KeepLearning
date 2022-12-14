@@ -3,17 +3,20 @@ package com.xysss.keeplearning.ui.fragment
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.content.ComponentName
 import android.content.Context
+import android.content.Context.POWER_SERVICE
 import android.content.Intent
 import android.content.ServiceConnection
 import android.graphics.Color
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.os.PowerManager
+import android.provider.Settings
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -29,7 +32,6 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.gyf.immersionbar.ktx.immersionBar
 import com.swallowsonny.convertextlibrary.writeInt16LE
 import com.tbruyelle.rxpermissions2.RxPermissions
-import com.tencent.bugly.crashreport.CrashReport
 import com.xysss.keeplearning.R
 import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.app.ble.BleDevice
@@ -44,10 +46,12 @@ import com.xysss.keeplearning.app.wheel.dialog.UpdateDialog
 import com.xysss.keeplearning.data.annotation.ValueKey
 import com.xysss.keeplearning.data.repository.Repository
 import com.xysss.keeplearning.databinding.FragmentOneBinding
-import com.xysss.keeplearning.ui.activity.*
 import com.xysss.keeplearning.viewmodel.OneFragmentViewModel
 import com.xysss.mvvmhelper.base.appContext
-import com.xysss.mvvmhelper.ext.*
+import com.xysss.mvvmhelper.ext.getAppVersionCode
+import com.xysss.mvvmhelper.ext.getAppVersionName
+import com.xysss.mvvmhelper.ext.logE
+import com.xysss.mvvmhelper.ext.setOnclickNoRepeat
 import com.xysss.mvvmhelper.net.LoadingDialogEntity
 import com.xysss.mvvmhelper.net.LoadingType.Companion.LOADING_CUSTOM
 import getRouteWidth
@@ -56,8 +60,8 @@ import kotlinx.coroutines.launch
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat
 import no.nordicsemi.android.support.v18.scanner.ScanCallback
 import no.nordicsemi.android.support.v18.scanner.ScanResult
-import java.lang.ref.WeakReference
 import java.util.*
+
 
 /**
  * Author:bysd-2
@@ -78,11 +82,9 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     private var realDataTask: RealTimeDataTimerTask? = null
     private var blueConnectTask: BlueToothConnectTimerTask? = null
     private var retryFlagCount = 0
-
     private var isDrawPoint = false  //是否要画起点和终点
     private var isSurveying = false  //是否巡测中
     private var ppmChoice = -1
-
     private lateinit var layNoEquipment : LinearLayout
     private lateinit var blueToothProgressBar : ProgressBar
     private lateinit var blueListRv : RecyclerView
@@ -129,6 +131,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
 
     override fun initView(savedInstanceState: Bundle?) {
         mViewBinding.customToolbar.setCenterTitle(R.string.bottom_title_read)
+
         //检查版本
         mViewModel.checkVersion()
         //bugly进入首页检查更新
@@ -144,6 +147,8 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
 //        requestDataLauncher.launch(intentBle)
         //请求权限
         requestCameraPermissions()
+
+        ignoreBatteryOptimization(mActivity)
 
         // 在activity执行onCreate时执行mMapView.onCreate(savedInstanceState)，创建地图
         mViewBinding.mMapView.onCreate(savedInstanceState)
@@ -244,6 +249,34 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         }
     }
 
+    /**
+     * 忽略电池优化
+     */
+    fun ignoreBatteryOptimization(activity: Activity) {
+        val powerManager = activity.getSystemService(POWER_SERVICE) as PowerManager?
+        var hasIgnored = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            hasIgnored = powerManager!!.isIgnoringBatteryOptimizations(activity.packageName)
+            //  判断当前APP是否有加入电池优化的白名单，如果没有，弹出加入电池优化的白名单的设置对话框。
+            if (!hasIgnored) {
+                try { //先调用系统显示 电池优化权限
+                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                    intent.data = Uri.parse("package:" + activity.packageName)
+                    startActivity(intent)
+                } catch (e: Exception) { //如果失败了则引导用户到电池优化界面
+                    try {
+                        val intent = Intent(Intent.ACTION_MAIN)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        intent.addCategory(Intent.CATEGORY_LAUNCHER)
+                        val cn = ComponentName.unflattenFromString("com.android.settings/.Settings\$HighPowerApplicationsActivity")
+                        intent.component = cn
+                        startActivity(intent)
+                    } catch (ex: Exception) { //如果全部失败则说明没有电池优化功能
+                    }
+                }
+            }
+        }
+    }
     private fun drawMapLine(list: MutableList<LatLng>?) {
         if (list == null || list.isEmpty()) {
             return
@@ -298,7 +331,8 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
         ).subscribe { aBoolean ->
             if (aBoolean) {
                 ToastUtils.showShort("权限已经打开")

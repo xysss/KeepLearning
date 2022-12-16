@@ -5,11 +5,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
-import android.content.ComponentName
-import android.content.Context
+import android.content.*
 import android.content.Context.POWER_SERVICE
-import android.content.Intent
-import android.content.ServiceConnection
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -37,6 +34,8 @@ import com.xysss.keeplearning.app.base.BaseFragment
 import com.xysss.keeplearning.app.ble.BleDevice
 import com.xysss.keeplearning.app.ble.BleDeviceAdapter
 import com.xysss.keeplearning.app.ext.*
+import com.xysss.keeplearning.app.location.LocationService
+import com.xysss.keeplearning.app.location.LocationStatusManager
 import com.xysss.keeplearning.app.service.MQTTService
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils
@@ -158,6 +157,27 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         mViewBinding.functionCl.visibility=View.VISIBLE
 
         initBlueTooth()
+
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(RECEIVER_ACTION)
+        mActivity.registerReceiver(locationChangeBroadcastReceiver, intentFilter)
+    }
+
+    private val locationChangeBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val action = intent.action
+            if (action == RECEIVER_ACTION) {
+                val bd = intent.getBundleExtra("result")
+                val latitude= bd?.getDouble("latitude")
+                val longitude= bd?.getDouble("longitude")
+                mViewModel.dealAMapLocation(longitude!!,latitude!!)
+                mViewModel.startCollect()
+            }
+        }
+    }
+
+    private fun startLocationService() {
+        mActivity.startService(Intent(mActivity, LocationService::class.java))
     }
 
     override fun onResume() {
@@ -336,6 +356,18 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         ).subscribe { aBoolean ->
             if (aBoolean) {
                 ToastUtils.showShort("权限已经打开")
+                val rxPermissionsBACKGROUND = RxPermissions(requireActivity())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    rxPermissionsBACKGROUND.request(
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    ).subscribe { mBoolean ->
+                        if (mBoolean) {
+                            ToastUtils.showShort("BACKGROUND权限已经打开")
+                        } else {
+                            ToastUtils.showShort("权限被拒绝")
+                        }
+                    }
+                }
             } else {
                 ToastUtils.showShort("权限被拒绝")
             }
@@ -343,6 +375,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
     }
 
     override fun onDestroyView() {
+        mActivity.unregisterReceiver(locationChangeBroadcastReceiver)
         super.onDestroyView()
     }
 
@@ -793,8 +826,10 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
 
     private fun startTrack(){
         mViewBinding.mMapView.map.clear()
-        mViewModel.startLocation()
-        mViewModel.startCollect()
+        //mViewModel.startLocation()
+        //mViewModel.startCollect()
+
+        startLocationService()
     }
 
     private fun startTest() {
@@ -851,15 +886,16 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                 if (!isRealTesting){
                     startTest()
                 }
-                setStartState()
+                sendStartState()
                 startTrack()
             }
+            LocationStatusManager.instance.resetToInit(appContext)
         }else{
             ToastUtils.showShort("网络未连接，请先连接网络")
         }
     }
 
-    private fun setStartState(){
+    private fun sendStartState(){
         mViewBinding.btnSurVey.text="结束"
         isSurveying = true
         trackBeginTime = System.currentTimeMillis()/1000

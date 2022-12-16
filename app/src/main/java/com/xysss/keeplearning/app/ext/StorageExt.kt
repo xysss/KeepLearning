@@ -72,4 +72,5 @@ const val intentFlag ="beginTime"
 var colorHashMap = HashMap<Int, Int>()
 var netConnectIsOK = false
 var appVersion =""
+const val RECEIVER_ACTION = "location_in_background";
 

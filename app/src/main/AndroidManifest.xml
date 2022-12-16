@@ -66,12 +66,34 @@
         tools:replace="android:allowBackup,android:networkSecurityConfig">
 
         <service
-            android:name="com.xysss.keeplearning.app.service.MQTTService"
+            android:name=".app.service.MQTTService"
             android:enabled="true"
-            android:exported="false"
+            android:exported="true"
             android:priority="1000" />
+        <service
+            android:name=".app.location.LocationService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="location"
+            android:process=":remote1" >
+            <intent-filter>
+                <action android:name="com.xysss.keeplearning.app.location.LocationService"/>
+            </intent-filter>
+        </service>
 
-        <service android:name="com.amap.api.location.APSService"/>
+        <service
+            android:name=".app.location.LocationHelperService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":remote2">
+            <intent-filter>
+                <action android:name="com.xysss.keeplearning.app.location.LocationHelperService"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="com.amap.api.location.APSService"
+            android:foregroundServiceType="location">
+        </service>
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 

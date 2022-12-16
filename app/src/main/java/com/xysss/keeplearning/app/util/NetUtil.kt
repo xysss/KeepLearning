@@ -10,6 +10,8 @@ import android.net.ConnectivityManager
  */
 class NetUtil {
     companion object{
+        val instance: NetUtil
+            get() = Holder.instance
         /**
          * 检测网络状态是否联通
          *
@@ -28,5 +30,49 @@ class NetUtil {
             }
             return false
         }
+    }
+
+    private object Holder {
+        var instance = NetUtil()
+    }
+
+    /**
+     * 是否手机信号可连接
+     * @param context
+     * @return
+     */
+    fun isMobileAva(context: Context): Boolean {
+        var hasMobileCon = false
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val netInfos = cm.allNetworkInfo
+        for (net in netInfos) {
+            val type = net.typeName
+            if (type.equals("MOBILE", ignoreCase = true)) {
+                if (net.isConnected) {
+                    hasMobileCon = true
+                }
+            }
+        }
+        return hasMobileCon
+    }
+
+    /**
+     * 是否wifi可连接
+     * @param context
+     * @return
+     */
+    fun isWifiCon(context: Context): Boolean {
+        var hasWifoCon = false
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val netInfos = cm.allNetworkInfo
+        for (net in netInfos) {
+            val type = net.typeName
+            if (type.equals("WIFI", ignoreCase = true)) {
+                if (net.isConnected) {
+                    hasWifoCon = true
+                }
+            }
+        }
+        return hasWifoCon
     }
 }

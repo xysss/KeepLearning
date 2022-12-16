@@ -80,7 +80,7 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
     //蓝牙回调
     private val bleCallBack = BleCallback()
 
-    public var mLocationClient: AMapLocationClient? = null
+    var mLocationClient: AMapLocationClient? = null
     private var mAMapLocationListener: AMapLocationListener? = null
     private var mLocations = Vector<LocationInfo>()
     private var mDataBaseThread: ScheduledExecutorService? = null  // 入库线程
@@ -405,7 +405,7 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
                 }
 
                 //测试模拟数据
-                //testFlag += 0.00001
+                testFlag += 0.00001
 
                 // 避免阻塞UI主线程，开启一个单独线程来存入内存
                 mVectorThread?.execute {
@@ -463,6 +463,51 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
         mDataBaseThread?.scheduleWithFixedDelay({ // 取出缓存数据
             saveData()
         }, (1000 * 20).toLong(), (1000 * 20).toLong(), TimeUnit.MILLISECONDS)
+    }
+
+    fun dealAMapLocation(recLongitude: Double,recLatitude : Double){
+        if (mVectorThread == null) {
+            mVectorThread = Executors.newSingleThreadExecutor()
+        }
+
+        //测试模拟数据
+        testFlag += 0.00001
+
+        // 避免阻塞UI主线程，开启一个单独线程来存入内存
+        mVectorThread?.execute {
+            val trackTime=System.currentTimeMillis()/1000
+            val longitude = BigDecimal(recLatitude + testFlag).setScale(5, RoundingMode.FLOOR)
+            val latitude = BigDecimal(recLongitude + testFlag).setScale(5, RoundingMode.FLOOR)
+            "定位数据 lat : +$latitude lon: $longitude".logE(LogFlag)
+            val unit = when(materialInfo.concentrationUnit){
+                "ppm" -> 0
+                "ppb" -> 1
+                "mg/m3" -> 2
+                else -> 0
+            }
+            mLocations.add(
+                LocationInfo(
+                    trackTime,
+                    materialInfo.concentrationNum.toFloat(),
+                    materialInfo.concentrationState,
+                    materialInfo.materialLibraryIndex,
+                    unit,
+                    materialInfo.cfNum.toFloat(),
+                    materialInfo.materialName,
+                    latitude.toDouble(),
+                    longitude.toDouble())
+            )
+            latLngList.add(LatLng(recLatitude+testFlag,recLongitude+testFlag))
+            if(latLngList.size >1){
+                val sendRealSurveyBytes = getRealSurveyDataBytes(latitude.toDouble(),longitude.toDouble())
+                mService.publish(sendRealSurveyBytes)
+                //latLngResultList.postValue(latLngList)
+                realLocationCallBack.sendRealLocation(latLngList)
+                val temp = LatLng(latLngList[1].latitude,latLngList[1].longitude)
+                latLngList.clear()
+                latLngList.add(temp)
+            }
+        }
     }
 
     private fun saveData(){

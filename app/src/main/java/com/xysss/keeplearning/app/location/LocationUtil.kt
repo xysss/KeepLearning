@@ -132,7 +132,7 @@ class LocationUtil {
          * @param context
          * @return
          */
-        fun buildNotification(context: Context): Notification? {
+        fun buildNotification(context: Context): Notification {
             val text = "定位中..."
             val notification: Notification
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

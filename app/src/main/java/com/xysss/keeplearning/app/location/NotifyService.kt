@@ -60,8 +60,7 @@ open class NotifyService : Service() {
             }
 
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
-                val l: ILocationHelperServiceAIDL =
-                    ILocationHelperServiceAIDL.Stub.asInterface(service)
+                val l: ILocationHelperServiceAIDL = ILocationHelperServiceAIDL.Stub.asInterface(service)
                 try {
                     l.onFinishBind(NOTI_ID)
                 } catch (e: RemoteException) {

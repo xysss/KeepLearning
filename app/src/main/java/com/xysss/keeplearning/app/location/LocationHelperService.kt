@@ -67,10 +67,7 @@ class LocationHelperService : Service() {
     private inner class HelperBinder : ILocationHelperServiceAIDL.Stub() {
         @Throws(RemoteException::class)
         override fun onFinishBind(notiId: Int) {
-            startForeground(
-                notiId,
-                LocationUtil.buildNotification(this@LocationHelperService.applicationContext)
-            )
+            startForeground(notiId, LocationUtil.buildNotification(this@LocationHelperService.applicationContext))
             stopForeground(true)
         }
     }

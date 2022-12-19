@@ -6,18 +6,13 @@ import com.amap.api.location.AMapLocation
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
-import com.amap.api.maps.model.LatLng
 import com.blankj.utilcode.util.ToastUtils
 import com.xysss.keeplearning.app.ext.LogFlag
 import com.xysss.keeplearning.app.ext.RECEIVER_ACTION
-import com.xysss.keeplearning.app.ext.materialInfo
+import com.xysss.keeplearning.app.location.LocationUtil.Companion.buildNotification
 import com.xysss.keeplearning.app.util.NetUtil
-import com.xysss.keeplearning.ui.activity.gaode.bean.LocationInfo
 import com.xysss.mvvmhelper.base.appContext
 import com.xysss.mvvmhelper.ext.logE
-import java.math.BigDecimal
-import java.math.RoundingMode
-import java.util.concurrent.Executors
 
 /**
  * 作者 : xys
@@ -31,13 +26,13 @@ class LocationService : NotifyService() {
      */
     private val mWifiAutoCloseDelegate: IWifiAutoCloseDelegate = WifiAutoCloseDelegate()
     private var mLocationClient: AMapLocationClient? = null
+    private var mLocationOption : AMapLocationClientOption?=null
     private var locationCount = 0
 
     /**
      * 记录是否需要对息屏关掉wifi的情况进行处理
      */
     private var mIsWifiCloseable = false
-
 
     private var locationListener: AMapLocationListener = object : AMapLocationListener {
         override fun onLocationChanged(aMapLocation: AMapLocation) {
@@ -51,33 +46,11 @@ class LocationService : NotifyService() {
                     applicationContext, PowerManagerUtil.instance.isScreenOn(applicationContext), NetUtil.instance.isMobileAva(applicationContext)
                 )
             } else {
-                mWifiAutoCloseDelegate.onLocateFail(
-                    applicationContext,
-                    aMapLocation.errorCode,
-                    PowerManagerUtil.instance.isScreenOn(
-                        applicationContext
-                    ),
-                    NetUtil.instance.isWifiCon(applicationContext)
-                )
+                mWifiAutoCloseDelegate.onLocateFail(applicationContext, aMapLocation.errorCode, PowerManagerUtil.instance.isScreenOn(applicationContext),
+                    NetUtil.instance.isWifiCon(applicationContext))
+                "location Error, ErrCode: ${aMapLocation.errorCode}  errInfo:${aMapLocation.errorInfo}".logE(LogFlag)
             }
         }
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
-        applyNotiKeepMech() //开启利用notification提高进程优先级的机制
-        if (mWifiAutoCloseDelegate.isUseful(applicationContext)) {
-            mIsWifiCloseable = true
-            mWifiAutoCloseDelegate.initOnServiceStarted(applicationContext)
-        }
-        startLocation()
-        return START_STICKY
-    }
-
-    override fun onDestroy() {
-        unApplyNotiKeepMech()
-        stopLocation()
-        super.onDestroy()
     }
 
     private fun sendLocationBroadcast(aMapLocation: AMapLocation) {
@@ -99,65 +72,63 @@ class LocationService : NotifyService() {
         sendBroadcast(mIntent)
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
+        AMapLocationClient.setApiKey("14d725d8750fd214e06be136605ebb82")
+        //高德定位必须来保障信息安全
+        AMapLocationClient.updatePrivacyAgree(appContext, true)
+        AMapLocationClient.updatePrivacyShow(appContext, true, true)
+
+        applyNotiKeepMech() //开启利用notification提高进程优先级的机制
+        if (mWifiAutoCloseDelegate.isUseful(applicationContext)) {
+            mIsWifiCloseable = true
+            mWifiAutoCloseDelegate.initOnServiceStarted(applicationContext)
+        }
+        try {
+            startLocation()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        unApplyNotiKeepMech()
+        stopLocation()
+        super.onDestroy()
+    }
+
     /**
      * 启动定位
      */
-    fun startLocation() {
-        //stopLocation()
+    private fun startLocation() {
+        stopLocation()
         ToastUtils.showShort("开始采集")
-        AMapLocationClient.updatePrivacyAgree(appContext, true)
-        AMapLocationClient.updatePrivacyShow(appContext, true, true)
         // 初始定位服务
         if (mLocationClient == null) {
             mLocationClient = AMapLocationClient(appContext)
         }
         // 初始化定位参数
-        val mLocationOption = AMapLocationClientOption()
+        if (mLocationOption==null){
+            mLocationOption = AMapLocationClientOption()
+        }
         // 设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
-        mLocationOption.locationMode = AMapLocationClientOption.AMapLocationMode.Hight_Accuracy
+        mLocationOption?.locationMode = AMapLocationClientOption.AMapLocationMode.Hight_Accuracy
         // 设置定位间隔,单位毫秒,默认为2000ms
-        mLocationOption.interval = 2000
+        mLocationOption?.interval = 2000
+        // 地址信息
+        mLocationOption?.isNeedAddress = true
+        mLocationOption?.isOnceLocation = false // 是否定位一次
         // 设置定位参数
         mLocationClient?.setLocationOption(mLocationOption)
-        mLocationOption.isOnceLocation = false // 是否定位一次
         // 此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，
         // 注意设置合适的定位时间的间隔（最小间隔支持为1000ms），并且在合适时间调用stopLocation()方法来取消定位请求
         // 在定位结束后，在合适的生命周期调用onDestroy()方法
         // 在单次定位情况下，定位无论成功与否，都无需调用stopLocation()方法移除请求，定位sdk内部会移除
+        mLocationClient?.setLocationListener(locationListener)
+        //mLocationClient?.enableBackgroundLocation(2001, buildNotification(appContext))
         // 启动定位
         mLocationClient?.startLocation()
-
-        "startLocation start...".logE(LogFlag)
-        // 设置定位监听
-        mLocationClient?.setLocationListener { aMapLocation ->
-            if (aMapLocation != null && aMapLocation.errorCode == 0) {
-                //发送结果的通知
-                "发送结果的通知...".logE(LogFlag)
-
-                sendLocationBroadcast(aMapLocation)
-//                if (!mIsWifiCloseable) {
-//                    return
-//                }
-                if (aMapLocation.errorCode == AMapLocation.LOCATION_SUCCESS) {
-                    mWifiAutoCloseDelegate.onLocateSuccess(
-                        applicationContext,
-                        PowerManagerUtil.instance.isScreenOn(applicationContext),
-                        NetUtil.instance.isMobileAva(applicationContext)
-                    )
-                } else {
-                    mWifiAutoCloseDelegate.onLocateFail(
-                        applicationContext,
-                        aMapLocation.errorCode,
-                        PowerManagerUtil.instance.isScreenOn(applicationContext),
-                        NetUtil.instance.isWifiCon(applicationContext)
-                    )
-                }
-            } else {
-                // 显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
-                "location Error, ErrCode: ${aMapLocation.errorCode}  errInfo:${aMapLocation.errorInfo}".logE(LogFlag)
-            }
-        }
-
     }
 
     /**

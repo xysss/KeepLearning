@@ -103,6 +103,7 @@ class LocationService : NotifyService() {
      */
     private fun startLocation() {
         stopLocation()
+        locationCount=0
         ToastUtils.showShort("开始采集")
         // 初始定位服务
         if (mLocationClient == null) {

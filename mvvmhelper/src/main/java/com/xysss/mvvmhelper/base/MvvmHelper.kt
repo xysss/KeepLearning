@@ -11,7 +11,6 @@ import com.xysss.mvvmhelper.util.mvvmHelperLog
 val appContext: Application by lazy { MvvmHelper.app }
 
 object MvvmHelper {
-
     lateinit var app: Application
 
     /**

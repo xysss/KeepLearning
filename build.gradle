@@ -9,6 +9,7 @@ buildscript {
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/jcenter' }
+        maven { url 'https://repo.huaweicloud.com/repository/maven' }
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
@@ -24,6 +25,7 @@ allprojects {
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/jcenter' }
+        maven { url 'https://repo.huaweicloud.com/repository/maven' }
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }

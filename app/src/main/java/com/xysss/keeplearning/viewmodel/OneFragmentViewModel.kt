@@ -1,14 +1,7 @@
 package com.xysss.keeplearning.viewmodel
 
 import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Context.ALARM_SERVICE
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.text.TextUtils
@@ -405,7 +398,7 @@ class OneFragmentViewModel : BaseViewModel(), BleCallback.UiCallback {
                 }
 
                 //测试模拟数据
-                testFlag += 0.00001
+                //testFlag += 0.00001
 
                 // 避免阻塞UI主线程，开启一个单独线程来存入内存
                 mVectorThread?.execute {

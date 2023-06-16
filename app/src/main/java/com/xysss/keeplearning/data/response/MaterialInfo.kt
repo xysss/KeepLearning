@@ -16,5 +16,6 @@ data class MaterialInfo(
     var concentrationState:String,
     var materialLibraryIndex:Int,
     var concentrationUnit:String,
+    var adNum:Int,
     var cfNum:String,
     var materialName:String) : Parcelable

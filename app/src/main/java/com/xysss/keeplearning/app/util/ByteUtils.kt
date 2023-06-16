@@ -1,9 +1,6 @@
 package com.xysss.keeplearning.app.util
 
 import android.annotation.SuppressLint
-import com.swallowsonny.convertextlibrary.toHexString
-import com.xysss.keeplearning.app.ext.LogFlag
-import com.xysss.mvvmhelper.ext.logE
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -159,5 +156,12 @@ object ByteUtils {
         result[if(little_endian) 0 else 1] = (crc.shr(8) and 0xFF).toByte()
         result[if(little_endian) 1 else 0] = (crc and 0xFF).toByte()
         return result
+    }
+
+    fun ByteArray.readInt24LE(offset: Int = 0): Int {
+        return ((this[offset + 2].toInt() and 0xFF) shl 16) or
+                ((this[offset + 1].toInt() and 0xFF) shl 8) or
+                (this[offset].toInt() and 0xFF)
+//    return (this[offset + 3].toInt() shl 24) + (this[offset + 2].toUByte().toInt() shl 16) + (this[offset + 1].toUByte().toInt() shl 8) + this[offset].toUByte().toInt()
     }
 }

@@ -860,7 +860,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         mViewBinding.numShowText.visibility = View.VISIBLE
 
         loadingDialogEntity.loadingType = LOADING_CUSTOM
-        loadingDialogEntity.loadingMessage = "同步巡测信息中"
+        loadingDialogEntity.loadingMessage = "同步信息中"
         loadingDialogEntity.isShow = true
         loadingDialogEntity.requestCode = "reqRecord"
         showCustomLoading(loadingDialogEntity)

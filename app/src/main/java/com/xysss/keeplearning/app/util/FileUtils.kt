@@ -1,9 +1,14 @@
 package com.xysss.keeplearning.app.util
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.icu.text.SimpleDateFormat
+import android.os.Build
 import android.os.Environment
+import androidx.annotation.RequiresApi
 import com.xysss.keeplearning.app.room.Alarm
 import com.xysss.keeplearning.app.room.Record
+import com.xysss.keeplearning.data.response.MaterialInfo
 import com.xysss.mvvmhelper.base.appContext
 import java.io.*
 import java.nio.charset.Charset
@@ -18,6 +23,7 @@ object FileUtils {
     val sdPath = appContext.getExternalFilesDir(null)?.path + "/vp200/"
     const val recordFileName="数据记录.txt"
     const val AlarmFileName="报警记录.txt"
+    const val ADFileName="AD值实时记录.txt"
 
 
     fun deleteSingleFile(filePathName:String):Boolean {
@@ -110,7 +116,7 @@ object FileUtils {
             if (!file.exists()) {
                 file.mkdir()
             }
-            var dataText="时间:${alarm.timestamp}   报警状态:${alarm.state}   报警类型:${alarm.type}   数值:${alarm.value}\n"
+            val dataText="时间:${alarm.timestamp}   报警状态:${alarm.state}   报警类型:${alarm.type}   数值:${alarm.value}\n"
 
             var fos: FileOutputStream? = null
             try {
@@ -124,5 +130,26 @@ object FileUtils {
         }
     }
 
-
+    @SuppressLint("SimpleDateFormat", "WeekBasedYear")
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun saveAdData(materialInfo: MaterialInfo){
+        val simpleDateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
+        val timeStr=simpleDateFormat.format(System.currentTimeMillis())
+        if (hasSdcard()) {
+            val file = File(sdPath)
+            if (!file.exists()) {
+                file.mkdir()
+            }
+            val dataText="时间:$timeStr  AD值:${materialInfo.adNum}\n"
+            var fos: FileOutputStream? = null
+            try {
+                fos = FileOutputStream(sdPath + ADFileName, true)
+                fos.write(dataText.toByteArray())
+                fos.flush()
+                fos.close()
+            } catch (e: FileNotFoundException) {
+                e.printStackTrace()
+            }
+        }
+    }
 }

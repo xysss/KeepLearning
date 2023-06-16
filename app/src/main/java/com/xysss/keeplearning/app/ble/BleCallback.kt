@@ -3,6 +3,7 @@ package com.xysss.keeplearning.app.ble
 import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.os.Build
+import androidx.annotation.RequiresApi
 import com.swallowsonny.convertextlibrary.*
 import com.xysss.keeplearning.app.ext.*
 import com.xysss.keeplearning.app.room.Alarm
@@ -10,6 +11,7 @@ import com.xysss.keeplearning.app.room.Matter
 import com.xysss.keeplearning.app.room.Record
 import com.xysss.keeplearning.app.util.BleHelper
 import com.xysss.keeplearning.app.util.ByteUtils
+import com.xysss.keeplearning.app.util.ByteUtils.readInt24LE
 import com.xysss.keeplearning.app.util.Crc8
 import com.xysss.keeplearning.app.util.FileUtils
 import com.xysss.keeplearning.data.annotation.ValueKey
@@ -307,6 +309,7 @@ class BleCallback : BluetoothGattCallback() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private suspend fun dealMsg90(mBytes: ByteArray) {
         mBytes.let {
             if (it.size == 69) {
@@ -323,6 +326,8 @@ class BleCallback : BluetoothGattCallback() {
                     2 -> "mg/m3"
                     else -> ""
                 }
+                //AD原始值
+                val AdNum = it.readByteArrayBE(20, 3).readInt24LE()
                 //CF值
                 val cf = it.readByteArrayBE(23, 4).readFloatLE()
                 //物质名称
@@ -342,10 +347,12 @@ class BleCallback : BluetoothGattCallback() {
                     concentrationState=conState.toString()
                     materialLibraryIndex=maIndex
                     concentrationUnit=conUnit
+                    adNum=AdNum
                     cfNum=cf.toString()
                     materialName=name
                 }
-                "实时检测数据： ${materialInfo.concentrationNum}".logE(LogFlag)
+                "实时检测数据： ${materialInfo.concentrationNum} AD:${materialInfo.adNum}".logE(LogFlag)
+                FileUtils.saveAdData(materialInfo)
                 uiCallback.realData(materialInfo)
 
                 delay(1000)

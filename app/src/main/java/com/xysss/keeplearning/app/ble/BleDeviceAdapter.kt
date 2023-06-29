@@ -1,8 +1,6 @@
 package com.xysss.keeplearning.app.ble
 
 import android.annotation.SuppressLint
-import com.xysss.keeplearning.app.bluetooth.ViewBindingAdapter
-import com.xysss.keeplearning.app.bluetooth.ViewBindingHolder
 import com.xysss.keeplearning.databinding.ItemBluetoothBinding
 
 

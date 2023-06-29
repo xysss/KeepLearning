@@ -140,7 +140,8 @@ object FileUtils {
             if (!file.exists()) {
                 file.mkdir()
             }
-            val dataText="时间:$timeStr  AD值:${materialInfo.adNum}\n"
+
+            val dataText="时间:$timeStr AD值:${materialInfo.adNum} 数值:${materialInfo.concentrationNum} 单位:${materialInfo.concentrationUnit}\n"
             var fos: FileOutputStream? = null
             try {
                 fos = FileOutputStream(sdPath + ADFileName, true)

@@ -166,9 +166,9 @@ object ByteUtils {
     }
 
     fun ByteArray.readInt24BE(offset: Int = 0): Int {
-        return ((this[offset].toInt() and 0xFF) or
-                ((this[offset + 1].toInt() and 0xFF) shl 8) or
-                (this[offset + 2].toInt() and 0xFF) shl 16)
+        return (((this[offset].toInt() and 0xFF) shl 16) or
+                (this[offset + 1].toInt() and 0xFF) shl 8) or
+                (this[offset + 2].toInt() and 0xFF)
 //    return (this[offset + 3].toInt() shl 24) + (this[offset + 2].toUByte().toInt() shl 16) + (this[offset + 1].toUByte().toInt() shl 8) + this[offset].toUByte().toInt()
     }
 }

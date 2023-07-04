@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothAdapter
 import android.content.*
 import android.content.Context.POWER_SERVICE
 import android.graphics.Color
+import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,6 +19,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.amap.api.maps.CameraUpdate
@@ -551,6 +553,7 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
         return true
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @SuppressLint("SetTextI18n")
     override fun onBindViewClick() {
         setOnclickNoRepeat(
@@ -615,8 +618,11 @@ class OneFragment : BaseFragment<OneFragmentViewModel, FragmentOneBinding>() {
                 }
                 R.id.testBackgroundImg -> {
                     if (isBleReady){
-                        if (!isRealTesting)
+                        if (!isRealTesting){
+                            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd-HH:mm:ss")
+                            FileUtils.BeginTestTime=simpleDateFormat.format(System.currentTimeMillis())
                             startTest()
+                        }
                         else
                             stopTest()
                     }else{

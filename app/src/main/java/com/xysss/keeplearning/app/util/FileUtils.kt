@@ -23,7 +23,7 @@ object FileUtils {
     val sdPath = appContext.getExternalFilesDir(null)?.path + "/vp200/"
     const val recordFileName="数据记录.txt"
     const val AlarmFileName="报警记录.txt"
-    const val ADFileName="AD值实时记录.txt"
+    var BeginTestTime=""
 
 
     fun deleteSingleFile(filePathName:String):Boolean {
@@ -132,7 +132,7 @@ object FileUtils {
 
     @SuppressLint("SimpleDateFormat", "WeekBasedYear")
     @RequiresApi(Build.VERSION_CODES.N)
-    fun saveAdData(materialInfo: MaterialInfo){
+    fun saveAdData(materialInfo: MaterialInfo,ADFileName :String){
         val simpleDateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
         val timeStr=simpleDateFormat.format(System.currentTimeMillis())
         if (hasSdcard()) {
